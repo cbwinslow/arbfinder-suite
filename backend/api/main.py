@@ -82,7 +82,7 @@ def get_listings(
     
     # Get total count
     count_query = f"SELECT COUNT(*) FROM listings {where_sql}"
-    total = c.execute(count_query, tuple(params)).fetchone()[0]
+    total = c.execute(count_query, params).fetchone()[0]
     
     # Get listings
     query = f"""
