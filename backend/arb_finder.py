@@ -21,6 +21,14 @@ from typing import Any, Dict, List, Optional
 import httpx
 from rapidfuzz import fuzz
 
+try:
+    from rich.console import Console
+    from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn
+    from rich.logging import RichHandler
+    RICH_AVAILABLE = True
+except ImportError:
+    RICH_AVAILABLE = False
+
 APP_NAME = "ArbFinder"
 DEFAULT_UA = f"{APP_NAME}/0.2 (+https://cloudcurio.cc)"
 DEFAULT_DB_PATH = str(Path.home() / ".arb_finder.sqlite3")
@@ -53,9 +61,17 @@ class Comp:
 
 logger = logging.getLogger(APP_NAME)
 logger.setLevel(logging.INFO)
-ch = logging.StreamHandler(sys.stdout)
-ch.setFormatter(logging.Formatter("[%(levelname)s] %(message)s"))
+
+if RICH_AVAILABLE:
+    # Use Rich handler for better formatting
+    ch = RichHandler(rich_tracebacks=True, markup=True)
+    ch.setFormatter(logging.Formatter("%(message)s"))
+else:
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setFormatter(logging.Formatter("[%(levelname)s] %(message)s"))
+
 logger.addHandler(ch)
+
 try:
     fh = logging.FileHandler(DEFAULT_LOG_PATH)
     fh.setFormatter(logging.Formatter("%(asctime)s %(name)s %(levelname)s: %(message)s"))
@@ -384,62 +400,161 @@ def export_json(rows: List[Dict[str, Any]], path: str) -> None:
         json.dump(rows, f, indent=2)
 
 async def run_arbfinder(args: argparse.Namespace) -> int:
+    # Import TUI module if available
+    tui_module = None
+    if RICH_AVAILABLE and args.interactive:
+        try:
+            from . import tui as tui_module
+        except ImportError:
+            try:
+                import tui as tui_module
+            except ImportError:
+                logger.warning("TUI module not available, continuing without interactive mode")
+    
+    # Handle interactive mode
+    if tui_module and args.interactive:
+        tui_module.show_welcome()
+        user_input = await tui_module.interactive_mode()
+        args.query = user_input['query']
+        args.providers = user_input['providers']
+        args.threshold_pct = user_input['threshold_pct']
+    
     db_init(args.db)
     client = PoliteClient()
+    
     providers: Dict[str, Provider] = {
         "ebay_sold": EbaySoldComps(client),
         "shopgoodwill": ShopGoodwillLive(client),
         "govdeals": GovDealsLive(client),
         "governmentsurplus": GovernmentSurplusLive(client),
     }
+    
     if args.manual_path:
         providers["manual"] = ManualImport(client, args.manual_path)
     if args.use_crawl4ai:
         providers["crawl4ai"] = Crawl4AIProvider(client)
+    
+    # Progress tracking
+    if RICH_AVAILABLE and not args.quiet:
+        progress = Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            BarColumn(),
+            console=Console()
+        )
+        progress.start()
+        task1 = progress.add_task("[cyan]Fetching eBay sold comps...", total=args.comp_limit)
+    else:
+        progress = None
+        task1 = None
+    
+    logger.info("Searching eBay sold listings for: %s", args.query)
     sold = await providers["ebay_sold"].search(args.query, limit=args.comp_limit)
-    for lst in sold: db_upsert_listing(args.db, lst)
+    
+    if progress:
+        progress.update(task1, completed=len(sold))
+    
+    logger.info("Found %d sold listings", len(sold))
+    for lst in sold: 
+        db_upsert_listing(args.db, lst)
+    
     comps = compute_comps(sold, sim_threshold=args.sim_threshold)
-    for comp in comps.values(): db_upsert_comp(args.db, comp)
+    logger.info("Computed %d comparable groups", len(comps))
+    for comp in comps.values(): 
+        db_upsert_comp(args.db, comp)
+    
     wanted = [p.strip() for p in (args.providers or "shopgoodwill,govdeals,governmentsurplus").split(",") if p.strip() in providers]
     live: List[Listing] = []
-    for name in wanted:
+    
+    if progress:
+        task2 = progress.add_task(f"[green]Searching {len(wanted)} providers...", total=len(wanted))
+    
+    for i, name in enumerate(wanted):
         try:
+            logger.info("Searching provider: %s", name)
             res = await providers[name].search(args.query, limit=args.live_limit)
-            for lst in res: db_upsert_listing(args.db, lst)
+            logger.info("Provider %s returned %d results", name, len(res))
+            for lst in res: 
+                db_upsert_listing(args.db, lst)
             live.extend(res)
+            if progress:
+                progress.update(task2, completed=i+1)
         except Exception as e:
             logger.warning("Provider %s failed: %s", name, e)
+    
+    if progress:
+        progress.stop()
+    
     rows = match_comps_to_live(live, comps, sim_threshold=args.sim_threshold)
+    
     if args.threshold_pct is not None:
         rows = [r for r in rows if (r.get("discount_vs_avg_pct") or -999) >= args.threshold_pct]
+    
     rows.sort(key=lambda r: (r.get("discount_vs_avg_pct") or -999), reverse=True)
-    if args.csv: export_csv(rows, args.csv)
-    if args.json: export_json(rows, args.json)
-    await client.close(); return 0
+    
+    logger.info("Found %d opportunities after filtering", len(rows))
+    
+    # Display results with TUI if available
+    if tui_module and not args.quiet:
+        table = tui_module.create_listings_table(rows[:20])  # Show top 20
+        Console().print(table)
+        
+        stats = {
+            "Total Listings Found": len(live),
+            "Opportunities": len(rows),
+            "Providers Searched": len(wanted),
+            "Comparable Groups": len(comps)
+        }
+        tui_module.show_summary(stats)
+    
+    if args.csv: 
+        export_csv(rows, args.csv)
+        logger.info("Exported to CSV: %s", args.csv)
+    
+    if args.json: 
+        export_json(rows, args.json)
+        logger.info("Exported to JSON: %s", args.json)
+    
+    await client.close()
+    return 0
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog=APP_NAME, description="Find arbitrage deals vs eBay sold comps")
-    p.add_argument("query", help="Search query, e.g., 'RTX 3060' or 'Boss DS-1'")
-    p.add_argument("--db", default=DEFAULT_DB_PATH)
-    p.add_argument("--live-limit", type=int, default=80)
-    p.add_argument("--comp-limit", type=int, default=150)
-    p.add_argument("--sim-threshold", type=int, default=86)
-    p.add_argument("--threshold-pct", type=float, default=20.0)
+    p.add_argument("query", nargs='?', default="", help="Search query, e.g., 'RTX 3060' or 'Boss DS-1'")
+    p.add_argument("--db", default=DEFAULT_DB_PATH, help="Database path (default: ~/.arb_finder.sqlite3)")
+    p.add_argument("--live-limit", type=int, default=80, help="Max live listings per provider (default: 80)")
+    p.add_argument("--comp-limit", type=int, default=150, help="Max sold comps to fetch (default: 150)")
+    p.add_argument("--sim-threshold", type=int, default=86, help="Similarity threshold 0-100 (default: 86)")
+    p.add_argument("--threshold-pct", type=float, default=20.0, help="Min discount percentage (default: 20.0)")
     p.add_argument("--providers", help="Comma list: shopgoodwill,govdeals,governmentsurplus,manual,crawl4ai")
     p.add_argument("--manual-path", help="CSV/JSON for ManualImport provider (e.g., FB Marketplace export)")
     p.add_argument("--use-crawl4ai", action="store_true", help="Enable crawl4ai provider if installed")
     p.add_argument("--csv", help="Export CSV path")
     p.add_argument("--json", help="Export JSON path")
+    p.add_argument("-i", "--interactive", action="store_true", help="Run in interactive TUI mode")
+    p.add_argument("-q", "--quiet", action="store_true", help="Suppress progress output")
+    p.add_argument("-v", "--verbose", action="store_true", help="Enable verbose logging")
     return p
 
 def main(argv: Optional[List[str]] = None) -> int:
     args = build_parser().parse_args(argv)
+    
+    # Handle verbose mode
+    if args.verbose:
+        logger.setLevel(logging.DEBUG)
+    
+    # Handle interactive mode without query
+    if args.interactive or not args.query:
+        args.interactive = True
+    
     try:
         return asyncio.run(run_arbfinder(args))
     except KeyboardInterrupt:
+        logger.info("Interrupted by user")
         return 2
     except Exception as e:
-        logger.exception("Fatal error: %s", e); return 1
+        logger.exception("Fatal error: %s", e)
+        return 1
 
 if __name__ == "__main__":
     sys.exit(main())
