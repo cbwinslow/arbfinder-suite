@@ -1,0 +1,28 @@
+# CrewAI configuration for price research & listing creation
+project: arbfinder
+agents:
+  market_researcher:
+    role: "Market Researcher"
+    goal: "Collect comps and recent prices for a given query; summarize trends and realistic resale price."
+    tools: [web_search, provider_scan]
+  price_specialist:
+    role: "Price Specialist"
+    goal: "Compute target list price, floor, and auto-offer settings based on comps and fees."
+    tools: [fee_calculator, provider_scan]
+  listing_writer:
+    role: "Listing Specialist"
+    goal: "Draft SEO-optimized titles and bullet descriptions with condition notes and shipping."
+    tools: [template_library]
+  crosslister:
+    role: "Cross-listing Operator"
+    goal: "Prepare payloads for eBay/Mercari/Reverb APIs or CSV templates."
+    tools: [csv_exporter, platform_api]
+process:
+  - task: scan_providers
+    by: market_researcher
+  - task: compute_prices
+    by: price_specialist
+  - task: draft_listing
+    by: listing_writer
+  - task: crosslist
+    by: crosslister
