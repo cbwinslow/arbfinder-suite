@@ -67,6 +67,10 @@ python3 backend/arb_finder.py "RTX 3060" \
 - `-i, --interactive` - Run in interactive TUI mode
 - `-q, --quiet` - Suppress progress output
 - `-v, --verbose` - Enable verbose logging
+- `-w, --watch` - Enable watch mode (continuous monitoring)
+- `--watch-interval SEC` - Watch mode interval in seconds (default: 3600)
+- `--config FILE` - Path to config file (default: ~/.arbfinder_config.json)
+- `--save-config` - Save current arguments to config file
 - `--csv FILE` - Export results to CSV
 - `--json FILE` - Export results to JSON
 - `--threshold-pct PCT` - Minimum discount percentage (default: 20.0)
@@ -74,6 +78,30 @@ python3 backend/arb_finder.py "RTX 3060" \
 - `--sim-threshold NUM` - Similarity threshold 0-100 (default: 86)
 - `--live-limit NUM` - Max live listings per provider (default: 80)
 - `--comp-limit NUM` - Max sold comps to fetch (default: 150)
+
+### Watch Mode
+
+Monitor for deals continuously:
+
+```bash
+python3 backend/arb_finder.py "RTX 3060" --watch --watch-interval 1800
+```
+
+This will check for new deals every 30 minutes and notify you when deals exceeding your threshold are found.
+
+### Configuration Files
+
+Create a config file to save your preferences:
+
+```bash
+# Save current settings
+python3 backend/arb_finder.py "RTX 3060" --threshold-pct 25 --save-config
+
+# Use saved config
+python3 backend/arb_finder.py --config ~/.arbfinder_config.json
+```
+
+See `config.example.json` for a complete example.
 
 ### Manual Import (Facebook Marketplace)
 
@@ -234,9 +262,22 @@ CREATE TABLE comps (
 
 ## Roadmap
 
+### Completed ✅
+- [x] Interactive TUI with Rich library
+- [x] Progress bars and colored output
+- [x] Watch mode for continuous monitoring
+- [x] Configuration file support
+- [x] Enhanced API with search and filtering
+- [x] Statistics dashboard
+- [x] Comparable prices viewer
+- [x] Modern responsive UI
+
+### In Progress 🚧
 - [ ] Add Reverb & Mercari providers (sold + live)
 - [ ] Add time-decay weighted comps and per-category fees
 - [ ] Add AI: automatic title/description generation with templates
+
+### Planned 📋
 - [ ] Add OAuth + multi-user inventory
 - [ ] Add email/SMS notifications for deals
 - [ ] Add price history tracking and charts
@@ -245,6 +286,8 @@ CREATE TABLE comps (
 - [ ] Add export to PDF/Excel formats
 - [ ] Add dark/light mode toggle
 - [ ] Add favorites/watchlist feature
+- [ ] Add browser extension for quick price checking
+- [ ] Add mobile app (React Native)
 
 ## Contributing
 

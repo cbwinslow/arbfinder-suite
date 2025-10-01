@@ -399,7 +399,7 @@ def export_json(rows: List[Dict[str, Any]], path: str) -> None:
     with open(path, "w", encoding="utf-8") as f:
         json.dump(rows, f, indent=2)
 
-async def run_arbfinder(args: argparse.Namespace) -> int:
+async def run_arbfinder(args: argparse.Namespace) -> List[Dict[str, Any]]:
     # Import TUI module if available
     tui_module = None
     if RICH_AVAILABLE and args.interactive:
@@ -516,7 +516,7 @@ async def run_arbfinder(args: argparse.Namespace) -> int:
         logger.info("Exported to JSON: %s", args.json)
     
     await client.close()
-    return 0
+    return rows
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog=APP_NAME, description="Find arbitrage deals vs eBay sold comps")
@@ -534,10 +534,49 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("-i", "--interactive", action="store_true", help="Run in interactive TUI mode")
     p.add_argument("-q", "--quiet", action="store_true", help="Suppress progress output")
     p.add_argument("-v", "--verbose", action="store_true", help="Enable verbose logging")
+    p.add_argument("-w", "--watch", action="store_true", help="Enable watch mode (continuous monitoring)")
+    p.add_argument("--watch-interval", type=int, default=3600, help="Watch mode interval in seconds (default: 3600)")
+    p.add_argument("--config", help="Path to config file (default: ~/.arbfinder_config.json)")
+    p.add_argument("--save-config", action="store_true", help="Save current arguments to config file")
     return p
 
 def main(argv: Optional[List[str]] = None) -> int:
     args = build_parser().parse_args(argv)
+    
+    # Load config if requested
+    if args.config or args.save_config:
+        try:
+            from . import config as config_module
+        except ImportError:
+            try:
+                import config as config_module
+            except ImportError:
+                logger.warning("Config module not available")
+                config_module = None
+        
+        if config_module:
+            if args.save_config:
+                # Save current args to config
+                config_dict = {
+                    "query": args.query,
+                    "db_path": args.db,
+                    "live_limit": args.live_limit,
+                    "comp_limit": args.comp_limit,
+                    "sim_threshold": args.sim_threshold,
+                    "threshold_pct": args.threshold_pct,
+                    "providers": args.providers or "",
+                    "watch_interval": args.watch_interval
+                }
+                if config_module.save_config(config_dict, args.config):
+                    logger.info("Configuration saved successfully")
+                return 0
+            
+            # Load config and merge with args
+            loaded_config = config_module.load_config(args.config)
+            if not args.query and loaded_config.get("query"):
+                args.query = loaded_config["query"]
+            if args.db == DEFAULT_DB_PATH and loaded_config.get("db_path"):
+                args.db = loaded_config["db_path"]
     
     # Handle verbose mode
     if args.verbose:
@@ -547,8 +586,41 @@ def main(argv: Optional[List[str]] = None) -> int:
     if args.interactive or not args.query:
         args.interactive = True
     
+    # Handle watch mode
+    if args.watch:
+        try:
+            from . import watch as watch_module
+        except ImportError:
+            try:
+                import watch as watch_module
+            except ImportError:
+                logger.error("Watch module not available")
+                return 1
+        
+        logger.info(f"Starting watch mode with {args.watch_interval}s interval")
+        
+        async def watch_runner():
+            watch = watch_module.WatchMode(
+                interval=args.watch_interval,
+                notify_threshold=args.threshold_pct
+            )
+            
+            async def search_wrapper():
+                results = await run_arbfinder(args)
+                return results
+            
+            await watch.run(search_wrapper)
+            return 0
+        
+        try:
+            return asyncio.run(watch_runner())
+        except KeyboardInterrupt:
+            logger.info("Watch mode interrupted by user")
+            return 2
+    
     try:
-        return asyncio.run(run_arbfinder(args))
+        results = asyncio.run(run_arbfinder(args))
+        return 0
     except KeyboardInterrupt:
         logger.info("Interrupted by user")
         return 2

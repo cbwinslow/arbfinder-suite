@@ -1,6 +1,8 @@
 'use client'
 import { useEffect, useState } from 'react'
 
+import Link from 'next/link'
+
 interface Listing {
   source: string
   url: string
@@ -112,12 +114,20 @@ export default function Home() {
           <p className="text-gray-400 mt-2">Find arbitrage opportunities across marketplaces</p>
         </div>
         
-        {stats && (
-          <div className="bg-neutral-900 rounded-lg p-4 border border-green-500/20">
-            <div className="text-sm text-gray-400">Total Listings</div>
-            <div className="text-3xl font-bold text-green-400">{stats.total_listings}</div>
-          </div>
-        )}
+        <div className="flex gap-4 items-center">
+          <Link 
+            href="/comps" 
+            className="text-blue-400 hover:text-blue-300 underline transition"
+          >
+            📊 View Comps
+          </Link>
+          {stats && (
+            <div className="bg-neutral-900 rounded-lg p-4 border border-green-500/20">
+              <div className="text-sm text-gray-400">Total Listings</div>
+              <div className="text-3xl font-bold text-green-400">{stats.total_listings}</div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Statistics Cards */}

@@ -1,0 +1,21 @@
+{
+  "query": "RTX 3060",
+  "db_path": "~/.arb_finder.sqlite3",
+  "live_limit": 80,
+  "comp_limit": 150,
+  "sim_threshold": 86,
+  "threshold_pct": 20.0,
+  "providers": "shopgoodwill,govdeals,governmentsurplus",
+  "watch_interval": 3600,
+  "notifications": {
+    "enabled": false,
+    "email": "",
+    "min_discount": 30.0
+  },
+  "export": {
+    "auto_csv": false,
+    "csv_path": "arbfinder_results.csv",
+    "auto_json": false,
+    "json_path": "arbfinder_results.json"
+  }
+}
