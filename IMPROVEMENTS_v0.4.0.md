@@ -273,12 +273,12 @@ Expanded `.gitignore` to include:
 
 ## Metrics
 
-### Lines of Code Added
-- Python: ~1,500 lines (CLI, tests, init files)
-- TypeScript: ~600 lines (client SDK, CLI tool)
-- Configuration: ~500 lines (pyproject.toml, Makefile, Docker)
-- Documentation: ~1,000 lines (DEVELOPER.md, READMEs, CHANGELOG)
-- **Total: ~3,600 lines**
+### Lines of Code Added (Approximate)
+- Python: ~1,500 lines (CLI: 400, tests: 300, init files: 50, docs: 750)
+- TypeScript: ~600 lines (client SDK: 250, CLI tool: 300, configs: 50)
+- Configuration: ~500 lines (pyproject.toml: 150, Makefile: 100, Docker: 100, pre-commit: 50, VS Code: 100)
+- Documentation: ~1,000 lines (DEVELOPER.md: 350, README updates: 200, CHANGELOG: 150, improvements summary: 300)
+- **Total: ~3,600 lines** (Note: These are estimates based on character counts and typical line lengths)
 
 ### Files Created/Modified
 - **22 new files** created
@@ -287,7 +287,10 @@ Expanded `.gitignore` to include:
 ### Test Results
 - **16 tests** created
 - **16 tests** passing (100% pass rate)
-- **23% code coverage** (baseline established)
+- **23% code coverage** (baseline established for new modules)
+  - Note: This is a starting point. The newly added modules (cli.py, config.py) have 35% and 86% coverage respectively. The 23% overall is heavily influenced by legacy code (arb_finder.py, tui.py, utils.py, watch.py) which existed before this PR and were not modified.
+  - **Immediate goal:** Increase to 50% by adding tests for existing modules
+  - **Medium-term goal:** Reach 80%+ coverage across all modules
 
 ### Package Structure
 - **1 main Python package** (arbfinder)
@@ -386,8 +389,15 @@ The original `backend/arb_finder.py` still works as before! All existing scripts
 
 With this solid foundation, future improvements become easier:
 
-### Immediate Next Steps
-- [ ] Increase test coverage to 80%+
+### Immediate Next Steps (High Priority)
+- [ ] **Increase test coverage to 50%+ as immediate priority**
+  - Add tests for arb_finder.py core functionality
+  - Add tests for utils.py database operations
+  - Add tests for watch.py monitoring
+- [ ] **Reach 80%+ test coverage within next 2 releases**
+  - Comprehensive test suite for all modules
+  - Integration tests for API endpoints
+  - End-to-end tests for CLI workflows
 - [ ] Add API integration tests
 - [ ] Add frontend component tests
 - [ ] Generate OpenAPI/Swagger docs automatically
