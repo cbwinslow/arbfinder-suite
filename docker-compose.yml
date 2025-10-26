@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  arbfinder:
+    build: .
+    ports:
+      - "8080:8080"
+      - "3000:3000"
+    volumes:
+      - arbfinder-data:/data
+    environment:
+      - ARBF_DB=/data/arb_finder.sqlite3
+      - FRONTEND_ORIGIN=http://localhost:3000
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  arbfinder-data:
+    driver: local
