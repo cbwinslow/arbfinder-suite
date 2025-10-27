@@ -1,24 +1,70 @@
 # ArbFinder Suite
 
-**Version 0.3.0** - Enhanced UI, CLI, TUI, and API
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
+**Version 0.4.0** - Enhanced CLI, TypeScript SDK, and Developer Tools
 
 ## Features
 
 - 🔍 Async crawler for ShopGoodwill, GovDeals, GovernmentSurplus (+ eBay sold comps)
 - 📊 Interactive TUI with rich terminal output and progress bars
+- 🖥️ **NEW**: Enhanced CLI with subcommands (search, watch, config, db, server)
+- 📦 **NEW**: TypeScript/Node.js SDK and CLI tools
+- 🧪 **NEW**: Comprehensive test suite with pytest
+- 🐳 **NEW**: Docker and Docker Compose support
 - 📁 Manual importer for Facebook Marketplace (CSV/JSON)
 - 🚀 FastAPI backend with search, filtering, and statistics
 - 💎 Enhanced Next.js frontend with modern UI
 - 🤖 CrewAI config for research → pricing → listing → crosslisting
 - 📈 Real-time statistics and analytics
 - 🎨 Beautiful dark mode interface with gradients
+- 🛠️ **NEW**: Developer tools (Makefile, pre-commit hooks, VS Code config)
+
+## Quick Start
+
+### Using pip (Recommended)
+
+```bash
+# Install from source
+git clone https://github.com/cbwinslow/arbfinder-suite.git
+cd arbfinder-suite
+pip install -e .
+
+# Run CLI
+arbfinder --version
+arbfinder search "RTX 3060" --csv deals.csv
+```
+
+### Using Docker
+
+```bash
+# Build and run with Docker Compose
+docker-compose up -d
+
+# Access services
+# - API: http://localhost:8080
+# - Frontend: http://localhost:3000
+```
 
 ## Installation
 
 ### Backend Setup
 
 ```bash
-python3 -m venv .venv && source .venv/bin/activate
+# Clone repository
+git clone https://github.com/cbwinslow/arbfinder-suite.git
+cd arbfinder-suite
+
+# Create virtual environment
+python3 -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install in development mode
+pip install -e ".[dev,test]"
+
+# Or install just the dependencies
 pip install -r backend/requirements.txt
 ```
 
@@ -29,9 +75,65 @@ cd frontend
 npm install
 ```
 
+### TypeScript Packages (Optional)
+
+```bash
+# Install and build client library
+cd packages/client
+npm install
+npm run build
+
+# Install and build CLI tool
+cd ../cli
+npm install
+npm run build
+npm link  # Make available globally
+```
+
 ## Usage
 
-### Interactive TUI Mode (Recommended)
+### Enhanced CLI (New!)
+
+The new CLI provides a cleaner interface with subcommands:
+
+```bash
+# Search for deals
+arbfinder search "RTX 3060" --csv deals.csv
+
+# Watch for new deals
+arbfinder watch "iPad Pro" --interval 1800
+
+# Manage configuration
+arbfinder config show
+arbfinder config set threshold_pct 30.0
+
+# Database operations
+arbfinder db stats
+arbfinder db backup
+arbfinder db clean --days 30
+
+# Run API server
+arbfinder server --port 8080 --reload
+
+# Generate shell completions
+arbfinder completion bash > ~/.arbfinder-completion.bash
+source ~/.arbfinder-completion.bash
+```
+
+### TypeScript CLI (New!)
+
+```bash
+# Using the TypeScript CLI
+arbfinder-ts list --limit 20
+arbfinder-ts search "RTX 3080"
+arbfinder-ts stats
+arbfinder-ts comps "iPad"
+
+# Connect to remote API
+arbfinder-ts --api-url https://api.example.com list
+```
+
+### Interactive TUI Mode
 
 Run the crawler in interactive mode with rich terminal UI:
 
@@ -147,6 +249,37 @@ curl http://localhost:8080/api/listings/search?q=nvidia
 curl "http://localhost:8080/api/listings?limit=10&offset=0&order_by=price"
 ```
 
+## TypeScript/Node.js SDK
+
+Use the official SDK to integrate ArbFinder into your Node.js applications:
+
+```typescript
+import { ArbFinderClient } from '@arbfinder/client';
+
+// Create a client
+const client = new ArbFinderClient({
+  baseURL: 'http://localhost:8080',
+  timeout: 30000,
+});
+
+// Get listings
+const listings = await client.getListings({
+  limit: 10,
+  order_by: 'ts',
+});
+
+// Search listings
+const results = await client.searchListings('RTX 3060');
+
+// Get statistics
+const stats = await client.getStatistics();
+
+// Get comparable prices
+const comps = await client.getComps();
+```
+
+See the [client package README](packages/client/README.md) for full documentation.
+
 ## Frontend
 
 ### Development Mode
@@ -204,22 +337,47 @@ uvicorn backend.api.main:app --reload --port 8080
 
 ```
 arbfinder-suite/
-├── backend/
-│   ├── arb_finder.py      # Main CLI with TUI
-│   ├── tui.py             # Rich TUI components
+├── backend/                # Python backend
+│   ├── __init__.py         # Package initialization
+│   ├── arb_finder.py       # Core arbitrage finder
+│   ├── cli.py              # Enhanced CLI with subcommands (NEW)
+│   ├── tui.py              # Rich TUI components
+│   ├── config.py           # Configuration management
+│   ├── utils.py            # Database utilities
+│   ├── watch.py            # Watch mode
 │   ├── api/
-│   │   └── main.py        # FastAPI server
+│   │   ├── __init__.py
+│   │   └── main.py         # FastAPI server
 │   └── requirements.txt
-├── frontend/
+├── frontend/               # Next.js frontend
 │   ├── app/
-│   │   ├── page.tsx       # Main UI
-│   │   ├── layout.tsx     # Layout
-│   │   └── globals.css    # Styles
+│   │   ├── page.tsx        # Main UI
+│   │   ├── layout.tsx      # Layout
+│   │   ├── globals.css     # Styles
+│   │   └── comps/
+│   │       └── page.tsx    # Comps viewer
 │   └── package.json
+├── packages/               # TypeScript/Node.js packages (NEW)
+│   ├── client/             # API client SDK
+│   │   ├── src/
+│   │   │   └── index.ts
+│   │   └── package.json
+│   └── cli/                # TypeScript CLI
+│       ├── src/
+│       │   └── cli.ts
+│       └── package.json
+├── tests/                  # Test suite (NEW)
+│   ├── test_cli.py
+│   └── test_config.py
 ├── crew/
-│   └── crewai.yaml        # AI agent config
-└── exporters/
-    └── fb_marketplace_template.csv
+│   └── crewai.yaml         # AI agent config
+├── exporters/
+│   └── fb_marketplace_template.csv
+├── pyproject.toml          # Python project config (NEW)
+├── Makefile                # Development tasks (NEW)
+├── Dockerfile              # Docker image (NEW)
+├── docker-compose.yml      # Docker Compose config (NEW)
+└── DEVELOPER.md            # Developer guide (NEW)
 ```
 
 ## Database Schema
@@ -271,11 +429,17 @@ CREATE TABLE comps (
 - [x] Statistics dashboard
 - [x] Comparable prices viewer
 - [x] Modern responsive UI
+- [x] **Enhanced CLI with subcommands** (v0.4.0)
+- [x] **TypeScript/Node.js SDK** (v0.4.0)
+- [x] **Comprehensive test suite** (v0.4.0)
+- [x] **Docker support** (v0.4.0)
+- [x] **Developer tools and documentation** (v0.4.0)
 
 ### In Progress 🚧
 - [ ] Add Reverb & Mercari providers (sold + live)
 - [ ] Add time-decay weighted comps and per-category fees
 - [ ] Add AI: automatic title/description generation with templates
+- [ ] Increase test coverage to 80%+
 
 ### Planned 📋
 - [ ] Add OAuth + multi-user inventory
@@ -288,10 +452,87 @@ CREATE TABLE comps (
 - [ ] Add favorites/watchlist feature
 - [ ] Add browser extension for quick price checking
 - [ ] Add mobile app (React Native)
+- [ ] API rate limiting and authentication
+- [ ] GraphQL API endpoint
+- [ ] WebSocket support for real-time updates
+
+## Development
+
+### Quick Start
+
+```bash
+# Install development dependencies
+pip install -e ".[dev,test]"
+
+# Run tests
+pytest
+
+# Format code
+black backend/
+
+# Lint code
+flake8 backend/
+
+# Run with make
+make test
+make lint
+make format
+```
+
+### Using Makefile
+
+The project includes a Makefile for common tasks:
+
+```bash
+make help           # Show available commands
+make install        # Install production dependencies
+make install-dev    # Install development dependencies
+make test           # Run tests
+make test-cov       # Run tests with coverage
+make lint           # Run linters
+make format         # Format code
+make clean          # Clean build artifacts
+make run-server     # Run API server
+make run-frontend   # Run frontend dev server
+make docker-build   # Build Docker image
+```
+
+### Pre-commit Hooks
+
+Install pre-commit hooks for automatic code formatting and linting:
+
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+Hooks will run automatically on `git commit`.
+
+### VS Code
+
+The repository includes VS Code settings for:
+- Python debugging
+- Test discovery
+- Code formatting
+- Linting
+
+See `.vscode/settings.json` for configuration.
+
+For detailed development information, see [DEVELOPER.md](DEVELOPER.md).
 
 ## Contributing
 
-Contributions welcome! Please open an issue or PR.
+Contributions welcome! Please:
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new functionality
+5. Ensure all tests pass
+6. Follow code style (black, flake8)
+7. Submit a pull request
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 ## License
 

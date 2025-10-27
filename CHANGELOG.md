@@ -5,6 +5,108 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2024-10-26
+
+### Added - Project Structure & Tooling
+- Python package structure with `pyproject.toml` for proper packaging
+- Makefile with common development tasks (install, test, lint, format, clean)
+- Pre-commit hooks configuration for automated code quality checks
+- VS Code workspace settings with debugger configurations
+- Docker and Docker Compose support for easy deployment
+- Comprehensive `.gitignore` for better artifact management
+- Package `__init__.py` files for proper module structure
+
+### Added - Enhanced CLI
+- Complete CLI refactor with subcommands:
+  - `arbfinder search` - Search for arbitrage opportunities
+  - `arbfinder watch` - Continuous monitoring
+  - `arbfinder config` - Configuration management (show, init, set, get)
+  - `arbfinder db` - Database operations (stats, backup, clean, vacuum)
+  - `arbfinder server` - Run API server
+  - `arbfinder completion` - Shell completion generation (bash/zsh)
+- Global `--version` flag showing proper version information
+- Shell completion support for bash and zsh
+- Better help text and command organization
+- Installed as `arbfinder` command via pip
+
+### Added - TypeScript/Node.js Packages
+- `@arbfinder/client` - Official TypeScript/JavaScript API client SDK
+  - Full TypeScript types for all API responses
+  - Axios-based HTTP client with timeout support
+  - Methods for all API endpoints
+  - Comprehensive documentation and examples
+- `@arbfinder/cli` - TypeScript CLI tool
+  - `arbfinder-ts` command with rich terminal output
+  - Commands: list, search, stats, info, comps
+  - Colored output with chalk
+  - Spinner animations with ora
+  - Table formatting for results
+  - Commander.js for argument parsing
+
+### Added - Testing & Quality
+- Comprehensive test suite with pytest
+  - Tests for CLI module (11 tests)
+  - Tests for config module (5 tests)
+  - All tests passing (16/16)
+- Test coverage reporting (baseline: 23%)
+- pytest configuration in pyproject.toml
+- Testing infrastructure for future expansion
+- Code coverage HTML reports
+
+### Added - Documentation
+- `DEVELOPER.md` - Comprehensive developer guide
+  - Architecture overview with diagrams
+  - Development setup instructions
+  - Testing guidelines
+  - Code style standards
+  - Debugging tips
+  - API development guide
+  - CLI development guide
+  - Deployment instructions
+  - Troubleshooting section
+- Enhanced README with:
+  - Badges for Python version, license, code style
+  - Quick start section
+  - Docker usage instructions
+  - TypeScript SDK examples
+  - Enhanced CLI examples
+  - Development section
+  - Makefile usage guide
+- Package-specific READMEs for TypeScript packages
+- Better structured documentation overall
+
+### Added - Developer Tools
+- Black configuration for code formatting (line length: 100)
+- Flake8 configuration for linting
+- mypy configuration for type checking
+- pytest configuration with coverage
+- Pre-commit hooks for automatic formatting
+- Launch configurations for VS Code debugging
+- Make targets for common tasks
+
+### Enhanced
+- Updated version to 0.4.0 across all files
+- Better module organization with proper packages
+- Improved import structure
+- Enhanced error handling in CLI
+- Better code organization and separation of concerns
+- Comprehensive inline documentation
+
+### Changed
+- CLI now uses subcommand structure instead of single entry point
+- Configuration management split into separate subcommands
+- Database operations organized under `db` subcommand
+- Server startup now a separate `server` subcommand
+- Package structure follows Python best practices
+
+### Technical Improvements
+- Proper Python packaging with setuptools
+- Entry points for CLI commands
+- Optional dependencies for dev and test
+- Better dependency management
+- Cleaner import paths
+- Type hints throughout new code
+
 ## [0.3.0] - 2024-10-01
 
 ### Added

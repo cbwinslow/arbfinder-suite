@@ -55,3 +55,19 @@ logs/
 
 # OS
 Thumbs.db
+
+# Testing
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+*.cover
+.hypothesis/
+.tox/
+
+# Config
+.arbfinder_config.json
+
+# Coverage
+coverage/
+.nyc_output/
