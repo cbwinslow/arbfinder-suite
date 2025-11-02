@@ -6,3 +6,13 @@ pydantic==2.9.2
 stripe==10.6.0
 rich==13.7.0
 python-dotenv==1.0.0
+
+# Price analysis and calculations
+psycopg2-binary>=2.9.9  # PostgreSQL adapter
+sqlalchemy>=2.0.23      # ORM for database operations
+
+# Infrastructure
+pulumi>=3.96.0          # Infrastructure as Code
+pulumi-postgresql>=3.11.0
+pulumi-cloudflare>=5.17.0
+pulumi-aws>=6.10.0
