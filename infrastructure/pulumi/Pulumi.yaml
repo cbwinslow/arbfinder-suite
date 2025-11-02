@@ -1,0 +1,66 @@
+name: arbfinder-suite
+runtime: python
+description: Infrastructure as Code for ArbFinder Suite
+
+config:
+  # Environment configuration
+  environment:
+    type: string
+    default: development
+  
+  domain:
+    type: string
+    default: arbfinder.example.com
+  
+  # PostgreSQL configuration
+  postgresql:host:
+    type: string
+  postgresql:port:
+    type: integer
+    default: 5432
+  postgresql:username:
+    type: string
+  postgresql:password:
+    type: string
+    secret: true
+  postgresql:database:
+    type: string
+    default: arbfinder
+  
+  # Application passwords
+  db_app_password:
+    type: string
+    secret: true
+  db_readonly_password:
+    type: string
+    secret: true
+  
+  # Cloudflare configuration
+  cloudflare:zone_id:
+    type: string
+  cloudflare:account_id:
+    type: string
+  
+  # AWS configuration (optional)
+  aws:enabled:
+    type: string
+    default: "false"
+  aws:region:
+    type: string
+    default: us-east-1
+
+backend:
+  url: file://./state
+
+# Required Pulumi plugins
+plugins:
+  providers:
+    - name: postgresql
+      path: github://api.github.com/pulumi/pulumi-postgresql
+      version: v3.11.0
+    - name: cloudflare
+      path: github://api.github.com/pulumi/pulumi-cloudflare
+      version: v5.17.0
+    - name: aws
+      path: github://api.github.com/pulumi/pulumi-aws
+      version: v6.10.0
