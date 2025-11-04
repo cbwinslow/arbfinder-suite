@@ -16,3 +16,8 @@ pulumi>=3.96.0          # Infrastructure as Code
 pulumi-postgresql>=3.11.0
 pulumi-cloudflare>=5.17.0
 pulumi-aws>=6.10.0
+
+# AI/ML for automation
+crewai>=0.1.0           # AI agent framework for automation
+openai>=1.0.0           # OpenAI API for AI-powered features
+langchain>=0.1.0        # LangChain for AI workflows
