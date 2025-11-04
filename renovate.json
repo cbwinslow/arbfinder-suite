@@ -1,0 +1,68 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:base"
+  ],
+  "labels": ["dependencies", "automated"],
+  "assignees": ["@cbwinslow"],
+  "reviewers": ["@cbwinslow"],
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2,
+  "branchPrefix": "renovate/",
+  "semanticCommits": "enabled",
+  "commitMessagePrefix": "chore(deps):",
+  "enabledManagers": ["pip_requirements", "npm"],
+  "packageRules": [
+    {
+      "description": "Automatically merge minor and patch updates",
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash"
+    },
+    {
+      "description": "Python dependencies",
+      "matchManagers": ["pip_requirements"],
+      "matchFiles": ["backend/requirements.txt"],
+      "groupName": "python dependencies",
+      "schedule": ["before 10am on monday"]
+    },
+    {
+      "description": "Frontend dependencies",
+      "matchManagers": ["npm"],
+      "matchFiles": ["frontend/package.json"],
+      "groupName": "frontend dependencies",
+      "schedule": ["before 10am on monday"]
+    },
+    {
+      "description": "Security updates - high priority",
+      "matchDatasources": ["pypi", "npm"],
+      "matchUpdateTypes": ["patch"],
+      "labels": ["security", "dependencies"],
+      "automerge": true,
+      "schedule": ["at any time"]
+    },
+    {
+      "description": "Major updates - require manual review",
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "labels": ["dependencies", "major-update"],
+      "reviewers": ["@cbwinslow"]
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "labels": ["security", "critical"],
+    "assignees": ["@cbwinslow"],
+    "schedule": ["at any time"]
+  },
+  "python": {
+    "enabled": true
+  },
+  "npm": {
+    "enabled": true
+  },
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 10am on the first day of the month"]
+  }
+}
