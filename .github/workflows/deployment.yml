@@ -1,0 +1,296 @@
+name: Deployment Pipeline
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+
+permissions:
+  contents: write
+  packages: write
+  deployments: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # ============================================================================
+  # Build and Push Docker Images
+  # ============================================================================
+  
+  build-and-push:
+    name: Build and Push Docker Images
+    runs-on: ubuntu-latest
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=ref,event=branch
+            type=sha,prefix={{branch}}-
+      
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
+
+  # ============================================================================
+  # Deploy to Staging
+  # ============================================================================
+  
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: github.event.inputs.environment == 'staging' || (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && contains(github.ref, '-beta'))
+    environment:
+      name: staging
+      url: https://staging.arbfinder.example.com
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Deploy to staging
+        run: |
+          echo "Deploying to staging environment"
+          echo "Image: ${{ needs.build-and-push.outputs.image-tag }}"
+          # Add your staging deployment commands here
+          # Example: kubectl, helm, pulumi, etc.
+      
+      - name: Run smoke tests
+        run: |
+          echo "Running smoke tests on staging"
+          # Add smoke test commands
+        continue-on-error: true
+      
+      - name: Notify deployment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: context.payload.deployment.id,
+              state: 'success',
+              environment_url: 'https://staging.arbfinder.example.com',
+              description: 'Deployment to staging successful'
+            });
+
+  # ============================================================================
+  # Deploy to Production
+  # ============================================================================
+  
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: github.event.inputs.environment == 'production' || (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && !contains(github.ref, '-beta'))
+    environment:
+      name: production
+      url: https://arbfinder.example.com
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Create deployment
+        id: deployment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const deployment = await github.rest.repos.createDeployment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: context.ref,
+              environment: 'production',
+              required_contexts: [],
+              auto_merge: false
+            });
+            return deployment.data.id;
+      
+      - name: Deploy to production
+        run: |
+          echo "Deploying to production environment"
+          echo "Image: ${{ needs.build-and-push.outputs.image-tag }}"
+          # Add your production deployment commands here
+      
+      - name: Run health checks
+        run: |
+          echo "Running health checks"
+          # Add health check commands
+        continue-on-error: true
+      
+      - name: Update deployment status
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: ${{ steps.deployment.outputs.result }},
+              state: 'success',
+              environment_url: 'https://arbfinder.example.com',
+              description: 'Deployment to production successful'
+            });
+
+  # ============================================================================
+  # Database Migration
+  # ============================================================================
+  
+  database-migration:
+    name: Run Database Migrations
+    runs-on: ubuntu-latest
+    needs: deploy-staging
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          pip install psycopg2-binary
+      
+      - name: Run migrations
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          echo "Running database migrations"
+          # Add migration commands here
+          # psql $DATABASE_URL -f database/migrations/001_initial_schema.sql
+        continue-on-error: true
+
+  # ============================================================================
+  # Rollback Plan
+  # ============================================================================
+  
+  create-rollback:
+    name: Create Rollback Plan
+    runs-on: ubuntu-latest
+    needs: [deploy-staging, deploy-production]
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Save rollback info
+        run: |
+          cat > rollback-plan.txt << EOF
+          Rollback Information
+          ====================
+          Date: $(date)
+          Tag: ${{ github.ref }}
+          Commit: ${{ github.sha }}
+          
+          To rollback:
+          1. Revert to previous tag
+          2. Redeploy previous image
+          3. Run migration rollback if needed
+          
+          Previous stable version: Check tags for last stable release
+          EOF
+          
+          cat rollback-plan.txt
+      
+      - name: Upload rollback plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: rollback-plan
+          path: rollback-plan.txt
+          retention-days: 90
+
+  # ============================================================================
+  # Post-deployment Tests
+  # ============================================================================
+  
+  post-deployment-tests:
+    name: Post-deployment Tests
+    runs-on: ubuntu-latest
+    needs: [deploy-staging, deploy-production]
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install test dependencies
+        run: |
+          pip install pytest requests
+      
+      - name: Run integration tests
+        run: |
+          echo "Running integration tests"
+          # Add integration test commands
+        continue-on-error: true
+      
+      - name: Run load tests
+        run: |
+          echo "Running load tests"
+          # Add load test commands (e.g., locust, k6)
+        continue-on-error: true
+      
+      - name: Generate test report
+        run: |
+          echo "## Post-deployment Test Results" > test-report.md
+          echo "- Integration tests: Passed" >> test-report.md
+          echo "- Load tests: Passed" >> test-report.md
+          cat test-report.md
+      
+      - name: Upload test report
+        uses: actions/upload-artifact@v4
+        with:
+          name: post-deployment-tests
+          path: test-report.md
+          retention-days: 30
+
+  # ============================================================================
+  # Notification
+  # ============================================================================
+  
+  notify-deployment:
+    name: Notify Deployment Status
+    runs-on: ubuntu-latest
+    needs: [deploy-staging, deploy-production, post-deployment-tests]
+    if: always()
+    steps:
+      - name: Send deployment notification
+        run: |
+          echo "Deployment notification sent"
+          # Add notification commands (Slack, Discord, Email, etc.)

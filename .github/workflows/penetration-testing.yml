@@ -1,0 +1,311 @@
+name: Penetration Testing
+
+on:
+  schedule:
+    # Run monthly on the 1st at 3 AM UTC
+    - cron: '0 3 1 * *'
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Target environment'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  # ============================================================================
+  # OWASP ZAP Scan
+  # ============================================================================
+  
+  zap-scan:
+    name: OWASP ZAP Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.11.0
+        with:
+          target: 'http://localhost:8080'
+          rules_file_name: '.zap/rules.tsv'
+          cmd_options: '-a'
+        continue-on-error: true
+      
+      - name: Upload ZAP results
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-scan-results
+          path: |
+            report_html.html
+            report_json.json
+          retention-days: 30
+
+  # ============================================================================
+  # API Security Testing
+  # ============================================================================
+  
+  api-security-test:
+    name: API Security Testing
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          pip install -r backend/requirements.txt
+          pip install tavern pytest-tavern
+      
+      - name: Start API server
+        run: |
+          cd backend
+          python -m uvicorn api.main:app --host 0.0.0.0 --port 8080 &
+          sleep 10
+        continue-on-error: true
+      
+      - name: Run API security tests
+        run: |
+          # Test for common vulnerabilities
+          
+          # SQL Injection test
+          curl -X GET "http://localhost:8080/api/listings?id=1' OR '1'='1" || true
+          
+          # XSS test
+          curl -X GET "http://localhost:8080/api/listings?search=<script>alert('XSS')</script>" || true
+          
+          # Authentication bypass test
+          curl -X GET "http://localhost:8080/api/admin" -H "Authorization: Bearer invalid" || true
+          
+          # Rate limiting test
+          for i in {1..100}; do
+            curl -X GET "http://localhost:8080/" &
+          done
+          wait
+          
+          echo "✅ API security tests completed"
+        continue-on-error: true
+
+  # ============================================================================
+  # Network Security Scan
+  # ============================================================================
+  
+  network-scan:
+    name: Network Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install nmap
+        run: sudo apt-get update && sudo apt-get install -y nmap
+      
+      - name: Scan localhost
+        run: |
+          echo "Running network scan..."
+          nmap -sV -p 8080,3000,5432 localhost || true
+        continue-on-error: true
+      
+      - name: Check for open ports
+        run: |
+          echo "Checking for unexpected open ports..."
+          netstat -tuln || true
+        continue-on-error: true
+
+  # ============================================================================
+  # SSL/TLS Testing
+  # ============================================================================
+  
+  ssl-test:
+    name: SSL/TLS Security Test
+    runs-on: ubuntu-latest
+    if: github.event.inputs.target == 'production'
+    steps:
+      - name: Install testssl.sh
+        run: |
+          git clone --depth 1 https://github.com/drwetter/testssl.sh.git
+          cd testssl.sh
+      
+      - name: Run SSL/TLS scan
+        run: |
+          cd testssl.sh
+          ./testssl.sh --severity MEDIUM https://arbfinder.example.com || true
+        continue-on-error: true
+      
+      - name: Check SSL certificate
+        run: |
+          echo | openssl s_client -servername arbfinder.example.com -connect arbfinder.example.com:443 2>/dev/null | openssl x509 -noout -dates
+        continue-on-error: true
+
+  # ============================================================================
+  # Dependency Confusion Attack Test
+  # ============================================================================
+  
+  dependency-confusion-test:
+    name: Dependency Confusion Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Check for package confusion
+        run: |
+          echo "Checking for potential dependency confusion..."
+          
+          # Check Python packages
+          if [ -f "backend/requirements.txt" ]; then
+            echo "Checking Python packages..."
+            grep -v "^#" backend/requirements.txt | while read pkg; do
+              pkg_name=$(echo $pkg | cut -d'=' -f1 | cut -d'<' -f1 | cut -d'>' -f1)
+              echo "Checking: $pkg_name"
+            done
+          fi
+          
+          # Check NPM packages
+          if [ -f "frontend/package.json" ]; then
+            echo "Checking NPM packages..."
+            cat frontend/package.json | jq -r '.dependencies | keys[]' | while read pkg; do
+              echo "Checking: $pkg"
+            done
+          fi
+        continue-on-error: true
+
+  # ============================================================================
+  # Authentication & Authorization Testing
+  # ============================================================================
+  
+  auth-test:
+    name: Authentication Testing
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Test authentication endpoints
+        run: |
+          echo "Testing authentication mechanisms..."
+          
+          # Test without authentication
+          curl -f -X GET "http://localhost:8080/api/admin" && echo "⚠️ Admin accessible without auth" || echo "✅ Auth required"
+          
+          # Test with weak credentials
+          curl -f -X POST "http://localhost:8080/api/login" \
+            -H "Content-Type: application/json" \
+            -d '{"username":"admin","password":"admin"}' && echo "⚠️ Weak credentials accepted" || echo "✅ Strong password required"
+          
+          # Test session handling
+          curl -c cookies.txt -X POST "http://localhost:8080/api/login" \
+            -H "Content-Type: application/json" \
+            -d '{"username":"test","password":"test123"}' || true
+          
+          curl -b cookies.txt -X GET "http://localhost:8080/api/profile" || true
+        continue-on-error: true
+
+  # ============================================================================
+  # Input Validation Testing
+  # ============================================================================
+  
+  input-validation-test:
+    name: Input Validation Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test input validation
+        run: |
+          echo "Testing input validation..."
+          
+          # Test SQL injection payloads
+          PAYLOADS=(
+            "1' OR '1'='1"
+            "1; DROP TABLE users--"
+            "' UNION SELECT NULL--"
+          )
+          
+          for payload in "${PAYLOADS[@]}"; do
+            echo "Testing: $payload"
+            curl -X GET "http://localhost:8080/api/search?q=$payload" || true
+          done
+          
+          # Test XSS payloads
+          XSS_PAYLOADS=(
+            "<script>alert('XSS')</script>"
+            "<img src=x onerror=alert('XSS')>"
+            "javascript:alert('XSS')"
+          )
+          
+          for payload in "${XSS_PAYLOADS[@]}"; do
+            echo "Testing: $payload"
+            curl -X GET "http://localhost:8080/api/search?q=$payload" || true
+          done
+          
+          echo "✅ Input validation tests completed"
+        continue-on-error: true
+
+  # ============================================================================
+  # Generate Penetration Test Report
+  # ============================================================================
+  
+  generate-report:
+    name: Generate Pen Test Report
+    runs-on: ubuntu-latest
+    needs: [zap-scan, api-security-test, network-scan, auth-test, input-validation-test]
+    if: always()
+    steps:
+      - name: Create summary report
+        run: |
+          cat > pentest-report.md << 'EOF'
+          # Penetration Testing Report
+          
+          **Date:** $(date)
+          **Target:** ${{ github.event.inputs.target || 'automated' }}
+          
+          ## Test Summary
+          
+          | Test | Status |
+          |------|--------|
+          | OWASP ZAP Scan | ${{ needs.zap-scan.result }} |
+          | API Security | ${{ needs.api-security-test.result }} |
+          | Network Scan | ${{ needs.network-scan.result }} |
+          | Authentication | ${{ needs.auth-test.result }} |
+          | Input Validation | ${{ needs.input-validation-test.result }} |
+          
+          ## Recommendations
+          
+          1. Review all failed tests
+          2. Fix identified vulnerabilities
+          3. Update security documentation
+          4. Retest after fixes
+          
+          ## Next Steps
+          
+          - [ ] Address critical findings
+          - [ ] Implement recommended fixes
+          - [ ] Schedule retest
+          - [ ] Update security policies
+          
+          EOF
+          
+          cat pentest-report.md
+      
+      - name: Upload report
+        uses: actions/upload-artifact@v4
+        with:
+          name: penetration-test-report
+          path: pentest-report.md
+          retention-days: 90
+      
+      - name: Create security issue if failures
+        uses: actions/github-script@v7
+        if: contains(needs.*.result, 'failure')
+        with:
+          script: |
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🔴 Penetration Testing Issues Found',
+              body: '## Security Issues Detected\n\nPenetration testing has identified security issues. Please review the test results and address the findings.\n\n**Action Required:** Review penetration test artifacts and fix identified vulnerabilities.',
+              labels: ['security', 'pentest', 'high-priority']
+            });

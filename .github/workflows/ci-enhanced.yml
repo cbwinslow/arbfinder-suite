@@ -1,0 +1,455 @@
+name: Enhanced CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: '3.11'
+  NODE_VERSION: '18'
+
+jobs:
+  # ============================================================================
+  # Code Quality and Linting
+  # ============================================================================
+  
+  lint-python:
+    name: Lint Python Code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install black flake8 mypy pylint isort bandit
+          pip install -r backend/requirements.txt
+      
+      - name: Run Black (formatting check)
+        run: black --check --line-length 100 backend/
+        continue-on-error: true
+      
+      - name: Run isort (import sorting)
+        run: isort --check-only --profile black backend/
+        continue-on-error: true
+      
+      - name: Run Flake8 (style guide)
+        run: |
+          flake8 backend/ --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 backend/ --count --exit-zero --max-complexity=10 --max-line-length=100 --statistics
+      
+      - name: Run MyPy (type checking)
+        run: mypy backend/ --ignore-missing-imports
+        continue-on-error: true
+      
+      - name: Run Pylint (code analysis)
+        run: pylint backend/ --disable=C,R --exit-zero
+        continue-on-error: true
+
+  lint-frontend:
+    name: Lint Frontend Code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm ci
+      
+      - name: Run ESLint
+        run: |
+          cd frontend
+          npm run lint
+        continue-on-error: true
+      
+      - name: Run Prettier check
+        run: |
+          cd frontend
+          npx prettier --check "**/*.{ts,tsx,js,jsx,json,css,md}"
+        continue-on-error: true
+
+  # ============================================================================
+  # Testing
+  # ============================================================================
+  
+  test-python:
+    name: Test Python Backend
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.9', '3.10', '3.11', '3.12']
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[test]"
+      
+      - name: Run pytest with coverage
+        run: |
+          pytest tests/ --cov=backend --cov-report=xml --cov-report=html --cov-report=term
+      
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.xml
+          flags: backend
+          name: backend-${{ matrix.python-version }}
+        continue-on-error: true
+      
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report-${{ matrix.python-version }}
+          path: htmlcov/
+          retention-days: 7
+
+  test-analysis-cli:
+    name: Test Analysis CLI
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+      
+      - name: Test CLI help commands
+        run: |
+          python3 backend/analysis_cli.py --help
+          python3 backend/analysis_cli.py calculate --help
+          python3 backend/analysis_cli.py depreciation --help
+          python3 backend/analysis_cli.py damage --help
+          python3 backend/analysis_cli.py metadata --help
+          python3 backend/analysis_cli.py batch --help
+      
+      - name: Test price calculation
+        run: |
+          python3 backend/analysis_cli.py calculate \
+            --base-price 500 \
+            --age 2 \
+            --condition good \
+            --output json
+      
+      - name: Test depreciation calculation
+        run: |
+          python3 backend/analysis_cli.py depreciation \
+            --base-price 1000 \
+            --age 3 \
+            --model exponential
+      
+      - name: Test damage assessment
+        run: |
+          python3 backend/analysis_cli.py damage \
+            --base-price 800 \
+            --type dent \
+            --location passenger \
+            --severity moderate
+
+  test-frontend:
+    name: Test Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm ci
+      
+      - name: Build frontend
+        run: |
+          cd frontend
+          npm run build
+      
+      - name: Run tests (if available)
+        run: |
+          cd frontend
+          npm test --if-present
+        continue-on-error: true
+
+  # ============================================================================
+  # Security Scanning
+  # ============================================================================
+  
+  security-scan-python:
+    name: Security Scan - Python Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install safety bandit
+          pip install -r backend/requirements.txt
+      
+      - name: Run Safety (dependency vulnerability check)
+        run: |
+          safety check --json --output safety-report.json || true
+          safety check
+        continue-on-error: true
+      
+      - name: Run Bandit (security issues in code)
+        run: |
+          bandit -r backend/ -f json -o bandit-report.json || true
+          bandit -r backend/ -ll
+        continue-on-error: true
+      
+      - name: Upload security reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-security-reports
+          path: |
+            safety-report.json
+            bandit-report.json
+          retention-days: 30
+
+  security-scan-npm:
+    name: Security Scan - NPM Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm ci
+      
+      - name: Run npm audit
+        run: |
+          cd frontend
+          npm audit --json > npm-audit.json || true
+          npm audit
+        continue-on-error: true
+      
+      - name: Upload audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-security-report
+          path: frontend/npm-audit.json
+          retention-days: 30
+
+  # ============================================================================
+  # Database Schema Validation
+  # ============================================================================
+  
+  validate-database-schema:
+    name: Validate Database Schema
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: testpass
+          POSTGRES_DB: arbfinder_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+      
+      - name: Apply database migrations
+        env:
+          PGPASSWORD: testpass
+        run: |
+          psql -h localhost -U postgres -d arbfinder_test -f database/migrations/001_initial_schema.sql
+      
+      - name: Verify tables created
+        env:
+          PGPASSWORD: testpass
+        run: |
+          psql -h localhost -U postgres -d arbfinder_test -c "\dt"
+          psql -h localhost -U postgres -d arbfinder_test -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';"
+      
+      - name: Verify indexes created
+        env:
+          PGPASSWORD: testpass
+        run: |
+          psql -h localhost -U postgres -d arbfinder_test -c "SELECT indexname FROM pg_indexes WHERE schemaname = 'public';"
+
+  # ============================================================================
+  # Docker Build
+  # ============================================================================
+  
+  docker-build:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Build backend image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: arbfinder-backend:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      
+      - name: Test docker-compose
+        run: |
+          docker-compose config
+
+  # ============================================================================
+  # Documentation Check
+  # ============================================================================
+  
+  check-docs:
+    name: Check Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Check for broken links in markdown
+        uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          use-quiet-mode: 'yes'
+          config-file: '.github/markdown-link-check-config.json'
+        continue-on-error: true
+      
+      - name: Validate markdown formatting
+        uses: DavidAnson/markdownlint-cli2-action@v14
+        with:
+          globs: '**/*.md'
+        continue-on-error: true
+      
+      - name: Check for TODO/FIXME comments
+        run: |
+          echo "Checking for TODO/FIXME comments..."
+          grep -r "TODO\|FIXME" --include="*.py" --include="*.ts" --include="*.tsx" backend/ frontend/ || echo "No TODO/FIXME found"
+
+  # ============================================================================
+  # Integration Tests
+  # ============================================================================
+  
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: [test-python, test-frontend]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+          cd frontend && npm ci
+      
+      - name: Start backend server
+        run: |
+          cd backend
+          python -m uvicorn api.main:app --host 0.0.0.0 --port 8080 &
+          sleep 10
+        continue-on-error: true
+      
+      - name: Test API endpoints
+        run: |
+          curl -f http://localhost:8080/ || echo "API not responding"
+          curl -f http://localhost:8080/api/statistics || echo "Statistics endpoint not responding"
+        continue-on-error: true
+
+  # ============================================================================
+  # Summary
+  # ============================================================================
+  
+  ci-success:
+    name: CI Pipeline Success
+    runs-on: ubuntu-latest
+    needs: 
+      - lint-python
+      - lint-frontend
+      - test-python
+      - test-analysis-cli
+      - test-frontend
+      - security-scan-python
+      - security-scan-npm
+      - validate-database-schema
+      - docker-build
+      - check-docs
+    if: always()
+    steps:
+      - name: Check CI status
+        run: |
+          if [ "${{ contains(needs.*.result, 'failure') }}" == "true" ]; then
+            echo "❌ CI Pipeline failed"
+            exit 1
+          else
+            echo "✅ CI Pipeline passed"
+          fi
