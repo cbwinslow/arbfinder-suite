@@ -41,18 +41,38 @@ class TestGenerator:
         # Remove 'self' from args if present
         test_args = [arg for arg in args if arg != 'self']
         
-        # Generate test template
+        # Generate test template with proper mocking
         test_code = f'''def test_{func_name}():
     """Test {func_name} function."""
-    # TODO: Add test implementation
     from {module_name} import {func_name}
+    from unittest.mock import Mock, patch
     
+    # TODO: Customize test parameters
+'''
+        
+        if test_args:
+            # Generate mock parameters
+            for arg in test_args:
+                test_code += f'    mock_{arg} = Mock()  # TODO: Set appropriate value\n'
+            
+            # Generate test with mocked args
+            args_str = ", ".join(f"mock_{arg}" for arg in test_args)
+            test_code += f'''    
     # Test with valid input
-    result = {func_name}({", ".join(f"mock_{arg}" for arg in test_args)})
-    assert result is not None
-    
-    # Test edge cases
+    result = {func_name}({args_str})
+    assert result is not None  # TODO: Add proper assertion
+'''
+        else:
+            # Function with no args
+            test_code += f'''    
+    # Test function call
+    result = {func_name}()
+    assert result is not None  # TODO: Add proper assertion
+'''
+        
+        test_code += '''    
     # TODO: Add edge case tests
+    # TODO: Add error handling tests
 '''
         
         return test_code

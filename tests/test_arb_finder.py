@@ -9,8 +9,8 @@ from pathlib import Path
 from unittest.mock import Mock, patch, MagicMock
 
 
-def test_db_init():
-    """Test database initialization"""
+def test_db_init_and_tables():
+    """Test database initialization and table structure"""
     from backend.arb_finder import db_init
     import sqlite3
     
@@ -22,44 +22,15 @@ def test_db_init():
         # Test database initialization
         db_init(db_path)
         
-        # Verify tables exist by connecting to the database
+        # Verify tables exist and have correct structure
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
+        
+        # Check tables exist
         cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
         tables = [row[0] for row in cursor.fetchall()]
-        
         assert 'listings' in tables
         assert 'comps' in tables
-        
-        conn.close()
-    finally:
-        # Cleanup
-        if os.path.exists(db_path):
-            os.remove(db_path)
-
-
-@pytest.mark.asyncio
-async def test_fetch_provider_data_with_mock():
-    """Test fetching provider data with mocked responses"""
-    # This test is a placeholder for when fetch_provider_data is available
-    # For now, we'll skip this test
-    pytest.skip("fetch_provider_data not available yet")
-
-
-def test_db_init_creates_required_tables():
-    """Test that db_init creates all required tables"""
-    from backend.arb_finder import db_init
-    import sqlite3
-    
-    with tempfile.NamedTemporaryFile(delete=False, suffix='.db') as tmp:
-        db_path = tmp.name
-    
-    try:
-        db_init(db_path)
-        
-        # Connect to verify tables
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
         
         # Check listings table structure
         cursor.execute("PRAGMA table_info(listings)")
@@ -72,5 +43,6 @@ def test_db_init_creates_required_tables():
         
         conn.close()
     finally:
+        # Cleanup
         if os.path.exists(db_path):
             os.remove(db_path)
