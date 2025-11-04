@@ -71,3 +71,16 @@ htmlcov/
 # Coverage
 coverage/
 .nyc_output/
+
+# AI Generated Files
+*-report.json
+*-report.md
+analysis-report.json
+crew-output.json
+research-report.md
+review-report.md
+benchmark.json
+load-test-report.html
+
+# Workflow improvements
+.github/workflows-improved/
