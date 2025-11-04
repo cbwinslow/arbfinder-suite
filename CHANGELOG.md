@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+- Consolidate duplicate tests and improve test generator mock handling (3753197)
+- Add implementation summary and update gitignore for AI-generated files (27d00d6)
+- Fix code review issues - improve error handling and remove bc dependency (eb1e9ce)
+- Add comprehensive CI/CD and AI automation documentation (2855a9b)
+- Add AI-powered CI/CD workflows and automation scripts (3eb29ab)
+- Initial plan (704f7de)
+- docs: update changelog [skip ci] (2b12a0a)
 - Add comprehensive GitHub Actions workflows and CI/CD automation (a053c0e)
 - Add comprehensive documentation and examples (863d5d7)
 - Add comprehensive price analysis system and infrastructure (d4f171e)
@@ -11,6 +18,7 @@
 - Update README and CHANGELOG for v0.4.0 (5f105a1)
 - Add project structure, CLI enhancements, TypeScript packages, and tooling (4f4a237)
 - Initial plan (ef7995e)
+- Bump next in /frontend in the npm_and_yarn group across 1 directory (7a0f035)
 - Fix inconsistent params usage at line 85 in backend/api/main.py (74e9ac1)
 - Apply suggestion from @qodo-merge-pro[bot] (24a14eb)
 - Add comprehensive improvement summary document (31cab13)
