@@ -17,10 +17,8 @@ def setup_test_db():
     with tempfile.NamedTemporaryFile(delete=False, suffix='.db') as tmp:
         db_path = tmp.name
     
-    # Initialize database
-    conn = db_init(db_path)
-    if conn:
-        conn.close()
+    # Initialize database (returns None)
+    db_init(db_path)
     
     # Set environment variable for the API
     os.environ['ARBF_DB'] = db_path

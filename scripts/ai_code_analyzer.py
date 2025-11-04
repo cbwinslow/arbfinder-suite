@@ -63,6 +63,16 @@ class CodeAnalyzer:
                             "message": "Catching broad exception - be more specific"
                         })
         
+        except SyntaxError as e:
+            issues.append({
+                "type": "parse_error",
+                "message": f"Syntax error: {e}"
+            })
+        except UnicodeDecodeError as e:
+            issues.append({
+                "type": "parse_error",
+                "message": f"Encoding error: {e}"
+            })
         except Exception as e:
             issues.append({
                 "type": "parse_error",

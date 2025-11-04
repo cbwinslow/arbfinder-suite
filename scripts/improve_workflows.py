@@ -22,11 +22,16 @@ def analyze_workflow(filepath: Path) -> dict:
         # Check for outdated actions
         content = filepath.read_text()
         if 'actions/checkout@v3' in content:
-            improvements.append({
-                'type': 'outdated_action',
-                'message': 'Update to actions/checkout@v4',
-                'line': content.split('\n').index('  - uses: actions/checkout@v3') + 1
-            })
+            # Find line number safely
+            lines = content.split('\n')
+            for i, line in enumerate(lines):
+                if 'actions/checkout@v3' in line:
+                    improvements.append({
+                        'type': 'outdated_action',
+                        'message': 'Update to actions/checkout@v4',
+                        'line': i + 1
+                    })
+                    break
         
         # Check for missing caching
         if 'actions/setup-python@' in content and 'cache:' not in content:

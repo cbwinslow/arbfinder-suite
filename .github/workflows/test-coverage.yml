@@ -60,12 +60,17 @@ jobs:
           COVERAGE=$(python -c "import xml.etree.ElementTree as ET; tree = ET.parse('coverage.xml'); print(float(tree.getroot().attrib['line-rate']) * 100)")
           echo "Coverage: $COVERAGE%"
           
-          if (( $(echo "$COVERAGE < $COVERAGE_THRESHOLD" | bc -l) )); then
-            echo "❌ Coverage $COVERAGE% is below threshold $COVERAGE_THRESHOLD%"
-            exit 1
-          else
-            echo "✅ Coverage $COVERAGE% meets threshold $COVERAGE_THRESHOLD%"
-          fi
+          # Use Python for comparison instead of bc
+          python -c "
+          import sys
+          coverage = float('$COVERAGE')
+          threshold = float('$COVERAGE_THRESHOLD')
+          if coverage < threshold:
+              print(f'❌ Coverage {coverage}% is below threshold {threshold}%')
+              sys.exit(1)
+          else:
+              print(f'✅ Coverage {coverage}% meets threshold {threshold}%')
+          "
         continue-on-error: true
       
       - name: Upload coverage to Codecov

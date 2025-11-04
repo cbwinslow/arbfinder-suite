@@ -306,7 +306,7 @@ python scripts/ai_doc_generator.py --input backend --output docs/api
 
 ## Coverage Goals
 
-- **Current**: 24%
+- **Current**: 26%
 - **Target**: 80%
 - **Threshold in CI**: 80%
 
