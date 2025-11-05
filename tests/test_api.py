@@ -2,9 +2,10 @@
 Tests for API endpoints
 """
 
-import pytest
-import tempfile
 import os
+import tempfile
+
+import pytest
 from fastapi.testclient import TestClient
 
 
@@ -12,19 +13,19 @@ from fastapi.testclient import TestClient
 def setup_test_db():
     """Setup test database"""
     from backend.arb_finder import db_init
-    
+
     # Create a temporary database
-    with tempfile.NamedTemporaryFile(delete=False, suffix='.db') as tmp:
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".db") as tmp:
         db_path = tmp.name
-    
+
     # Initialize database (returns None)
     db_init(db_path)
-    
+
     # Set environment variable for the API
-    os.environ['ARBF_DB'] = db_path
-    
+    os.environ["ARBF_DB"] = db_path
+
     yield db_path
-    
+
     # Cleanup
     if os.path.exists(db_path):
         os.remove(db_path)
@@ -34,6 +35,7 @@ def setup_test_db():
 def client(setup_test_db):
     """Create test client"""
     from backend.api.main import app
+
     return TestClient(app)
 
 
