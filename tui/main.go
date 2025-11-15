@@ -23,19 +23,46 @@ type model struct {
 // Initialize the model
 func initialModel() model {
 	db := NewDatabase()
+	search := NewSearchPane()
+	results := NewResultsPane()
+	stats := NewStatsPane()
+	config := NewConfigPane()
+	
+	// Set database references
+	stats.db = db
+	config.db = db
+	
 	return model{
 		currentPane: 0,
-		search:      NewSearchPane(),
-		results:     NewResultsPane(),
-		stats:       NewStatsPane(),
-		config:      NewConfigPane(),
+		search:      search,
+		results:     results,
+		stats:       stats,
+		config:      config,
 		db:          db,
 	}
 }
 
 // Init implements tea.Model
 func (m model) Init() tea.Cmd {
-	return nil
+	return tea.Batch(
+		loadInitialStats(m.stats, m.db),
+		loadInitialConfigs(m.config, m.db),
+	)
+}
+
+// Commands for async operations
+func loadInitialStats(pane *StatsPane, db *Database) tea.Cmd {
+	return func() tea.Msg {
+		pane.LoadStats(db)
+		return nil
+	}
+}
+
+func loadInitialConfigs(pane *ConfigPane, db *Database) tea.Cmd {
+	return func() tea.Msg {
+		pane.LoadConfigs(db)
+		return nil
+	}
 }
 
 // Update implements tea.Model
@@ -61,11 +88,43 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 
+	// Handle custom messages
+	switch msg := msg.(type) {
+	case SearchMsg:
+		// Trigger search in API
+		return m, performSearch(msg, m.results)
+	
+	case SearchResultMsg:
+		// Update results pane
+		if msg.Error == nil {
+			m.results.SetResults(msg.Results)
+			// Save to database
+			if m.db != nil {
+				_ = m.db.SaveSearchHistory(m.search.lastQuery, len(msg.Results))
+			}
+		} else {
+			m.results.lastError = msg.Error.Error()
+		}
+		m.search.searching = false
+		return m, nil
+	}
+
 	// Update the current pane
 	var cmd tea.Cmd
 	switch m.currentPane {
 	case 0:
 		*m.search, cmd = m.search.Update(msg)
+		// Check if search was triggered
+		if m.search.lastQuery != "" && m.search.searching {
+			// Send search message
+			return m, func() tea.Msg {
+				return SearchMsg{
+					Query:     m.search.lastQuery,
+					Provider:  m.search.providers[m.search.providerSelect],
+					Threshold: 20.0, // Default threshold
+				}
+			}
+		}
 	case 1:
 		*m.results, cmd = m.results.Update(msg)
 	case 2:
@@ -75,6 +134,18 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	return m, cmd
+}
+
+// performSearch executes a search query via the API
+func performSearch(msg SearchMsg, results *ResultsPane) tea.Cmd {
+	return func() tea.Msg {
+		// Perform API search
+		listings, err := results.apiClient.SearchListings(msg.Query)
+		return SearchResultMsg{
+			Results: listings,
+			Error:   err,
+		}
+	}
 }
 
 // View implements tea.Model
