@@ -48,6 +48,12 @@ out/
 *.sqlite3
 *.db
 
+# Go
+tui/arbfinder-tui
+*.exe
+*.test
+*.prof
+
 # Logs
 logs/
 *.log

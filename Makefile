@@ -1,4 +1,4 @@
-.PHONY: help install install-dev test lint format clean run-server run-frontend run-cli docker-build
+.PHONY: help install install-dev test lint format clean run-server run-frontend run-cli run-tui build-tui docker-build
 
 help:  ## Show this help message
 	@echo 'Usage: make [target]'
@@ -47,6 +47,12 @@ run-frontend:  ## Run the frontend dev server
 
 run-cli:  ## Run the CLI in interactive mode
 	python -m arbfinder.cli --interactive
+
+build-tui:  ## Build the Bubbletea TUI
+	cd tui && go build -o arbfinder-tui
+
+run-tui:  ## Run the Bubbletea TUI
+	cd tui && go run .
 
 docker-build:  ## Build Docker image
 	docker build -t arbfinder-suite .
