@@ -11,6 +11,7 @@
 - 🔍 Async crawler for ShopGoodwill, GovDeals, GovernmentSurplus (+ eBay sold comps)
 - 📊 Interactive TUI with rich terminal output and progress bars
 - 🖥️ **NEW**: Enhanced CLI with subcommands (search, watch, config, db, server)
+- 🎨 **NEW**: Bubbletea TUI - Multi-pane interactive interface with database integration
 - 📦 **NEW**: TypeScript/Node.js SDK and CLI tools
 - 🧪 **NEW**: Comprehensive test suite with pytest
 - 🐳 **NEW**: Docker and Docker Compose support
@@ -133,7 +134,7 @@ arbfinder-ts comps "iPad"
 arbfinder-ts --api-url https://api.example.com list
 ```
 
-### Interactive TUI Mode
+### Interactive TUI Mode (Python)
 
 Run the crawler in interactive mode with rich terminal UI:
 
@@ -152,6 +153,31 @@ This will prompt you for:
 - Provider selection
 - Discount threshold
 - Export options
+
+### Bubbletea TUI (Go - Advanced)
+
+Run the advanced multi-pane TUI built with Bubbletea:
+
+```bash
+make build-tui  # Build the TUI
+make run-tui    # Run the TUI
+```
+
+Or directly:
+
+```bash
+cd tui
+go run .
+```
+
+Features:
+- **Multiple Panes**: Search, Results, Statistics, Configuration
+- **Database Integration**: Save searches, configs, and price history
+- **API Integration**: Real-time data from the backend server
+- **Keyboard Navigation**: Full keyboard-driven interface
+- **Data Persistence**: SQLite database for local storage
+
+See [tui/README.md](tui/README.md) for detailed TUI documentation.
 
 ### Command Line Mode
 
@@ -349,6 +375,16 @@ arbfinder-suite/
 │   │   ├── __init__.py
 │   │   └── main.py         # FastAPI server
 │   └── requirements.txt
+├── tui/                    # Go Bubbletea TUI (NEW)
+│   ├── main.go             # Main TUI application
+│   ├── database.go         # SQLite database layer
+│   ├── api_client.go       # API client
+│   ├── search_pane.go      # Search interface
+│   ├── results_pane.go     # Results display
+│   ├── stats_pane.go       # Statistics view
+│   ├── config_pane.go      # Configuration manager
+│   ├── go.mod              # Go dependencies
+│   └── README.md           # TUI documentation
 ├── frontend/               # Next.js frontend
 │   ├── app/
 │   │   ├── page.tsx        # Main UI
