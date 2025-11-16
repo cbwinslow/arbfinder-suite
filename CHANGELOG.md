@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+- Add implementation summary document (b8deefb)
+- Add visual mockups and interface documentation (1b0e0cd)
+- Add comprehensive architecture documentation for TUI (5650100)
+- Add message passing, search integration, tests, and examples for TUI (53077a2)
+- Add Bubbletea TUI with multi-pane interface and database integration (8820cf0)
+- Initial plan (7e62011)
+- chore: auto-format code with AI assistance (7842eb3)
+- docs: update changelog [skip ci] (1d5378f)
 - Consolidate duplicate tests and improve test generator mock handling (3753197)
 - Add implementation summary and update gitignore for AI-generated files (27d00d6)
 - Fix code review issues - improve error handling and remove bc dependency (eb1e9ce)
