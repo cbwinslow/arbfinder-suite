@@ -104,27 +104,27 @@ export default function Home() {
   const sources = Array.from(new Set(rows.map(r => r.source)))
 
   return (
-    <main className="mx-auto max-w-7xl p-6 space-y-8">
+    <main className="mx-auto max-w-7xl p-4 sm:p-6 space-y-6 sm:space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
+          <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
             ArbFinder Suite
           </h1>
-          <p className="text-gray-400 mt-2">Find arbitrage opportunities across marketplaces</p>
+          <p className="text-gray-400 mt-2 text-sm sm:text-base">Find arbitrage opportunities across marketplaces</p>
         </div>
         
-        <div className="flex gap-4 items-center">
+        <div className="flex gap-3 sm:gap-4 items-center">
           <Link 
             href="/comps" 
-            className="text-blue-400 hover:text-blue-300 underline transition"
+            className="text-blue-400 hover:text-blue-300 underline transition text-sm sm:text-base"
           >
             📊 View Comps
           </Link>
           {stats && (
-            <div className="bg-neutral-900 rounded-lg p-4 border border-green-500/20">
-              <div className="text-sm text-gray-400">Total Listings</div>
-              <div className="text-3xl font-bold text-green-400">{stats.total_listings}</div>
+            <div className="bg-neutral-900 rounded-lg p-3 sm:p-4 border border-green-500/20">
+              <div className="text-xs sm:text-sm text-gray-400">Total Listings</div>
+              <div className="text-2xl sm:text-3xl font-bold text-green-400">{stats.total_listings}</div>
             </div>
           )}
         </div>
@@ -132,24 +132,24 @@ export default function Home() {
 
       {/* Statistics Cards */}
       {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-neutral-900 rounded-lg p-4 border border-green-500/20">
-            <div className="text-sm text-gray-400">Recent (24h)</div>
-            <div className="text-2xl font-bold text-green-400">{stats.recent_listings}</div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+          <div className="bg-neutral-900 rounded-lg p-3 sm:p-4 border border-green-500/20">
+            <div className="text-xs sm:text-sm text-gray-400">Recent (24h)</div>
+            <div className="text-xl sm:text-2xl font-bold text-green-400">{stats.recent_listings}</div>
           </div>
-          <div className="bg-neutral-900 rounded-lg p-4 border border-blue-500/20">
-            <div className="text-sm text-gray-400">Comparable Groups</div>
-            <div className="text-2xl font-bold text-blue-400">{stats.total_comps}</div>
+          <div className="bg-neutral-900 rounded-lg p-3 sm:p-4 border border-blue-500/20">
+            <div className="text-xs sm:text-sm text-gray-400">Comparable Groups</div>
+            <div className="text-xl sm:text-2xl font-bold text-blue-400">{stats.total_comps}</div>
           </div>
           {stats.price_stats && (
             <>
-              <div className="bg-neutral-900 rounded-lg p-4 border border-yellow-500/20">
-                <div className="text-sm text-gray-400">Avg Price</div>
-                <div className="text-2xl font-bold text-yellow-400">${stats.price_stats.average}</div>
+              <div className="bg-neutral-900 rounded-lg p-3 sm:p-4 border border-yellow-500/20">
+                <div className="text-xs sm:text-sm text-gray-400">Avg Price</div>
+                <div className="text-xl sm:text-2xl font-bold text-yellow-400">${stats.price_stats.average}</div>
               </div>
-              <div className="bg-neutral-900 rounded-lg p-4 border border-purple-500/20">
-                <div className="text-sm text-gray-400">Price Range</div>
-                <div className="text-lg font-bold text-purple-400">
+              <div className="bg-neutral-900 rounded-lg p-3 sm:p-4 border border-purple-500/20">
+                <div className="text-xs sm:text-sm text-gray-400">Price Range</div>
+                <div className="text-base sm:text-lg font-bold text-purple-400">
                   ${stats.price_stats.min} - ${stats.price_stats.max}
                 </div>
               </div>
@@ -240,7 +240,7 @@ export default function Home() {
 
       {/* Listings Grid */}
       <div>
-        <h2 className="text-2xl font-semibold mb-4 text-green-400">
+        <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-green-400">
           📦 Listings ({rows.length})
         </h2>
         
@@ -255,11 +255,11 @@ export default function Home() {
           {rows.map((r, i) => (
             <div
               key={i}
-              className="bg-neutral-900 p-6 rounded-lg border border-gray-800 hover:border-green-500/50 transition group"
+              className="bg-neutral-900 p-4 sm:p-6 rounded-lg border border-gray-800 hover:border-green-500/50 transition group"
             >
-              <div className="flex justify-between items-start">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
                 <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
+                  <div className="flex items-center gap-2 sm:gap-3 mb-2 flex-wrap">
                     <span className="text-xs font-semibold px-2 py-1 rounded bg-green-900/30 text-green-400 border border-green-500/30">
                       {r.source}
                     </span>
@@ -268,12 +268,12 @@ export default function Home() {
                     </span>
                   </div>
                   
-                  <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-green-400 transition">
+                  <h3 className="text-base sm:text-lg font-semibold text-white mb-2 group-hover:text-green-400 transition">
                     {r.title}
                   </h3>
                   
-                  <div className="flex items-center gap-4 text-sm">
-                    <span className="text-2xl font-bold text-green-400">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm">
+                    <span className="text-xl sm:text-2xl font-bold text-green-400">
                       ${r.price.toFixed(2)} {r.currency}
                     </span>
                     <a
@@ -288,8 +288,10 @@ export default function Home() {
                 </div>
                 
                 <button
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 px-6 py-3 rounded-lg font-semibold transition transform hover:scale-105"
+                  type="button"
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold transition transform hover:scale-105 text-sm sm:text-base whitespace-nowrap"
                   onClick={() => checkout(r.title, r.price)}
+                  aria-label={`Purchase ${r.title} for $${r.price.toFixed(2)}`}
                 >
                   💳 Buy Now
                 </button>
