@@ -288,8 +288,10 @@ export default function Home() {
                 </div>
                 
                 <button
+                  type="button"
                   className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold transition transform hover:scale-105 text-sm sm:text-base whitespace-nowrap"
                   onClick={() => checkout(r.title, r.price)}
+                  aria-label={`Purchase ${r.title} for $${r.price.toFixed(2)}`}
                 >
                   💳 Buy Now
                 </button>
