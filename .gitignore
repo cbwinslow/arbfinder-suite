@@ -35,6 +35,8 @@ yarn-error.log*
 out/
 .vercel
 .env*.local
+next-env.d.ts
+*.bak
 
 # IDE
 .vscode/
