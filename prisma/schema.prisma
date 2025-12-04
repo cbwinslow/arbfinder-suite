@@ -1,0 +1,174 @@
+// Prisma schema for ArbFinder Suite
+// Supports both PostgreSQL and MySQL
+
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = env("DATABASE_PROVIDER") // "postgresql" or "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// Listings table - stores scraped deals and opportunities
+model Listing {
+  id          Int      @id @default(autoincrement())
+  source      String   // shopgoodwill, govdeals, etc.
+  url         String   @unique
+  title       String
+  price       Float
+  currency    String   @default("USD")
+  condition   String?
+  description String?  @db.Text
+  imageUrl    String?
+  metadata    Json?    // flexible metadata storage
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  priceHistory PriceHistory[]
+  images       Image[]
+  crawlResults CrawlResult[]
+
+  @@index([source])
+  @@index([createdAt])
+  @@index([price])
+  @@map("listings")
+}
+
+// Price comparables from sold items
+model Comparable {
+  id           Int      @id @default(autoincrement())
+  keyTitle     String   @unique // normalized title for matching
+  avgPrice     Float
+  medianPrice  Float
+  count        Int
+  minPrice     Float?
+  maxPrice     Float?
+  metadata     Json?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([keyTitle])
+  @@map("comps")
+}
+
+// Price history tracking
+model PriceHistory {
+  id         Int      @id @default(autoincrement())
+  listingId  Int
+  price      Float
+  timestamp  DateTime @default(now())
+  source     String?
+  
+  listing    Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId])
+  @@index([timestamp])
+  @@map("price_history")
+}
+
+// Image storage with cloud bucket references
+model Image {
+  id         Int      @id @default(autoincrement())
+  listingId  Int
+  url        String   // original URL
+  bucketUrl  String?  // MinIO/Cloudflare bucket URL
+  thumbnail  String?
+  metadata   Json?    // dimensions, format, etc.
+  createdAt  DateTime @default(now())
+  
+  listing    Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId])
+  @@map("images")
+}
+
+// Web crawler results and monitoring
+model CrawlResult {
+  id          Int      @id @default(autoincrement())
+  listingId   Int?     // optional link to created listing
+  targetUrl   String
+  status      String   // success, error, pending
+  itemsFound  Int      @default(0)
+  priceData   Json?    // raw price data extracted
+  metadata    Json?    // crawler metadata
+  errorMsg    String?  @db.Text
+  startedAt   DateTime @default(now())
+  completedAt DateTime?
+  duration    Int?     // milliseconds
+  
+  listing     Listing? @relation(fields: [listingId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([startedAt])
+  @@index([targetUrl])
+  @@map("crawl_results")
+}
+
+// Crawler configuration and site list
+model CrawlerTarget {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  url         String
+  enabled     Boolean  @default(true)
+  schedule    String?  // cron expression
+  selectors   Json?    // CSS selectors for scraping
+  lastCrawl   DateTime?
+  nextCrawl   DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([enabled])
+  @@index([nextCrawl])
+  @@map("crawler_targets")
+}
+
+// AI Agent job tracking
+model AgentJob {
+  id          Int      @id @default(autoincrement())
+  agentType   String   // market_researcher, price_specialist, etc.
+  status      String   // queued, running, completed, failed
+  input       Json     // input data for the agent
+  output      Json?    // agent's output
+  errorMsg    String?  @db.Text
+  startedAt   DateTime @default(now())
+  completedAt DateTime?
+  duration    Int?     // milliseconds
+
+  @@index([agentType])
+  @@index([status])
+  @@index([startedAt])
+  @@map("agent_jobs")
+}
+
+// Metadata enrichment queue
+model MetadataQueue {
+  id          Int      @id @default(autoincrement())
+  resourceType String  // listing, image, etc.
+  resourceId  Int
+  fieldName   String   // field that needs enrichment
+  priority    Int      @default(5)
+  status      String   @default("pending") // pending, processing, completed, failed
+  attempts    Int      @default(0)
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  processedAt DateTime?
+
+  @@index([status, priority])
+  @@index([resourceType, resourceId])
+  @@map("metadata_queue")
+}
+
+// User sessions and preferences (for dashboard)
+model User {
+  id          Int      @id @default(autoincrement())
+  email       String   @unique
+  name        String?
+  preferences Json?    // UI preferences, notification settings
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("users")
+}

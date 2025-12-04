@@ -1,28 +1,168 @@
 # CrewAI configuration for price research & listing creation
 project: arbfinder
 agents:
+  # Data Ingestion Agents
+  web_crawler:
+    role: "Web Crawler Agent"
+    goal: "Crawl target websites from config and extract price data, images, and metadata efficiently."
+    tools: [crawl4ai, html_parser, price_extractor]
+    backstory: "Expert at navigating websites and extracting structured data from HTML."
+    
+  data_validator:
+    role: "Data Validation Agent"
+    goal: "Validate and clean incoming data from crawlers ensuring data quality and consistency."
+    tools: [schema_validator, data_cleaner, duplicate_checker]
+    backstory: "Meticulous data analyst who ensures all ingested data meets quality standards."
+    
+  # Market Research Agents
   market_researcher:
     role: "Market Researcher"
     goal: "Collect comps and recent prices for a given query; summarize trends and realistic resale price."
-    tools: [web_search, provider_scan]
+    tools: [web_search, provider_scan, price_aggregator]
+    backstory: "Experienced market analyst with deep knowledge of pricing trends and market dynamics."
+    
   price_specialist:
     role: "Price Specialist"
     goal: "Compute target list price, floor, and auto-offer settings based on comps and fees."
-    tools: [fee_calculator, provider_scan]
+    tools: [fee_calculator, provider_scan, statistics_engine]
+    backstory: "Mathematical pricing expert who optimizes profit margins."
+    
+  # Content Creation Agents
   listing_writer:
     role: "Listing Specialist"
     goal: "Draft SEO-optimized titles and bullet descriptions with condition notes and shipping."
-    tools: [template_library]
+    tools: [template_library, seo_optimizer, content_generator]
+    backstory: "Professional copywriter specializing in e-commerce listings that convert."
+    
+  image_processor:
+    role: "Image Processing Agent"
+    goal: "Process, optimize, and store images in cloud buckets with proper metadata."
+    tools: [image_optimizer, bucket_uploader, thumbnail_generator]
+    backstory: "Visual content specialist ensuring all images are high-quality and properly stored."
+    
+  # Metadata Enrichment Agents
+  metadata_enricher:
+    role: "Metadata Enrichment Agent"
+    goal: "Fill in missing metadata fields like categories, brands, specifications using AI."
+    tools: [openai_api, metadata_database, category_classifier]
+    backstory: "AI-powered data enrichment specialist with extensive product knowledge."
+    
+  title_enhancer:
+    role: "Title Enhancement Agent"
+    goal: "Improve and standardize product titles for better searchability and consistency."
+    tools: [nlp_processor, title_templates, brand_database]
+    backstory: "NLP expert specializing in product title optimization."
+    
+  # Cross-listing and Distribution
   crosslister:
     role: "Cross-listing Operator"
     goal: "Prepare payloads for eBay/Mercari/Reverb APIs or CSV templates."
-    tools: [csv_exporter, platform_api]
-process:
-  - task: scan_providers
-    by: market_researcher
-  - task: compute_prices
-    by: price_specialist
-  - task: draft_listing
-    by: listing_writer
-  - task: crosslist
-    by: crosslister
+    tools: [csv_exporter, platform_api, batch_processor]
+    backstory: "Integration specialist managing listings across multiple platforms."
+    
+  # Monitoring and Quality Control
+  quality_monitor:
+    role: "Quality Monitor Agent"
+    goal: "Monitor data quality, detect anomalies, and ensure compliance with standards."
+    tools: [anomaly_detector, quality_metrics, alert_system]
+    backstory: "Quality assurance expert maintaining high data standards."
+
+# Worker processes for ongoing tasks
+workers:
+  metadata_worker:
+    name: "Metadata Fill Worker"
+    agent: metadata_enricher
+    schedule: "*/15 * * * *"  # Every 15 minutes
+    task: "Process metadata queue and fill missing fields"
+    
+  image_worker:
+    name: "Image Processing Worker"
+    agent: image_processor
+    schedule: "*/10 * * * *"  # Every 10 minutes
+    task: "Process and upload images to cloud storage"
+    
+  crawler_worker:
+    name: "Scheduled Crawler Worker"
+    agent: web_crawler
+    schedule: "0 */4 * * *"  # Every 4 hours
+    task: "Run scheduled crawls based on crawler.toml config"
+    
+  validation_worker:
+    name: "Data Validation Worker"
+    agent: data_validator
+    schedule: "*/20 * * * *"  # Every 20 minutes
+    task: "Validate recent data entries and flag issues"
+
+# Process definitions for different workflows
+processes:
+  # Main ingestion workflow
+  ingest_data:
+    - task: crawl_target_sites
+      by: web_crawler
+      output: raw_crawl_data
+    - task: validate_data
+      by: data_validator
+      input: raw_crawl_data
+      output: validated_data
+    - task: enrich_metadata
+      by: metadata_enricher
+      input: validated_data
+      output: enriched_data
+    - task: process_images
+      by: image_processor
+      input: enriched_data
+      output: final_data
+      
+  # Listing creation workflow
+  create_listing:
+    - task: research_market
+      by: market_researcher
+      output: market_data
+    - task: compute_prices
+      by: price_specialist
+      input: market_data
+      output: pricing_data
+    - task: draft_listing
+      by: listing_writer
+      input: pricing_data
+      output: listing_draft
+    - task: crosslist
+      by: crosslister
+      input: listing_draft
+      output: published_listings
+      
+  # Metadata enrichment workflow
+  enrich_metadata:
+    - task: identify_missing_fields
+      by: quality_monitor
+      output: missing_fields_list
+    - task: fill_metadata
+      by: metadata_enricher
+      input: missing_fields_list
+      output: completed_metadata
+    - task: enhance_titles
+      by: title_enhancer
+      input: completed_metadata
+      output: final_metadata
+    - task: validate_quality
+      by: quality_monitor
+      input: final_metadata
+
+# Tool configurations
+tools:
+  crawl4ai:
+    type: "web_crawler"
+    config_file: "config/crawler.toml"
+    
+  openai_api:
+    type: "llm"
+    model: "gpt-4"
+    temperature: 0.7
+    
+  bucket_uploader:
+    minio_endpoint: "${MINIO_ENDPOINT}"
+    cloudflare_account: "${CLOUDFLARE_ACCOUNT_ID}"
+    
+  metadata_database:
+    type: "prisma"
+    connection: "${DATABASE_URL}"

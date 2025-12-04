@@ -1,0 +1,102 @@
+# Crawl4AI Configuration for ArbFinder Suite
+# List of websites to crawl for price data
+
+[crawler]
+# Global crawler settings
+user_agent = "ArbFinder/1.0 (+https://github.com/cbwinslow/arbfinder-suite)"
+timeout = 30
+max_retries = 3
+delay_between_requests = 2  # seconds
+concurrent_requests = 5
+
+[storage]
+# MinIO and Cloudflare bucket settings
+use_minio = true
+use_cloudflare = true
+image_bucket = "arbfinder-images"
+data_bucket = "arbfinder-data"
+
+# Target websites to crawl
+[[targets]]
+name = "shopgoodwill"
+url = "https://shopgoodwill.com"
+enabled = true
+schedule = "0 */4 * * *"  # Every 4 hours
+category_urls = [
+    "https://shopgoodwill.com/categories/listing?st=&sg=&c=318&s=&lp=0&hp=999999&sbn=&spo=false&snpo=false&socs=false&sd=false&sca=false&caed=12%2F7%2F2024&cadb=7&scs=false&sis=false&col=1&p=1&ps=40&desc=false&ss=0&UseBuyerPrefs=true&sus=false&cln=1&catId=318&zip=&miles=",
+]
+
+[targets.selectors]
+item_container = ".item-container"
+title = "h3.item-title"
+price = ".item-price"
+image = "img.item-image"
+link = "a.item-link"
+condition = ".item-condition"
+
+[[targets]]
+name = "govdeals"
+url = "https://www.govdeals.com"
+enabled = true
+schedule = "0 */6 * * *"  # Every 6 hours
+category_urls = [
+    "https://www.govdeals.com/index.cfm?fa=Main.AdvSearchResultsNew&searchPg=Classic&inv_num=&category=00&kWord=&kWordSelect=2&sortBy=ad&agency=&state=&country=&locID=&timing=bySimple&locationType=state&timeType=&timingWithin=1",
+]
+
+[targets.selectors]
+item_container = ".listing-item"
+title = ".listing-title"
+price = ".listing-price"
+image = ".listing-image img"
+link = ".listing-link"
+condition = ".listing-condition"
+
+[[targets]]
+name = "governmentsurplus"
+url = "https://www.governmentsurplus.com"
+enabled = true
+schedule = "0 */8 * * *"  # Every 8 hours
+category_urls = [
+    "https://www.governmentsurplus.com/search/results",
+]
+
+[targets.selectors]
+item_container = ".product-item"
+title = ".product-title"
+price = ".product-price"
+image = ".product-image img"
+link = ".product-link"
+condition = ".product-condition"
+
+[[targets]]
+name = "ebay_sold"
+url = "https://www.ebay.com"
+enabled = true
+schedule = "0 */12 * * *"  # Every 12 hours
+category_urls = [
+    "https://www.ebay.com/sch/i.html?_nkw={query}&LH_Sold=1&LH_Complete=1",
+]
+
+[targets.selectors]
+item_container = ".s-item"
+title = ".s-item__title"
+price = ".s-item__price"
+image = ".s-item__image-img"
+link = ".s-item__link"
+condition = ".SECONDARY_INFO"
+
+# Custom targets can be added here
+[[targets]]
+name = "custom_target_1"
+url = "https://example.com"
+enabled = false
+schedule = "0 0 * * *"  # Daily at midnight
+category_urls = []
+
+[targets.selectors]
+item_container = ".item"
+title = ".title"
+price = ".price"
+image = "img"
+link = "a"
+condition = ".condition"
