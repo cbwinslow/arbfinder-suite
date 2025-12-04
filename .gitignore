@@ -103,3 +103,6 @@ wrangler.toml.bak
 
 # MinIO data
 minio-data/
+
+# TypeScript build info
+*.tsbuildinfo
