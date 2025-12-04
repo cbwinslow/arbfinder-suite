@@ -90,3 +90,19 @@ load-test-report.html
 
 # Workflow improvements
 .github/workflows-improved/
+
+# Prisma
+prisma/migrations/
+.prisma/
+
+# Cloudflare
+cloudflare/node_modules/
+cloudflare/dist/
+.wrangler/
+wrangler.toml.bak
+
+# MinIO data
+minio-data/
+
+# TypeScript build info
+*.tsbuildinfo

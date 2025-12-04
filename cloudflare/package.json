@@ -1,0 +1,28 @@
+{
+  "name": "arbfinder-cloudflare-worker",
+  "version": "1.0.0",
+  "description": "Cloudflare Worker for ArbFinder Suite",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "deploy:staging": "wrangler deploy --env staging",
+    "deploy:production": "wrangler deploy --env production",
+    "tail": "wrangler tail",
+    "build": "esbuild src/index.ts --bundle --outfile=dist/index.js --format=esm"
+  },
+  "keywords": [
+    "cloudflare",
+    "workers",
+    "arbfinder"
+  ],
+  "author": "ArbFinder Contributors",
+  "license": "MIT",
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20231218.0",
+    "esbuild": "^0.19.0",
+    "wrangler": "^3.22.0",
+    "typescript": "^5.3.0"
+  },
+  "dependencies": {}
+}

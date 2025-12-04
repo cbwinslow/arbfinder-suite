@@ -7,9 +7,22 @@ stripe==10.6.0
 rich==13.7.0
 python-dotenv==1.0.0
 
-# Price analysis and calculations
+# Database and ORM
 psycopg2-binary>=2.9.9  # PostgreSQL adapter
+pymysql>=1.1.0          # MySQL adapter
 sqlalchemy>=2.0.23      # ORM for database operations
+prisma>=0.11.0          # Prisma ORM for Python
+
+# Web Scraping and Crawling
+crawl4ai>=0.2.0         # AI-powered web crawler
+beautifulsoup4>=4.12.0  # HTML parsing
+lxml>=4.9.0             # XML/HTML parsing
+playwright>=1.40.0      # Browser automation (optional for crawl4ai)
+toml>=0.10.2            # TOML configuration files
+
+# Cloud Storage
+minio>=7.2.0            # MinIO object storage
+boto3>=1.34.0           # AWS S3/Cloudflare R2 (S3-compatible)
 
 # Infrastructure
 pulumi>=3.96.0          # Infrastructure as Code
@@ -21,3 +34,7 @@ pulumi-aws>=6.10.0
 crewai>=0.1.0           # AI agent framework for automation
 openai>=1.0.0           # OpenAI API for AI-powered features
 langchain>=0.1.0        # LangChain for AI workflows
+langchain-openai>=0.0.5 # OpenAI integration for LangChain
+
+# Image Processing
+Pillow>=10.1.0          # Image manipulation

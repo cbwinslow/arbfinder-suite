@@ -12,6 +12,16 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
+# Import new routers
+try:
+    from .crawler import router as crawler_router
+    from .agents import router as agents_router
+    from .live_updates import router as live_updates_router
+except ImportError:
+    crawler_router = None
+    agents_router = None
+    live_updates_router = None
+
 DB_PATH = os.getenv("ARBF_DB", os.path.expanduser("~/.arb_finder.sqlite3"))
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
 FRONTEND_ORIGIN = os.getenv("FRONTEND_ORIGIN", "http://localhost:3000")
@@ -31,6 +41,14 @@ app.add_middleware(
 
 if STRIPE_SECRET_KEY:
     stripe.api_key = STRIPE_SECRET_KEY
+
+# Include new routers
+if crawler_router:
+    app.include_router(crawler_router)
+if agents_router:
+    app.include_router(agents_router)
+if live_updates_router:
+    app.include_router(live_updates_router)
 
 
 class Listing(BaseModel):
