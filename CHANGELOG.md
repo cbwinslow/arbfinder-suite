@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+- Clean up build artifacts and update .gitignore (31f818f)
+- Add visual features overview and validate code syntax (50fd276)
+- Add comprehensive implementation summary for platform features (4c8a23b)
+- Add setup script, quickstart guide, and improve .gitignore (c1f60e7)
+- Add comprehensive web platform with retro Windows theme, Crawl4AI, CrewAI agents, and cloud storage (64ef0b3)
+- Initial plan (000831d)
+- docs: update changelog [skip ci] (4ea1bb2)
 - Add implementation summary document (b8deefb)
 - Add visual mockups and interface documentation (1b0e0cd)
 - Add comprehensive architecture documentation for TUI (5650100)
