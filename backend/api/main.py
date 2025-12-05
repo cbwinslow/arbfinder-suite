@@ -14,8 +14,8 @@ from pydantic import BaseModel
 
 # Import new routers
 try:
-    from .crawler import router as crawler_router
     from .agents import router as agents_router
+    from .crawler import router as crawler_router
     from .live_updates import router as live_updates_router
 except ImportError:
     crawler_router = None
