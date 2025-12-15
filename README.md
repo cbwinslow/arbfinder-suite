@@ -570,6 +570,31 @@ Contributions welcome! Please:
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
+## Project Management
+
+We use GitHub's built-in features for project management:
+
+- **[Issues](https://github.com/cbwinslow/arbfinder-suite/issues)** - Bug reports, feature requests, and tasks
+- **[Projects](https://github.com/cbwinslow/arbfinder-suite/projects)** - Kanban board for tracking work
+- **[Discussions](https://github.com/cbwinslow/arbfinder-suite/discussions)** - Questions and community discussion
+- **[TASKS.md](TASKS.md)** - Comprehensive task list (60+ items)
+- **[ROADMAP.md](ROADMAP.md)** - Product roadmap and release planning
+- **[GITHUB_FEATURES.md](GITHUB_FEATURES.md)** - Guide to GitHub features we use
+
+See [PROJECT_SETUP.md](.github/PROJECT_SETUP.md) for setting up project boards.
+
+## Documentation
+
+- **[README.md](README.md)** - This file, overview and quick start
+- **[QUICKSTART.md](QUICKSTART.md)** - Quick start guide
+- **[DEVELOPER.md](DEVELOPER.md)** - Developer documentation
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Contribution guidelines
+- **[CHANGELOG.md](CHANGELOG.md)** - Version history
+- **[ROADMAP.md](ROADMAP.md)** - Product roadmap
+- **[SECURITY.md](SECURITY.md)** - Security policy and vulnerability reporting
+- **[SUPPORT.md](SUPPORT.md)** - Getting help and support
+- **[TASKS.md](TASKS.md)** - Task tracking
+
 ## License
 
 MIT License - see LICENSE file for details

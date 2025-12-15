@@ -1,8 +1,35 @@
-# AI Automation Scripts
+# Automation Scripts
 
-This directory contains AI-powered automation scripts for software development tasks.
+This directory contains automation scripts for software development tasks and project management.
 
 ## Scripts Overview
+
+### Project Management Scripts
+
+#### Create Issues from Tasks (`create_issues_from_tasks.py`)
+Automatically creates GitHub issues from tasks listed in TASKS.md:
+- Parses TASKS.md and extracts task information
+- Creates GitHub issues using the gh CLI
+- Auto-applies appropriate labels (priority, component, complexity)
+- Skips tasks that already have issues created
+
+**Usage:**
+```bash
+# Dry run to see what would be created
+python scripts/create_issues_from_tasks.py --dry-run
+
+# Create up to 5 issues (for testing)
+python scripts/create_issues_from_tasks.py --limit 5
+
+# Create all issues
+python scripts/create_issues_from_tasks.py
+```
+
+**Requirements:**
+- GitHub CLI (gh) installed and authenticated
+- TASKS.md file in repository root
+
+### AI Development Scripts
 
 ### CrewAI Development Crew (`crewai_dev_crew.py`)
 Runs a crew of AI agents specialized in software development:
