@@ -1,0 +1,192 @@
+name: Project Board Automation
+
+on:
+  issues:
+    types: [opened, assigned, closed, labeled]
+  pull_request:
+    types: [opened, ready_for_review, closed]
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  # Auto-add new issues and PRs to project
+  add-to-project:
+    name: Add to Project
+    runs-on: ubuntu-latest
+    if: github.event.action == 'opened'
+    steps:
+      - name: Add issue or PR to project
+        uses: actions/add-to-project@v0.5.0
+        with:
+          project-url: https://github.com/users/cbwinslow/projects/1
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  # Move assigned issues to In Progress
+  move-to-in-progress:
+    name: Move Assigned to In Progress
+    runs-on: ubuntu-latest
+    if: github.event_name == 'issues' && github.event.action == 'assigned'
+    steps:
+      - name: Add in-progress label
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['status: in-progress']
+            });
+
+  # Move PRs to In Review when opened
+  move-to-in-review:
+    name: Move PR to In Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.action == 'opened'
+    steps:
+      - name: Add in-review label
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['status: in-review']
+            });
+
+  # Label PRs based on changed files
+  auto-label-pr:
+    name: Auto Label PR
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.action == 'opened'
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Label based on files
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+            
+            const labels = new Set();
+            
+            for (const file of files) {
+              if (file.filename.startsWith('backend/') || file.filename.endsWith('.py')) {
+                labels.add('area: backend');
+              }
+              if (file.filename.startsWith('frontend/') || file.filename.endsWith('.tsx') || file.filename.endsWith('.jsx')) {
+                labels.add('area: frontend');
+              }
+              if (file.filename.startsWith('tui/') || file.filename.endsWith('.go')) {
+                labels.add('area: tui');
+              }
+              if (file.filename.endsWith('.md') || file.filename.startsWith('docs/')) {
+                labels.add('area: documentation');
+              }
+              if (file.filename.includes('test') || file.filename.startsWith('tests/')) {
+                labels.add('area: testing');
+              }
+              if (file.filename.startsWith('.github/workflows/')) {
+                labels.add('area: ci-cd');
+              }
+            }
+            
+            // Add size label
+            const totalChanges = files.reduce((sum, file) => sum + file.changes, 0);
+            if (totalChanges <= 10) {
+              labels.add('size: XS');
+            } else if (totalChanges <= 50) {
+              labels.add('size: S');
+            } else if (totalChanges <= 150) {
+              labels.add('size: M');
+            } else if (totalChanges <= 500) {
+              labels.add('size: L');
+            } else {
+              labels.add('size: XL');
+            }
+            
+            if (labels.size > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                labels: Array.from(labels)
+              });
+            }
+
+  # Add needs-triage label to new unlabeled issues
+  triage-new-issue:
+    name: Triage New Issue
+    runs-on: ubuntu-latest
+    if: github.event_name == 'issues' && github.event.action == 'opened'
+    steps:
+      - name: Check and add triage label
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            
+            // If issue has no labels (except auto-added ones), add needs-triage
+            const excludeLabels = ['bug', 'enhancement', 'task', 'documentation'];
+            const hasRelevantLabel = issue.labels.some(label => 
+              excludeLabels.includes(label.name) || 
+              label.name.startsWith('area:') || 
+              label.name.startsWith('priority:')
+            );
+            
+            if (!hasRelevantLabel) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                labels: ['needs-triage']
+              });
+            }
+
+  # Welcome first-time contributors
+  welcome-contributor:
+    name: Welcome First-Time Contributor
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.action == 'opened'
+    steps:
+      - name: Check if first-time contributor
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const contributor = context.payload.pull_request.user.login;
+            
+            // Get all PRs from this contributor
+            const { data: prs } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'all',
+              creator: contributor
+            });
+            
+            // If this is their first PR, welcome them!
+            if (prs.length === 1) {
+              const message = `
+              🎉 **Welcome @${contributor}!** 🎉
+              
+              Thank you for your first contribution to ArbFinder Suite! We're excited to have you here.
+              
+              A maintainer will review your PR soon. In the meantime:
+              - Make sure all CI checks pass ✅
+              - Review the [contribution guidelines](https://github.com/cbwinslow/arbfinder-suite/blob/main/CONTRIBUTING.md)
+              - Feel free to ask questions in the comments
+              
+              Thanks again for contributing! 🚀
+              `;
+              
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: message
+              });
+            }

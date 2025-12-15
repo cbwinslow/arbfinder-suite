@@ -570,6 +570,20 @@ Contributions welcome! Please:
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
+## Project Management
+
+We use GitHub Projects V2 and comprehensive documentation to manage development:
+
+- 📋 **[TASKS.md](TASKS.md)** - Complete list of identified tasks and issues
+- 🎯 **[PROJECT_BOARD.md](PROJECT_BOARD.md)** - Guide to using GitHub Projects V2
+- 🤖 **[AUTOMATION.md](AUTOMATION.md)** - GitHub Actions automation setup
+- 📝 **[CREATING_ISSUES.md](CREATING_ISSUES.md)** - How to create issues from tasks
+- 🤝 **[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)** - Community guidelines
+- 🔒 **[SECURITY.md](SECURITY.md)** - Security policies and reporting
+- 💬 **[SUPPORT.md](SUPPORT.md)** - Getting help and support
+
+Check these files to understand our development workflow and find tasks to work on!
+
 ## License
 
 MIT License - see LICENSE file for details

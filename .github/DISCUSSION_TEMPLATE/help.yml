@@ -1,0 +1,23 @@
+title: "❓ [Help]: "
+labels: ["help wanted", "question"]
+body: |
+  ## What I'm Trying to Do
+  <!-- Describe what you're trying to accomplish -->
+
+  ## What I've Tried
+  <!-- What have you already tried? -->
+
+  ## Error Messages
+  <!-- Include any error messages or logs -->
+  ```
+  <!-- Paste error messages here -->
+  ```
+
+  ## Environment
+  - OS: 
+  - Python version: 
+  - Node.js version: 
+  - Component: <!-- Backend, Frontend, CLI, TUI, etc. -->
+
+  ## Additional Context
+  <!-- Any other relevant information -->

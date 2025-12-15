@@ -1,0 +1,137 @@
+name: Task/Enhancement
+description: Track a development task or code enhancement
+title: "[Task]: "
+labels: ["enhancement", "task"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template to track development tasks, refactoring, or technical improvements.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Task Description
+      description: Clearly describe what needs to be done.
+      placeholder: A clear description of the task or enhancement.
+    validations:
+      required: true
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: Why should this task be done? What problem does it solve?
+      placeholder: Explain the motivation and benefits.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which component does this task affect?
+      options:
+        - Backend (Python)
+        - Frontend (Next.js)
+        - CLI (Python)
+        - CLI (TypeScript)
+        - TUI (Go)
+        - TUI (Rich/Python)
+        - API
+        - Database
+        - Documentation
+        - Infrastructure
+        - Testing
+        - CI/CD
+        - Multiple Components
+    validations:
+      required: true
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Task Type
+      description: What type of task is this?
+      options:
+        - New Feature
+        - Enhancement
+        - Refactoring
+        - Technical Debt
+        - Performance
+        - Security
+        - Documentation
+        - Testing
+        - Infrastructure
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How urgent is this task?
+      options:
+        - High
+        - Medium
+        - Low
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      description: What conditions must be met for this task to be considered complete?
+      placeholder: |
+        - [ ] Criterion 1
+        - [ ] Criterion 2
+        - [ ] Tests added
+        - [ ] Documentation updated
+    validations:
+      required: true
+
+  - type: textarea
+    id: implementation
+    attributes:
+      label: Implementation Notes
+      description: Any specific implementation details, approaches, or considerations?
+      placeholder: Technical details, approaches to consider, files that need changes, etc.
+
+  - type: textarea
+    id: testing
+    attributes:
+      label: Testing Strategy
+      description: How should this change be tested?
+      placeholder: |
+        - Unit tests
+        - Integration tests
+        - Manual testing steps
+
+  - type: checkboxes
+    id: breaking
+    attributes:
+      label: Impact
+      description: Select all that apply
+      options:
+        - label: Breaking change
+        - label: Requires database migration
+        - label: Requires documentation update
+        - label: Affects public API
+        - label: Performance sensitive
+
+  - type: textarea
+    id: related
+    attributes:
+      label: Related Issues
+      description: Link to related issues or pull requests
+      placeholder: |
+        - Relates to #123
+        - Depends on #456
+        - Blocks #789
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other information about this task?
