@@ -556,6 +556,35 @@ See `.vscode/settings.json` for configuration.
 
 For detailed development information, see [DEVELOPER.md](DEVELOPER.md).
 
+## Documentation
+
+Comprehensive documentation is available:
+
+### Getting Started
+- **[README.md](README.md)** - This file (overview and quick start)
+- **[QUICKSTART.md](QUICKSTART.md)** - Quick start guide
+- **[IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md)** - Step-by-step implementation roadmap
+
+### Project Information
+- **[PROJECT_STATUS.md](PROJECT_STATUS.md)** - Current project status and metrics
+- **[TASKS.md](TASKS.md)** - Detailed task list with microgoals and tests
+- **[FEATURES_OVERVIEW.md](FEATURES_OVERVIEW.md)** - Complete feature descriptions
+
+### Technical Documentation
+- **[AGENTS.md](AGENTS.md)** - AI agent system architecture and usage
+- **[SRS.md](SRS.md)** - Software requirements specification
+- **[RULES.md](RULES.md)** - Coding standards and conventions
+- **[DEVELOPER.md](DEVELOPER.md)** - Development setup and workflow
+
+### AI & Integration
+- **[PROMPTS.md](PROMPTS.md)** - AI prompt library for various tasks
+- **[MODEL_PROMPTS.md](MODEL_PROMPTS.md)** - Model-specific prompt optimization
+- **[.github/copilot-instructions.md](.github/copilot-instructions.md)** - GitHub Copilot configuration
+
+### Setup Guides
+- **Cloudflare Setup:** Run `scripts/cloudflare/setup.sh` for automated setup
+- **OpenRouter Integration:** See `backend/lib/openrouter/` for SDK usage
+
 ## Contributing
 
 Contributions welcome! Please:
