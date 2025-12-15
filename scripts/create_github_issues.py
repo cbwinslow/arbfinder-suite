@@ -120,7 +120,8 @@ class TaskParser:
         if 'performance' in task_lower or 'optimize' in task_lower:
             labels.append('performance')
         if 'bug' in task_lower or 'fix' in task_lower:
-            labels.remove('enhancement')
+            if 'enhancement' in labels:
+                labels.remove('enhancement')
             labels.append('bug')
         
         return list(set(labels))  # Remove duplicates
@@ -141,7 +142,7 @@ class TaskParser:
 
 ## Context
 
-This task is tracked in our project roadmap. See [TASKS.md](../TASKS.md) for the complete task list.
+This task is tracked in our project roadmap. See [TASKS.md](https://github.com/cbwinslow/arbfinder-suite/blob/main/TASKS.md) for the complete task list.
 
 ## Acceptance Criteria
 
@@ -331,18 +332,16 @@ def main():
     
     # Create project if requested
     if args.project and not args.dry_run:
-        print("\nCreating GitHub Project...")
-        project_creator = ProjectCreator(repo=args.repo, dry_run=args.dry_run)
-        success, project_url = project_creator.create_project(
-            title="ArbFinder Suite Roadmap",
-            description="Project board for tracking ArbFinder Suite development tasks"
-        )
-        
-        if success and issue_creator.created_issues:
-            print(f"\nAdding {len(issue_creator.created_issues)} issues to project...")
-            # Note: Project number would need to be extracted from project_url
-            # This is simplified - actual implementation would parse the project number
-            print("Note: Manual step required to add issues to project via GitHub UI")
+        print("\n" + "=" * 60)
+        print("Project Creation")
+        print("=" * 60)
+        print("\nNote: The --project flag is not yet fully implemented.")
+        print("Please create the project manually and link issues using:")
+        print("\n1. Create project via GitHub UI or CLI:")
+        print("   gh project create --owner cbwinslow --title 'ArbFinder Suite Roadmap'")
+        print("\n2. Add issues to project:")
+        print("   See ISSUE_CREATION_GUIDE.md for detailed instructions")
+        print("\nAlternatively, use the bulk add command from the guide.")
     
     print("\n" + "=" * 60)
     print("Done!")
