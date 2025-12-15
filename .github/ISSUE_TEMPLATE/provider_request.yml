@@ -1,0 +1,149 @@
+name: 🏪 Provider Request
+description: Request support for a new marketplace provider
+title: "[Provider]: "
+labels: ["provider", "enhancement", "needs-triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Request support for a new marketplace or auction site!
+
+  - type: input
+    id: provider-name
+    attributes:
+      label: Provider Name
+      description: Name of the marketplace/auction site
+      placeholder: e.g., Reverb, Mercari, OfferUp
+    validations:
+      required: true
+
+  - type: input
+    id: provider-url
+    attributes:
+      label: Provider Website
+      description: URL of the provider's website
+      placeholder: https://example.com
+    validations:
+      required: true
+
+  - type: dropdown
+    id: provider-type
+    attributes:
+      label: Provider Type
+      description: What type of marketplace is this?
+      options:
+        - General Marketplace (like eBay)
+        - Specialized Marketplace (single category)
+        - Auction Site
+        - Liquidation Site
+        - Government Surplus
+        - Social Marketplace
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: categories
+    attributes:
+      label: Main Categories
+      description: What categories of items are sold on this marketplace?
+      placeholder: |
+        - Electronics
+        - Musical Instruments
+        - Collectibles
+    validations:
+      required: true
+
+  - type: dropdown
+    id: data-availability
+    attributes:
+      label: Data Availability
+      description: Does this provider have a public API?
+      options:
+        - Yes - Public API with documentation
+        - Yes - Public API but limited documentation
+        - No - Would need web scraping
+        - Unknown
+    validations:
+      required: true
+
+  - type: textarea
+    id: api-info
+    attributes:
+      label: API Information
+      description: If an API exists, provide details or links to documentation
+      placeholder: API documentation is available at...
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use Case
+      description: Why would this provider be valuable to users?
+      placeholder: This provider would be useful because...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this provider to you?
+      options:
+        - Critical (I can't use the tool without it)
+        - High (very important to my workflow)
+        - Medium (would be nice to have)
+        - Low (just a suggestion)
+    validations:
+      required: true
+
+  - type: textarea
+    id: volume
+    attributes:
+      label: Expected Volume
+      description: Estimate of how many items/listings are typically available
+      placeholder: |
+        - Total active listings: ~X
+        - Daily new listings: ~Y
+
+  - type: textarea
+    id: special-features
+    attributes:
+      label: Special Features
+      description: Any unique features of this provider that should be considered?
+      placeholder: |
+        - Supports auctions with bid history
+        - Has "Make an Offer" feature
+        - Regional/local listings
+
+  - type: textarea
+    id: robots-tos
+    attributes:
+      label: robots.txt and Terms of Service
+      description: Have you checked if scraping/API access is allowed?
+      placeholder: |
+        - robots.txt allows: Yes/No
+        - ToS prohibits scraping: Yes/No
+        - API terms: ...
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      options:
+        - label: I am willing to help implement this provider
+          required: false
+        - label: I can provide test data or examples
+          required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      options:
+        - label: I have searched existing issues to ensure this provider hasn't been requested
+          required: true
+        - label: I have verified this provider allows automated access (API or scraping)
+          required: false
+        - label: I have provided all required information above
+          required: true

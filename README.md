@@ -556,6 +556,17 @@ See `.vscode/settings.json` for configuration.
 
 For detailed development information, see [DEVELOPER.md](DEVELOPER.md).
 
+## Project Management
+
+We use GitHub Issues and Projects to manage development:
+
+- **[TASKS.md](TASKS.md)** - Comprehensive task list (136+ tasks)
+- **[GITHUB_FEATURES.md](GITHUB_FEATURES.md)** - Guide to using GitHub features
+- **[PROJECT_MANAGEMENT.md](PROJECT_MANAGEMENT.md)** - Project management best practices
+- **[ISSUE_CREATION_GUIDE.md](ISSUE_CREATION_GUIDE.md)** - How to create issues from tasks
+
+View our [Projects](https://github.com/cbwinslow/arbfinder-suite/projects) and [Issues](https://github.com/cbwinslow/arbfinder-suite/issues).
+
 ## Contributing
 
 Contributions welcome! Please:
@@ -568,7 +579,11 @@ Contributions welcome! Please:
 6. Follow code style (black, flake8)
 7. Submit a pull request
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for community standards.
+
+## Security
+
+For security vulnerabilities, please see our [Security Policy](SECURITY.md) for responsible disclosure.
 
 ## License
 

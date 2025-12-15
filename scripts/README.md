@@ -117,6 +117,35 @@ python scripts/improve_workflows.py \
   --output .github/workflows-improved
 ```
 
+### GitHub Issue Creator (`create_github_issues.py`)
+Creates GitHub issues and projects from TASKS.md:
+- Parses TASKS.md to extract tasks
+- Creates properly labeled issues
+- Optionally creates GitHub Project v2
+- Supports dry-run mode for preview
+
+**Usage:**
+```bash
+# Preview what would be created
+python scripts/create_github_issues.py --dry-run
+
+# Create first 10 issues
+python scripts/create_github_issues.py --max-issues 10
+
+# Create all issues and a project
+python scripts/create_github_issues.py --project
+
+# Specify custom repo and tasks file
+python scripts/create_github_issues.py --repo owner/repo --tasks-file path/to/tasks.md
+```
+
+**Options:**
+- `--dry-run` - Preview without creating
+- `--project` - Create GitHub Project v2 and link issues
+- `--max-issues N` - Limit number of issues to create
+- `--repo OWNER/REPO` - Specify repository
+- `--tasks-file PATH` - Path to tasks file (default: TASKS.md)
+
 ## Requirements
 
 These scripts require the following packages:
