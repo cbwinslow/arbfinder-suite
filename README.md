@@ -4,24 +4,53 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-**Version 0.4.0** - Enhanced CLI, TypeScript SDK, and Developer Tools
+**Version 2.0** - Cloud-Native Platform with AI Agents
+
+## 🚀 What's New in 2.0
+
+- ☁️ **Cloudflare Platform**: Deploy on Cloudflare Workers, Pages, D1, and R2
+- 🤖 **AI Agents**: CrewAI + OpenRouter integration for intelligent automation
+- 🧠 **Metadata Enrichment**: AI-powered product data extraction and enhancement
+- 📝 **Listing Generation**: Automated SEO-optimized listing content creation
+- 🔍 **Crawl4AI Integration**: Intelligent web scraping with AI
+- 📊 **Observability**: LangFuse and LangSmith integration for agent monitoring
+- 📚 **Comprehensive Docs**: 150KB+ of documentation covering all aspects
+- 🛠️ **Setup Automation**: Automated Cloudflare deployment scripts
 
 ## Features
 
-- 🔍 Async crawler for ShopGoodwill, GovDeals, GovernmentSurplus (+ eBay sold comps)
-- 📊 Interactive TUI with rich terminal output and progress bars
-- 🖥️ **NEW**: Enhanced CLI with subcommands (search, watch, config, db, server)
-- 🎨 **NEW**: Bubbletea TUI - Multi-pane interactive interface with database integration
-- 📦 **NEW**: TypeScript/Node.js SDK and CLI tools
-- 🧪 **NEW**: Comprehensive test suite with pytest
-- 🐳 **NEW**: Docker and Docker Compose support
-- 📁 Manual importer for Facebook Marketplace (CSV/JSON)
-- 🚀 FastAPI backend with search, filtering, and statistics
-- 💎 Enhanced Next.js frontend with modern UI
-- 🤖 CrewAI config for research → pricing → listing → crosslisting
-- 📈 Real-time statistics and analytics
-- 🎨 Beautiful dark mode interface with gradients
-- 🛠️ **NEW**: Developer tools (Makefile, pre-commit hooks, VS Code config)
+### Core Features
+- 🔍 **Multi-Platform Crawling**: ShopGoodwill, GovDeals, GovernmentSurplus, eBay comps
+- 💰 **Arbitrage Detection**: Intelligent profit opportunity identification
+- 📊 **Interactive TUI**: Rich terminal interface with real-time updates
+- 🖥️ **Enhanced CLI**: Subcommands for search, watch, config, db, server
+- 🚀 **REST API**: FastAPI backend with search, filtering, and statistics
+- 💎 **Modern Frontend**: Next.js with responsive design and dark mode
+- 📦 **TypeScript SDK**: Official client library for Node.js/TypeScript
+- 🐳 **Docker Support**: Containerized deployment option
+
+### AI-Powered Features
+- 🤖 **CrewAI Agents**: Coordinated AI agents for complex workflows
+- 🧠 **OpenRouter Integration**: Access to 50+ LLM models (free & paid)
+- 📝 **Content Generation**: Automated listing titles and descriptions
+- 🏷️ **Smart Tagging**: AI-powered categorization and metadata extraction
+- 🔄 **LangChain Workflows**: Multi-step agent orchestration
+- 📈 **Market Analysis**: AI-driven pricing recommendations
+
+### Cloud Platform
+- ☁️ **Cloudflare Workers**: Serverless edge compute
+- 🗄️ **D1 Database**: Distributed SQLite database
+- 📦 **R2 Storage**: S3-compatible object storage
+- 🌐 **Pages Deployment**: Static site hosting
+- 🛡️ **WAF Integration**: Security and DDoS protection
+- 📊 **Analytics**: Built-in observability and monitoring
+
+### Developer Tools
+- 🧪 **Test Suite**: Comprehensive pytest coverage
+- 🛠️ **Makefile**: Common development tasks
+- 🔧 **Pre-commit Hooks**: Automated code quality checks
+- 📋 **VS Code Config**: Optimized development environment
+- 🎨 **Bubbletea TUI**: Go-based multi-pane interface (experimental)
 
 ## Quick Start
 
@@ -556,7 +585,36 @@ See `.vscode/settings.json` for configuration.
 
 For detailed development information, see [DEVELOPER.md](DEVELOPER.md).
 
-## Contributing
+## 📚 Documentation
+
+### Getting Started
+- [Quick Start Guide](QUICKSTART.md) - Get up and running in 5 minutes
+- [Installation Guide](README.md#installation) - Detailed setup instructions
+- [Features Overview](docs/FEATURES.md) - Complete feature documentation
+
+### Architecture & Design
+- [Software Requirements Specification](docs/SRS.md) - Comprehensive requirements
+- [Implementation Guide](docs/IMPLEMENTATION_GUIDE.md) - High-level architecture
+- [AI Agents Architecture](docs/AGENTS.md) - AI agents design and configuration
+- [Project Summary](docs/PROJECT_SUMMARY.md) - Project overview and roadmap
+
+### Platform Setup
+- [Cloudflare Setup Guide](docs/CLOUDFLARE_SETUP.md) - Complete Cloudflare deployment
+- [OpenRouter Integration](docs/OPENROUTER_INTEGRATION.md) - AI/LLM integration guide
+
+### Development
+- [Developer Guide](DEVELOPER.md) - Development workflow
+- [GitHub Copilot Instructions](.github/copilot-instructions.md) - AI assistant configuration
+- [Prompts Collection](.github/PROMPTS.md) - Useful AI prompts
+- [Model-Specific Prompts](.github/MODEL_PROMPTS.md) - Optimized prompts per model
+- [Task Tracking](TASKS.md) - Project tasks with microgoals
+
+### Additional Resources
+- [Changelog](CHANGELOG.md) - Version history
+- [Contributing Guide](CONTRIBUTING.md) - How to contribute
+- [Enterprise Roadmap](docs/ENTERPRISE_ROADMAP.md) - Long-term development plan
+
+## 🤝 Contributing
 
 Contributions welcome! Please:
 
@@ -570,6 +628,31 @@ Contributions welcome! Please:
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
-## License
+## 📝 License
 
 MIT License - see LICENSE file for details
+
+---
+
+## 🌟 Star History
+
+If you find this project useful, please consider giving it a star! ⭐
+
+## 💬 Community
+
+- **GitHub Issues**: [Report bugs or request features](https://github.com/cbwinslow/arbfinder-suite/issues)
+- **Discussions**: [Ask questions and share ideas](https://github.com/cbwinslow/arbfinder-suite/discussions)
+- **Contributing**: [Contribution guidelines](CONTRIBUTING.md)
+
+## 🙏 Acknowledgments
+
+- Built with [FastAPI](https://fastapi.tiangolo.com/)
+- Powered by [Cloudflare Workers](https://workers.cloudflare.com/)
+- AI by [OpenRouter](https://openrouter.ai/) and [CrewAI](https://www.crewai.com/)
+- UI with [Next.js](https://nextjs.org/) and [Tailwind CSS](https://tailwindcss.com/)
+
+---
+
+**Maintained by**: [@cbwinslow](https://github.com/cbwinslow)  
+**Version**: 2.0  
+**Last Updated**: 2025-12-15
