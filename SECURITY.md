@@ -22,7 +22,7 @@ We take the security of ArbFinder Suite seriously. If you believe you have found
 
 ### Please DO:
 
-1. **Email us directly** at [INSERT SECURITY EMAIL] with:
+1. **Email us directly** via GitHub Security Advisories at https://github.com/cbwinslow/arbfinder-suite/security/advisories/new or contact the maintainers with:
    - A description of the vulnerability
    - Steps to reproduce the issue
    - Potential impact of the vulnerability

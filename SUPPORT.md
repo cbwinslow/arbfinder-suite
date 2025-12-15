@@ -240,7 +240,7 @@ Want to help improve ArbFinder Suite? We'd love your contribution!
 
 - **GitHub Issues**: [Report bugs or request features](https://github.com/cbwinslow/arbfinder-suite/issues)
 - **GitHub Discussions**: [Ask questions or share ideas](https://github.com/cbwinslow/arbfinder-suite/discussions)
-- **Email**: [INSERT CONTACT EMAIL] - For security issues only
+- **Security Issues**: Use [GitHub Security Advisories](https://github.com/cbwinslow/arbfinder-suite/security/advisories/new)
 
 ## 🙏 Acknowledgments
 
