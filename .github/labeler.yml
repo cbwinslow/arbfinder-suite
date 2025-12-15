@@ -1,0 +1,102 @@
+# Auto-labeling configuration for pull requests
+# See https://github.com/actions/labeler
+
+# Area labels based on file paths
+'area: backend':
+  - backend/**/*
+  - '**/*.py'
+  - 'pyproject.toml'
+  - 'requirements*.txt'
+
+'area: frontend':
+  - frontend/**/*
+  - '**/*.tsx'
+  - '**/*.jsx'
+  - '**/*.ts'
+  - '**/*.js'
+
+'area: tui':
+  - tui/**/*
+  - '**/*.go'
+  - 'go.mod'
+  - 'go.sum'
+
+'area: documentation':
+  - '**/*.md'
+  - docs/**/*
+  - '.github/ISSUE_TEMPLATE/**/*'
+  - '.github/PULL_REQUEST_TEMPLATE.md'
+  - '.github/DISCUSSION_TEMPLATE/**/*'
+
+'area: testing':
+  - tests/**/*
+  - '**/test_*.py'
+  - '**/*_test.go'
+  - '**/*.test.ts'
+  - '**/*.test.tsx'
+
+'area: ci-cd':
+  - .github/workflows/**/*
+  - .github/actions/**/*
+  - 'Dockerfile'
+  - 'docker-compose*.yml'
+
+'area: infrastructure':
+  - infrastructure/**/*
+  - cloudflare/**/*
+  - 'Dockerfile'
+  - 'docker-compose*.yml'
+  - '.dockerignore'
+
+'area: database':
+  - prisma/**/*
+  - database/**/*
+  - '**/migrations/**/*'
+  - '**/*.sql'
+
+'area: api':
+  - backend/api/**/*
+  - packages/client/**/*
+
+# Size labels based on changes
+'size: XS':
+  - changed-files:
+    - 1-10
+
+'size: S':
+  - changed-files:
+    - 11-50
+
+'size: M':
+  - changed-files:
+    - 51-150
+
+'size: L':
+  - changed-files:
+    - 151-500
+
+'size: XL':
+  - changed-files:
+    - 501-999999
+
+# Special labels
+'dependencies':
+  - 'package.json'
+  - 'package-lock.json'
+  - 'requirements*.txt'
+  - 'pyproject.toml'
+  - 'go.mod'
+  - 'go.sum'
+
+'configuration':
+  - 'config/**/*'
+  - '.env.example'
+  - '**/*.config.js'
+  - '**/*.config.ts'
+  - 'tsconfig.json'
+  - '.eslintrc*'
+  - '.prettierrc*'
+
+'security':
+  - '.github/workflows/security*.yml'
+  - 'SECURITY.md'

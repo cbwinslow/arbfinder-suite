@@ -1,0 +1,97 @@
+name: Feature Request
+description: Suggest a new feature or enhancement for ArbFinder Suite
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new feature! Please provide as much detail as possible.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem does this feature solve? Is your feature request related to a problem?
+      placeholder: "I'm always frustrated when..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the solution you'd like to see implemented.
+      placeholder: A clear and concise description of what you want to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternative Solutions
+      description: Have you considered any alternative solutions or features?
+      placeholder: Describe alternatives you've considered.
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which component would this feature affect?
+      options:
+        - Backend (Python)
+        - Frontend (Next.js)
+        - CLI (Python)
+        - CLI (TypeScript)
+        - TUI (Go)
+        - TUI (Rich/Python)
+        - API
+        - Database
+        - Documentation
+        - Infrastructure
+        - Multiple Components
+        - New Component
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feature to you?
+      options:
+        - High - Critical for my use case
+        - Medium - Would be nice to have
+        - Low - Just an idea
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: breaking
+    attributes:
+      label: Breaking Change
+      description: Would this feature require breaking changes?
+      options:
+        - label: This feature would require breaking changes to existing functionality
+        - label: I'm willing to help implement this feature
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use Case
+      description: Describe how you would use this feature in practice.
+      placeholder: |
+        As a user, I want to...
+        So that I can...
+
+  - type: textarea
+    id: mockups
+    attributes:
+      label: Design Mockups or Examples
+      description: If applicable, add mockups, screenshots, or examples from other tools.
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add any other context, screenshots, or information about the feature request here.
