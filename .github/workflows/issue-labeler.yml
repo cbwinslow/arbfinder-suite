@@ -1,0 +1,85 @@
+name: Issue Labeler
+
+on:
+  issues:
+    types: [opened, edited]
+
+permissions:
+  issues: write
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Auto-label based on title
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const title = issue.title.toLowerCase();
+            const body = (issue.body || '').toLowerCase();
+            const labels = [];
+
+            // Component labels
+            if (title.includes('backend') || title.includes('python') || body.includes('backend')) {
+              labels.push('backend');
+            }
+            if (title.includes('frontend') || title.includes('next.js') || title.includes('nextjs') || body.includes('frontend')) {
+              labels.push('frontend');
+            }
+            if (title.includes('tui') || title.includes('terminal') || body.includes('bubbletea')) {
+              labels.push('tui');
+            }
+            if (title.includes('api') || body.includes('endpoint') || body.includes('fastapi')) {
+              labels.push('api');
+            }
+            if (title.includes('cli') || title.includes('command line')) {
+              labels.push('cli');
+            }
+            if (title.includes('docker') || title.includes('container')) {
+              labels.push('docker');
+            }
+            if (title.includes('database') || title.includes('db') || title.includes('sql')) {
+              labels.push('database');
+            }
+            if (title.includes('docs') || title.includes('documentation')) {
+              labels.push('documentation');
+            }
+
+            // Type labels
+            if (title.includes('security') || body.includes('vulnerability') || body.includes('cve')) {
+              labels.push('security');
+            }
+            if (title.includes('performance') || title.includes('slow') || title.includes('optimization')) {
+              labels.push('performance');
+            }
+            if (title.includes('test') || body.includes('testing') || body.includes('pytest')) {
+              labels.push('testing');
+            }
+
+            // Provider labels
+            if (title.includes('provider') || body.includes('marketplace') || body.includes('reverb') || body.includes('mercari')) {
+              labels.push('provider');
+            }
+
+            // Priority indicators
+            if (title.includes('critical') || title.includes('urgent') || body.includes('production down')) {
+              labels.push('priority: critical');
+            }
+            if (title.includes('crash') || title.includes('data loss') || body.includes('cannot start')) {
+              labels.push('priority: high');
+            }
+
+            // Good first issue indicators
+            if (title.includes('typo') || title.includes('link') || body.includes('simple') || body.includes('beginner')) {
+              labels.push('good first issue');
+            }
+
+            if (labels.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: labels
+              });
+            }

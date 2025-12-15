@@ -1,0 +1,25 @@
+title: "[Question]: "
+labels: ["question"]
+body: |
+  ## ❓ Your Question
+  
+  <!-- Ask your question here -->
+  
+  ## 🔍 What I've Tried
+  
+  <!-- Describe what you've already tried -->
+  
+  ## 📚 Documentation Checked
+  
+  <!-- Which documentation have you already reviewed? -->
+  - [ ] README.md
+  - [ ] QUICKSTART.md
+  - [ ] API Documentation
+  - [ ] Existing Issues/Discussions
+  
+  ## 🔧 Environment
+  
+  <!-- If relevant, provide your environment details -->
+  - OS: 
+  - Version: 
+  - Installation Method:
