@@ -2,12 +2,23 @@
 
 ## [Unreleased]
 
+- docs: update changelog [skip ci] (07172d7)
 - Add comprehensive WORK_SUMMARY.md documenting all deliverables and achievements (ead3d60)
 - Add comprehensive IMPLEMENTATION_STRATEGY.md with high-level implementation guide (a937eed)
+- Add GitHub configuration files and update README with comprehensive documentation (53f87cf)
+- Address code review suggestions: add env var for project URL and update notes (acac679)
 - Add complete OpenRouter SDK integration with client, models, completion, streaming, and utilities (c6abaf2)
+- Address final review feedback: add timeline note to TASKS.md and fix remaining contact placeholder (77e9cf9)
 - Add Cloudflare setup orchestrator script and comprehensive setup guide (0da2eda)
+- Fix code review issues: update contact placeholders and PR context refs (d6aa839)
+- Add comprehensive documentation: OpenRouter integration, Implementation Guide, Cloudflare setup script (f2b8058)
 - Add RULES.md, copilot-instructions.md, and PROMPTS.md documentation (6c50674)
+- Add project setup summary for quick reference (cb78d11)
+- Add comprehensive GitHub project management structure (d053453)
+- Add core documentation files: TASKS.md, SRS.md, AGENTS.md, CLOUDFLARE_SETUP.md, copilot-instructions.md (21b4dc6)
 - Add comprehensive documentation: TASKS.md, SRS.md, FEATURES.md, AGENTS.md (a7df94d)
+- Initial plan (416aec7)
+- Initial plan (4cb0f52)
 - Initial plan (0451cb3)
 - chore: auto-format code with AI assistance (b835b0a)
 - docs: update changelog [skip ci] (2b0d227)
