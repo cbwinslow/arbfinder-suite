@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: GitHub Discussions
+    url: https://github.com/cbwinslow/arbfinder-suite/discussions
+    about: Ask questions, share ideas, or discuss the project
+  - name: Security Issue
+    url: https://github.com/cbwinslow/arbfinder-suite/security/advisories/new
+    about: Report a security vulnerability (private disclosure)

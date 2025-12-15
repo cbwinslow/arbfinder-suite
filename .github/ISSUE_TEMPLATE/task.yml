@@ -1,0 +1,98 @@
+name: Task
+description: Create a task for project work
+title: "[Task]: "
+labels: ["task"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template to create actionable tasks for the project.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Task Description
+      description: Describe what needs to be done
+      placeholder: Implement/Update/Fix/Add...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which component does this task affect?
+      options:
+        - Backend/API
+        - Frontend/UI
+        - CLI
+        - TUI (Bubbletea)
+        - TypeScript SDK
+        - Docker/Deployment
+        - Documentation
+        - Testing
+        - Infrastructure
+        - CI/CD
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Task Type
+      description: What type of task is this?
+      options:
+        - Feature Implementation
+        - Bug Fix
+        - Refactoring
+        - Documentation
+        - Testing
+        - Performance Optimization
+        - Security Improvement
+        - Maintenance
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      description: What defines completion of this task?
+      placeholder: |
+        - [ ] Criteria 1
+        - [ ] Criteria 2
+        - [ ] Criteria 3
+    validations:
+      required: true
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: List any issues or tasks that must be completed first
+      placeholder: "#123, #456"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: complexity
+    attributes:
+      label: Estimated Complexity
+      description: How complex is this task?
+      options:
+        - XS - Less than 1 hour
+        - S - 1-4 hours
+        - M - 4-8 hours
+        - L - 1-2 days
+        - XL - More than 2 days
+    validations:
+      required: false
+
+  - type: textarea
+    id: technical
+    attributes:
+      label: Technical Notes
+      description: Any technical details, implementation suggestions, or resources
+    validations:
+      required: false

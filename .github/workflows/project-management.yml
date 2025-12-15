@@ -1,0 +1,204 @@
+name: Project Management
+
+on:
+  issues:
+    types: [opened, reopened, closed, labeled, unlabeled]
+  pull_request:
+    types: [opened, reopened, closed, converted_to_draft, ready_for_review]
+  issue_comment:
+    types: [created]
+
+jobs:
+  auto-add-to-project:
+    name: Auto-add to Project Board
+    runs-on: ubuntu-latest
+    if: github.event_name == 'issues' && github.event.action == 'opened'
+    steps:
+      - name: Add issue to project
+        uses: actions/add-to-project@v0.5.0
+        with:
+          project-url: https://github.com/users/cbwinslow/projects/1
+          github-token: ${{ secrets.PROJECT_TOKEN }}
+
+  auto-add-pr-to-project:
+    name: Auto-add PR to Project Board
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.action == 'opened'
+    steps:
+      - name: Add PR to project
+        uses: actions/add-to-project@v0.5.0
+        with:
+          project-url: https://github.com/users/cbwinslow/projects/1
+          github-token: ${{ secrets.PROJECT_TOKEN }}
+
+  label-triage:
+    name: Auto-triage New Issues
+    runs-on: ubuntu-latest
+    if: github.event_name == 'issues' && github.event.action == 'opened'
+    steps:
+      - name: Check for needs-triage label
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labels = context.payload.issue.labels.map(label => label.name);
+            if (labels.includes('needs-triage')) {
+              console.log('Issue already has needs-triage label');
+              return;
+            }
+            
+            // Add needs-triage label if not already present
+            if (!labels.includes('bug') && !labels.includes('enhancement') && !labels.includes('task')) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.issue.number,
+                labels: ['needs-triage']
+              });
+            }
+
+  priority-labels:
+    name: Auto-assign Priority
+    runs-on: ubuntu-latest
+    if: github.event_name == 'issues' && (github.event.action == 'labeled' || github.event.action == 'opened')
+    steps:
+      - name: Set priority based on labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const labels = issue.labels.map(label => label.name);
+            
+            // High priority indicators
+            const highPriorityKeywords = ['critical', 'security', 'urgent', 'production'];
+            const hasHighPriority = labels.some(label => 
+              highPriorityKeywords.some(keyword => label.toLowerCase().includes(keyword))
+            );
+            
+            // Check issue body for priority keywords
+            const body = issue.body || '';
+            const bodyHasHighPriority = highPriorityKeywords.some(keyword => 
+              body.toLowerCase().includes(keyword)
+            );
+            
+            if ((hasHighPriority || bodyHasHighPriority) && !labels.includes('priority: high')) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: ['priority: high']
+              });
+            }
+
+  stale-issues:
+    name: Mark Stale Issues
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    steps:
+      - name: Stale issues and PRs
+        uses: actions/stale@v9
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          stale-issue-message: 'This issue has been automatically marked as stale because it has not had recent activity. It will be closed if no further activity occurs. Thank you for your contributions.'
+          stale-pr-message: 'This PR has been automatically marked as stale because it has not had recent activity. It will be closed if no further activity occurs. Thank you for your contributions.'
+          days-before-stale: 60
+          days-before-close: 7
+          stale-issue-label: 'stale'
+          stale-pr-label: 'stale'
+          exempt-issue-labels: 'pinned,security,priority: high'
+          exempt-pr-labels: 'pinned,security'
+
+  issue-metrics:
+    name: Track Issue Metrics
+    runs-on: ubuntu-latest
+    if: github.event_name == 'issues' && github.event.action == 'closed'
+    steps:
+      - name: Log issue metrics
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const created = new Date(issue.created_at);
+            const closed = new Date(issue.closed_at);
+            const daysOpen = Math.floor((closed - created) / (1000 * 60 * 60 * 24));
+            
+            console.log(`Issue #${issue.number} was open for ${daysOpen} days`);
+            console.log(`Labels: ${issue.labels.map(l => l.name).join(', ')}`);
+            console.log(`Assignees: ${issue.assignees.map(a => a.login).join(', ')}`);
+
+  welcome-contributor:
+    name: Welcome First-time Contributors
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.action == 'opened'
+    steps:
+      - name: Check if first-time contributor
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const author = pr.user.login;
+            
+            // Check if this is the author's first PR
+            const { data: prs } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'all',
+              creator: author
+            });
+            
+            if (prs.length === 1) {
+              // First PR from this contributor
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                body: `Welcome to ArbFinder Suite, @${author}! 🎉\n\nThank you for your first contribution! We appreciate your effort.\n\nPlease make sure:\n- [ ] Your code follows our style guidelines\n- [ ] You've added tests for new functionality\n- [ ] Documentation has been updated\n- [ ] All CI checks pass\n\nA maintainer will review your PR soon. Feel free to ask questions if you need help!`
+              });
+            }
+
+  link-related-issues:
+    name: Link Related Issues
+    runs-on: ubuntu-latest
+    if: github.event_name == 'issues' && github.event.action == 'opened'
+    steps:
+      - name: Find and link related issues
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const title = issue.title.toLowerCase();
+            const body = (issue.body || '').toLowerCase();
+            
+            // Search for related issues
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100
+            });
+            
+            const related = issues.filter(i => {
+              if (i.number === issue.number) return false;
+              const iTitle = i.title.toLowerCase();
+              const iBody = (i.body || '').toLowerCase();
+              
+              // Simple keyword matching
+              const keywords = title.split(' ').filter(w => w.length > 4);
+              return keywords.some(keyword => 
+                iTitle.includes(keyword) || iBody.includes(keyword)
+              );
+            }).slice(0, 5);
+            
+            if (related.length > 0) {
+              const links = related.map(i => `- #${i.number} - ${i.title}`).join('\n');
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: `👋 **Related Issues**\n\nFound similar issues that might be related:\n\n${links}`
+              });
+            }
+
+# Note: For the stale-issues job to run on schedule, uncomment the following:
+# on:
+#   schedule:
+#     - cron: '0 0 * * 0'  # Run weekly on Sunday at midnight
