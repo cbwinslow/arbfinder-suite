@@ -2,6 +2,8 @@
 
 This document tracks all identified tasks, enhancements, and issues for the ArbFinder Suite project. Tasks are organized by priority and category.
 
+**Note**: Items marked with `[#TBD]` are ready to be created as GitHub issues. See [CREATING_ISSUES.md](CREATING_ISSUES.md) for guidance on systematically converting these tasks into tracked issues. High-priority items should be created within the first week, with other priorities following in subsequent weeks.
+
 ## 🔥 High Priority
 
 ### Provider Enhancements

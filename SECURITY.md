@@ -192,7 +192,7 @@ Consult with legal counsel for compliance requirements specific to your deployme
 If you have questions about security that aren't covered here:
 
 - Open a [GitHub Discussion](https://github.com/cbwinslow/arbfinder-suite/discussions)
-- Email us at [INSERT CONTACT EMAIL]
+- Contact maintainers via [GitHub Security Advisories](https://github.com/cbwinslow/arbfinder-suite/security/advisories/new)
 - Check our [documentation](https://github.com/cbwinslow/arbfinder-suite#readme)
 
 ## Acknowledgments
