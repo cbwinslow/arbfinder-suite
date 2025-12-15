@@ -148,10 +148,13 @@ This document tracks all identified tasks, enhancements, and issues for the ArbF
 ## 📝 Notes
 
 - Issues marked with `[#TBD]` should be created as GitHub issues
+- **When creating issues**: Update `[#TBD]` to actual issue number, e.g., `[#123]` or `[#123](https://github.com/cbwinslow/arbfinder-suite/issues/123)`
+- **When completing tasks**: Mark checkbox as `[x]` and update status
 - Priority levels may change based on user feedback
 - This document should be updated regularly as tasks are completed
 - New issues should be added to this document when identified
 - See CONTRIBUTING.md for guidelines on picking up tasks
+- See CREATING_ISSUES.md for systematic issue creation workflows
 
 ## 🏷️ Labels to Use
 
