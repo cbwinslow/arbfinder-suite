@@ -2,10 +2,16 @@
 
 ## [Unreleased]
 
+- docs: update changelog [skip ci] (4bdc19d)
 - Fix pre-existing frontend build failures: add UI components, convert config to JS, install lucide-react (21117fc)
 - Create dependabot.yml (a443eb2)
 - Fix pre-existing CI failures: correct backend import and add package-lock.json (722d8f4)
 - Initial plan (1d06766)
+- Add comprehensive implementation summary for v2.1 (0c5efcd)
+- Add deployment guide, database schema, documentation improvements, and TODO markers (215493d)
+- Add alerts, crews UI, navigation, GTM integration, and Cloudflare Pages config (982ecd5)
+- Add Cloudflare features: sniping, alerts, crews APIs and initial UI (1ad9fa6)
+- Initial plan (792948e)
 - chore: auto-format code with AI assistance (b25d85a)
 - docs: update changelog [skip ci] (d044a79)
 - docs: update changelog [skip ci] (07172d7)
