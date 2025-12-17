@@ -7,9 +7,9 @@ import AgentStatus from '@/components/AgentStatus';
 import LiveUpdates from '@/components/LiveUpdates';
 
 export default function DashboardPage() {
-  const [crawlerData, setCrawlerData] = useState([]);
-  const [agentJobs, setAgentJobs] = useState([]);
-  const [liveUpdates, setLiveUpdates] = useState([]);
+  const [crawlerData, setCrawlerData] = useState<any[]>([]);
+  const [agentJobs, setAgentJobs] = useState<any[]>([]);
+  const [liveUpdates, setLiveUpdates] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
