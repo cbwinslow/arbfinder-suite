@@ -123,6 +123,7 @@ setup_d1() {
     if [ "$DB_ID" != "null" ] && [ -n "$DB_ID" ]; then
         print_info "D1 Database created: $DB_ID"
         echo "CLOUDFLARE_D1_DATABASE_ID=$DB_ID" >> "$CONFIG_FILE"
+        export CLOUDFLARE_D1_DATABASE_ID="$DB_ID"
         
         # Run migrations
         print_info "Running database migrations..."
@@ -169,6 +170,7 @@ setup_kv() {
     if [ -n "$KV_ID" ] && [ "$KV_ID" != "null" ]; then
         print_info "KV Namespace created: $KV_ID"
         echo "CLOUDFLARE_KV_CACHE_ID=$KV_ID" >> "$CONFIG_FILE"
+        export CLOUDFLARE_KV_CACHE_ID="$KV_ID"
     fi
     
     # Create preview namespace
@@ -179,6 +181,7 @@ setup_kv() {
     if [ -n "$KV_PREVIEW_ID" ] && [ "$KV_PREVIEW_ID" != "null" ]; then
         print_info "KV Preview Namespace created: $KV_PREVIEW_ID"
         echo "CLOUDFLARE_KV_CACHE_PREVIEW_ID=$KV_PREVIEW_ID" >> "$CONFIG_FILE"
+        export CLOUDFLARE_KV_CACHE_PREVIEW_ID="$KV_PREVIEW_ID"
     fi
     
     print_info "KV namespaces created."
