@@ -1,0 +1,65 @@
+version: 2
+updates:
+  # 1. NPM / JAVASCRIPT / TYPESCRIPT
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "03:00" # UTC
+    open-pull-requests-limit: 10
+    groups:
+      js-patch-minor: # Groups all non-breaking updates into one PR
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+
+  # 2. GITHUB ACTIONS (Keep your CI/CD secure)
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      actions:
+        patterns: ["*"]
+
+  # 3. DOCKER (Base images for your suite)
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "docker"
+
+  # 4. PYTHON (For bot logic or data analysis)
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      python-deps:
+        patterns: ["*"]
+
+  # 5. GO (Common for high-performance trading bots)
+  - package-ecosystem: "gomod"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
+  # 6. RUST (If any performance-critical modules exist)
+  - package-ecosystem: "cargo"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
+  # 7. CONDA (Used for specific AI/ML environments)
+  - package-ecosystem: "conda"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
+# OPTIONAL: Global grouping for multiple ecosystems (New for 2025)
+# This allows you to combine updates from DIFFERENT languages into one PR
+# multi-ecosystem-groups:
+#   all-dependencies:
+#     schedule:
+#       interval: "weekly"
+#     update-types: ["patch"]
