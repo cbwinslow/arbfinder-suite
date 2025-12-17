@@ -65,34 +65,64 @@ func (p *ConfigPane) Update(msg tea.Msg) (ConfigPane, tea.Cmd) {
 
 		case "s":
 			// Save current configuration
-			if p.newConfigName.Value() != "" {
+			if p.newConfigName.Value() != "" && p.db != nil {
 				p.saving = true
-				// TODO: Save config
-				p.lastSuccess = fmt.Sprintf("Configuration '%s' saved", p.newConfigName.Value())
-				p.newConfigName.SetValue("")
+				config := SavedConfig{
+					Name:   p.newConfigName.Value(),
+					APIURL: p.apiURL.Value(),
+				}
+				err := p.db.SaveConfig(config)
+				if err != nil {
+					p.lastError = err.Error()
+					p.lastSuccess = ""
+				} else {
+					p.lastSuccess = fmt.Sprintf("Configuration '%s' saved", p.newConfigName.Value())
+					p.lastError = ""
+					p.newConfigName.SetValue("")
+					p.apiURL.SetValue("")
+					// Reload configs to show the new one
+					go p.LoadConfigs(p.db)
+				}
+				p.saving = false
 			}
 			return *p, nil
 
 		case "l":
 			// Load selected configuration
 			if len(p.configs) > 0 && p.selectedIdx < len(p.configs) {
-				// TODO: Load config
-				p.lastSuccess = fmt.Sprintf("Configuration '%s' loaded", p.configs[p.selectedIdx].Name)
+				selectedConfig := p.configs[p.selectedIdx]
+				p.apiURL.SetValue(selectedConfig.APIURL)
+				p.lastSuccess = fmt.Sprintf("Configuration '%s' loaded", selectedConfig.Name)
+				p.lastError = ""
 			}
 			return *p, nil
 
 		case "d":
 			// Delete selected configuration
-			if len(p.configs) > 0 && p.selectedIdx < len(p.configs) {
-				// TODO: Delete config
-				p.lastSuccess = "Configuration deleted"
+			if len(p.configs) > 0 && p.selectedIdx < len(p.configs) && p.db != nil {
+				configName := p.configs[p.selectedIdx].Name
+				err := p.db.DeleteConfig(configName)
+				if err != nil {
+					p.lastError = err.Error()
+					p.lastSuccess = ""
+				} else {
+					p.lastSuccess = "Configuration deleted"
+					p.lastError = ""
+					// Reload configs to reflect deletion
+					go p.LoadConfigs(p.db)
+					if p.selectedIdx >= len(p.configs)-1 && p.selectedIdx > 0 {
+						p.selectedIdx--
+					}
+				}
 			}
 			return *p, nil
 
 		case "r":
 			// Refresh config list
 			p.loading = true
-			// TODO: Refresh
+			p.lastError = ""
+			p.lastSuccess = ""
+			go p.LoadConfigs(p.db)
 			return *p, nil
 		}
 	}

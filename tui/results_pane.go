@@ -50,13 +50,29 @@ func (p *ResultsPane) Update(msg tea.Msg) (ResultsPane, tea.Cmd) {
 			return *p, nil
 
 		case "r":
-			// Refresh results
+			// Refresh results - reload from API
 			p.loading = true
-			// TODO: Implement refresh
+			p.lastError = ""
+			// Reload listings from API
+			go func() {
+				listings, err := p.apiClient.GetListings(100, 0)
+				if err != nil {
+					p.lastError = err.Error()
+				} else {
+					p.SetResults(listings)
+				}
+				p.loading = false
+			}()
 			return *p, nil
 
 		case "enter":
-			// TODO: View details
+			// View details of selected listing
+			if len(p.results) > 0 && p.selectedIdx < len(p.results) {
+				selected := p.results[p.selectedIdx]
+				// In a real implementation, this could open the URL in browser
+				// or show a detailed view. For now, just acknowledge the action.
+				p.lastError = fmt.Sprintf("Viewing: %s", selected.Title)
+			}
 			return *p, nil
 		}
 	}
