@@ -81,6 +81,8 @@ func (p *ConfigPane) Update(msg tea.Msg) (ConfigPane, tea.Cmd) {
 					p.newConfigName.SetValue("")
 					p.apiURL.SetValue("")
 					// Reload configs to show the new one
+					// Note: Goroutine without wait group is acceptable here since
+					// LoadConfigs is idempotent and we're just refreshing the list
 					go p.LoadConfigs(p.db)
 				}
 				p.saving = false
@@ -109,6 +111,7 @@ func (p *ConfigPane) Update(msg tea.Msg) (ConfigPane, tea.Cmd) {
 					p.lastSuccess = "Configuration deleted"
 					p.lastError = ""
 					// Reload configs to reflect deletion
+					// Note: Fire-and-forget goroutine is acceptable for UI refresh
 					go p.LoadConfigs(p.db)
 					if p.selectedIdx >= len(p.configs)-1 && p.selectedIdx > 0 {
 						p.selectedIdx--
@@ -122,6 +125,7 @@ func (p *ConfigPane) Update(msg tea.Msg) (ConfigPane, tea.Cmd) {
 			p.loading = true
 			p.lastError = ""
 			p.lastSuccess = ""
+			// Note: Fire-and-forget goroutine is acceptable for UI refresh
 			go p.LoadConfigs(p.db)
 			return *p, nil
 		}

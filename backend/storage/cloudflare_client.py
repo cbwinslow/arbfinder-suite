@@ -8,6 +8,15 @@ from typing import BinaryIO, Optional
 
 import httpx
 
+try:
+    import boto3
+    from botocore.exceptions import ClientError
+    BOTO3_AVAILABLE = True
+except ImportError:
+    BOTO3_AVAILABLE = False
+    boto3 = None
+    ClientError = None
+
 logger = logging.getLogger(__name__)
 
 
@@ -32,6 +41,23 @@ class CloudflareClient:
 
         logger.info(f"Cloudflare client initialized for account: {self.account_id}")
 
+    def _get_s3_client(self):
+        """Create and return an S3 client for R2 operations"""
+        if not BOTO3_AVAILABLE:
+            logger.error("boto3 not installed. Install with: pip install boto3")
+            return None
+        
+        if not all([self.account_id, self.access_key, self.secret_key]):
+            logger.warning("Cloudflare R2 credentials not configured")
+            return None
+        
+        return boto3.client(
+            's3',
+            endpoint_url=self.endpoint,
+            aws_access_key_id=self.access_key,
+            aws_secret_access_key=self.secret_key,
+        )
+
     def upload_file(
         self,
         object_name: str,
@@ -40,25 +66,9 @@ class CloudflareClient:
     ) -> Optional[str]:
         """Upload file to Cloudflare R2 bucket using boto3 S3-compatible API"""
         try:
-            if not all([self.account_id, self.access_key, self.secret_key]):
-                logger.warning("Cloudflare R2 credentials not configured, skipping upload")
+            s3 = self._get_s3_client()
+            if not s3:
                 return None
-
-            # R2 is S3-compatible, use boto3
-            try:
-                import boto3
-                from botocore.exceptions import ClientError
-            except ImportError:
-                logger.error("boto3 not installed. Install with: pip install boto3")
-                return None
-
-            # Create S3 client with R2 endpoint
-            s3 = boto3.client(
-                's3',
-                endpoint_url=self.endpoint,
-                aws_access_key_id=self.access_key,
-                aws_secret_access_key=self.secret_key,
-            )
 
             # Upload file
             s3.upload_fileobj(
@@ -83,24 +93,9 @@ class CloudflareClient:
     def delete_file(self, object_name: str) -> bool:
         """Delete file from R2 bucket using boto3 S3-compatible API"""
         try:
-            if not all([self.account_id, self.access_key, self.secret_key]):
-                logger.warning("Cloudflare R2 credentials not configured, skipping delete")
+            s3 = self._get_s3_client()
+            if not s3:
                 return False
-
-            try:
-                import boto3
-                from botocore.exceptions import ClientError
-            except ImportError:
-                logger.error("boto3 not installed. Install with: pip install boto3")
-                return False
-
-            # Create S3 client with R2 endpoint
-            s3 = boto3.client(
-                's3',
-                endpoint_url=self.endpoint,
-                aws_access_key_id=self.access_key,
-                aws_secret_access_key=self.secret_key,
-            )
 
             # Delete file
             s3.delete_object(Bucket=self.bucket_name, Key=object_name)

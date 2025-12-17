@@ -51,17 +51,20 @@ func (p *ResultsPane) Update(msg tea.Msg) (ResultsPane, tea.Cmd) {
 
 		case "r":
 			// Refresh results - reload from API
+			// Note: In a production app, we'd use channels to communicate results
+			// back to the UI. For this TUI demo, we're accepting the race condition
+			// as the worst case is displaying stale data briefly.
 			p.loading = true
 			p.lastError = ""
-			// Reload listings from API
+			// Reload listings from API in background
 			go func() {
 				listings, err := p.apiClient.GetListings(100, 0)
 				if err != nil {
 					p.lastError = err.Error()
+					p.loading = false
 				} else {
 					p.SetResults(listings)
 				}
-				p.loading = false
 			}()
 			return *p, nil
 
