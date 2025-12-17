@@ -455,14 +455,19 @@ async def check_alerts_and_notify() -> Dict[str, Any]:
 
             # Send notification (simulated for now)
             try:
+                # TODO: PRODUCTION INTEGRATION REQUIRED
+                # These notification methods need actual service implementations
                 if notif_method == "email":
-                    # In production, integrate with email service (SendGrid, AWS SES, etc.)
+                    # REQUIRED: Integrate with email service (SendGrid, AWS SES, Mailgun, etc.)
+                    # Example: sendgrid.send_email(to=notif_target, subject=..., body=...)
                     logger.info(f"Would send email to {notif_target} about {len(matches)} matches")
                 elif notif_method == "webhook":
-                    # In production, call the webhook URL
+                    # REQUIRED: Call the webhook URL with POST request containing match data
+                    # Example: requests.post(notif_target, json={"matches": matches})
                     logger.info(f"Would call webhook {notif_target} with {len(matches)} matches")
                 elif notif_method in ["twitter", "facebook"]:
-                    # In production, integrate with social media APIs
+                    # REQUIRED: Integrate with social media APIs (Twitter API v2, Facebook Graph API)
+                    # Example: twitter_client.create_tweet(text=...)
                     logger.info(
                         f"Would post to {notif_method} at {notif_target} about {len(matches)} matches"
                     )

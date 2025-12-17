@@ -59,6 +59,16 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-[#008080] p-4">
       <div className="max-w-[1400px] mx-auto">
+        {/* Navigation */}
+        <div className="mb-4">
+          <a
+            href="/"
+            className="inline-block bg-[#c0c0c0] border-2 border-[#000000] px-4 py-2 text-black font-bold hover:bg-[#d0d0d0] transition"
+          >
+            ← Back to Home
+          </a>
+        </div>
+
         {/* Header */}
         <RetroWindow
           title="ArbFinder Dashboard - Control Panel"

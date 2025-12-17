@@ -391,27 +391,36 @@ async function checkPriceAlerts(env: Env): Promise<void> {
 
 /**
  * Execute a snipe (from queue)
+ * TODO: PRODUCTION INTEGRATION REQUIRED
+ * This function needs to be implemented to actually place bids on auction platforms
+ * Required integrations: eBay API, ShopGoodwill API, etc.
  */
 async function executeSnipe(snipeData: any, env: Env): Promise<void> {
   console.log('Executing snipe:', snipeData);
-  // In production, integrate with auction platform API
-  // For now, this would call the backend API to mark as executed
+  // PLACEHOLDER: Call backend API which handles actual auction platform integration
+  // Production: Direct auction platform API calls with proper authentication
 }
 
 /**
  * Send an alert notification (from queue)
+ * TODO: PRODUCTION INTEGRATION REQUIRED
+ * This function needs actual email/notification service integration
+ * Required services: SendGrid, AWS SES, Mailgun, Twilio, etc.
  */
 async function sendAlert(alertData: any, env: Env): Promise<void> {
   console.log('Sending alert:', alertData);
-  // In production, integrate with email/notification service
-  // For now, this would call the backend API to send notifications
+  // PLACEHOLDER: Call backend API which handles notification sending
+  // Production: Direct calls to email/SMS/push notification services
 }
 
 /**
  * Run a crawler (from queue)
+ * TODO: PRODUCTION INTEGRATION REQUIRED
+ * This function needs to be implemented to run actual crawlers
+ * Consider using Crawl4AI or similar frameworks
  */
 async function runCrawler(crawlerData: any, env: Env): Promise<void> {
   console.log('Running crawler:', crawlerData);
-  // In production, this would trigger the actual crawler
-  // For now, this would call the backend API
+  // PLACEHOLDER: Call backend API which handles crawler execution
+  // Production: Run Crawl4AI/CrewAI agents directly or via queue
 }

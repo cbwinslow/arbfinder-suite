@@ -290,9 +290,15 @@ async def execute_pending_snipes() -> Dict[str, Any]:
         snipe_id, listing_url, max_bid, auction_end_time, lead_time_seconds = row
 
         try:
-            # Here you would integrate with the actual auction platform API
-            # For now, we'll simulate the execution
-            result = f"Bid of ${max_bid} placed successfully"
+            # TODO: PRODUCTION INTEGRATION REQUIRED
+            # Integrate with actual auction platform APIs (eBay, ShopGoodwill, etc.)
+            # This is currently a simulation for testing purposes
+            # Required steps:
+            # 1. Identify auction platform from listing_url
+            # 2. Call platform's bidding API with authentication
+            # 3. Handle rate limits and retries
+            # 4. Verify bid was placed successfully
+            result = f"Bid of ${max_bid} placed successfully (SIMULATED)"
 
             c.execute(
                 """
