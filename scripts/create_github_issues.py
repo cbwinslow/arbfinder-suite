@@ -38,7 +38,6 @@ class TaskParser:
     def _extract_tasks(self, content: str) -> List[Dict]:
         """Extract tasks from markdown content"""
         tasks = []
-        current_section = None
         current_priority = None
         current_category = None
         
