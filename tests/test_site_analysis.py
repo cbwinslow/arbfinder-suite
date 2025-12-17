@@ -4,11 +4,16 @@ Tests for site analysis functionality
 
 import asyncio
 import json
+import sys
 from pathlib import Path
 
 import pytest
 
-from backend.site_investigator import (
+# Add backend to path
+backend_dir = Path(__file__).parent.parent / "backend"
+sys.path.insert(0, str(backend_dir))
+
+from site_investigator import (
     RobotsAnalyzer,
     TermsAnalyzer,
     APIDiscoverer,
@@ -159,7 +164,7 @@ class TestSiteInvestigator:
 
     def test_determine_approach(self):
         """Test approach determination logic"""
-        from backend.site_investigator.investigator import SiteInvestigationReport
+        from site_investigator.investigator import SiteInvestigationReport
         
         investigator = SiteInvestigator(
             site_url="https://example.com",
@@ -190,7 +195,7 @@ class TestSiteInvestigator:
 
 def test_imports():
     """Test that all modules can be imported"""
-    from backend.site_investigator import (
+    from site_investigator import (
         SiteInvestigator,
         RobotsAnalyzer,
         TermsAnalyzer,
@@ -198,7 +203,7 @@ def test_imports():
         HistoricalDataFetcher,
     )
     
-    from backend.agents import (
+    from agents import (
         APIAnalysisAgent,
         MCPServerAgent,
         SchemaGeneratorAgent,

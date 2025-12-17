@@ -9,10 +9,18 @@ import logging
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from ..site_investigator import SiteInvestigator
-from .api_analysis_agent import APIAnalysisAgent
-from .mcp_server_agent import MCPServerAgent
-from .schema_generator_agent import SchemaGeneratorAgent
+import sys
+from pathlib import Path
+
+# Add backend directory to path
+backend_dir = Path(__file__).parent.parent
+if str(backend_dir) not in sys.path:
+    sys.path.insert(0, str(backend_dir))
+
+from site_investigator import SiteInvestigator
+from agents.api_analysis_agent import APIAnalysisAgent
+from agents.mcp_server_agent import MCPServerAgent
+from agents.schema_generator_agent import SchemaGeneratorAgent
 
 logger = logging.getLogger(__name__)
 

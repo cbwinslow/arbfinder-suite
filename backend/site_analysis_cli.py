@@ -10,6 +10,13 @@ import logging
 import sys
 from pathlib import Path
 
+import sys
+from pathlib import Path
+
+# Add backend directory to path
+backend_dir = Path(__file__).parent
+sys.path.insert(0, str(backend_dir))
+
 from agents.site_analysis_crew import SiteAnalysisCrew
 from site_investigator import SiteInvestigator
 
