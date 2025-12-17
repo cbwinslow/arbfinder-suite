@@ -114,12 +114,36 @@ export default function Home() {
           <p className="text-gray-400 mt-2">Find arbitrage opportunities across marketplaces</p>
         </div>
         
-        <div className="flex gap-4 items-center">
+        <div className="flex gap-4 items-center flex-wrap">
+          <Link 
+            href="/dashboard" 
+            className="text-purple-400 hover:text-purple-300 underline transition"
+          >
+            📊 Dashboard
+          </Link>
           <Link 
             href="/comps" 
             className="text-blue-400 hover:text-blue-300 underline transition"
           >
-            📊 View Comps
+            💰 Comps
+          </Link>
+          <Link 
+            href="/snipes" 
+            className="text-pink-400 hover:text-pink-300 underline transition"
+          >
+            🎯 Snipes
+          </Link>
+          <Link 
+            href="/alerts" 
+            className="text-orange-400 hover:text-orange-300 underline transition"
+          >
+            🔔 Alerts
+          </Link>
+          <Link 
+            href="/crews" 
+            className="text-cyan-400 hover:text-cyan-300 underline transition"
+          >
+            🤖 AI Crews
           </Link>
           {stats && (
             <div className="bg-neutral-900 rounded-lg p-4 border border-green-500/20">

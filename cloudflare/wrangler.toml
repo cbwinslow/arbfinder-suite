@@ -13,6 +13,18 @@ route = "arbfinder.com/*"
 name = "arbfinder-worker-staging"
 route = "staging.arbfinder.com/*"
 
+# D1 Database bindings
+[[d1_databases]]
+binding = "DB"
+database_name = "arbfinder-db"
+database_id = "your-d1-database-id"
+preview_database_id = "your-d1-preview-database-id"
+
+# Hyperdrive for database connection pooling
+[[hyperdrive]]
+binding = "HYPERDRIVE"
+id = "your-hyperdrive-config-id"
+
 # R2 bucket bindings
 [[r2_buckets]]
 binding = "IMAGES"
@@ -24,16 +36,64 @@ binding = "DATA"
 bucket_name = "arbfinder-data"
 preview_bucket_name = "arbfinder-data-preview"
 
+[[r2_buckets]]
+binding = "BACKUPS"
+bucket_name = "arbfinder-backups"
+preview_bucket_name = "arbfinder-backups-preview"
+
 # KV namespaces for caching
 [[kv_namespaces]]
 binding = "CACHE"
 id = "your-kv-namespace-id"
 preview_id = "your-preview-kv-namespace-id"
 
+[[kv_namespaces]]
+binding = "SESSIONS"
+id = "your-sessions-namespace-id"
+preview_id = "your-preview-sessions-namespace-id"
+
+[[kv_namespaces]]
+binding = "ALERTS"
+id = "your-alerts-namespace-id"
+preview_id = "your-preview-alerts-namespace-id"
+
 # Environment variables
 [vars]
 API_BASE_URL = "https://api.arbfinder.com"
 ENVIRONMENT = "production"
+GOOGLE_TAG_MANAGER_ID = "GTM-XXXXXXX"
+
+# Analytics Engine for custom metrics
+[[analytics_engine_datasets]]
+binding = "ANALYTICS"
+
+# Queues for async job processing
+[[queues.producers]]
+binding = "SNIPE_QUEUE"
+queue = "arbfinder-snipe-queue"
+
+[[queues.producers]]
+binding = "ALERT_QUEUE"
+queue = "arbfinder-alert-queue"
+
+[[queues.producers]]
+binding = "CRAWLER_QUEUE"
+queue = "arbfinder-crawler-queue"
+
+[[queues.consumers]]
+queue = "arbfinder-snipe-queue"
+max_batch_size = 10
+max_batch_timeout = 30
+
+[[queues.consumers]]
+queue = "arbfinder-alert-queue"
+max_batch_size = 50
+max_batch_timeout = 60
+
+[[queues.consumers]]
+queue = "arbfinder-crawler-queue"
+max_batch_size = 5
+max_batch_timeout = 120
 
 # Durable Objects for stateful operations
 [[durable_objects.bindings]]
@@ -41,11 +101,21 @@ name = "CRAWLER_STATE"
 class_name = "CrawlerState"
 script_name = "arbfinder-worker"
 
+[[durable_objects.bindings]]
+name = "SNIPE_SCHEDULER"
+class_name = "SnipeScheduler"
+script_name = "arbfinder-worker"
+
+[[migrations]]
+tag = "v1"
+new_classes = ["CrawlerState", "SnipeScheduler"]
+
 # Cron triggers for scheduled tasks
 [triggers]
 crons = [
   "0 */4 * * *",  # Run crawler every 4 hours
-  "*/15 * * * *"  # Process metadata queue every 15 minutes
+  "*/15 * * * *", # Process metadata queue every 15 minutes
+  "* * * * *"     # Check snipe schedules every minute
 ]
 
 # Build configuration
