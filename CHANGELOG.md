@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+- Fix pre-existing frontend build failures: add UI components, convert config to JS, install lucide-react (21117fc)
+- Create dependabot.yml (a443eb2)
+- Fix pre-existing CI failures: correct backend import and add package-lock.json (722d8f4)
+- Initial plan (1d06766)
+- chore: auto-format code with AI assistance (b25d85a)
+- docs: update changelog [skip ci] (d044a79)
 - docs: update changelog [skip ci] (07172d7)
 - Add comprehensive WORK_SUMMARY.md documenting all deliverables and achievements (ead3d60)
 - Add comprehensive IMPLEMENTATION_STRATEGY.md with high-level implementation guide (a937eed)
