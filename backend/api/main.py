@@ -17,10 +17,16 @@ try:
     from .agents import router as agents_router
     from .crawler import router as crawler_router
     from .live_updates import router as live_updates_router
+    from .snipes import router as snipes_router
+    from .alerts import router as alerts_router
+    from .crews import router as crews_router
 except ImportError:
     crawler_router = None
     agents_router = None
     live_updates_router = None
+    snipes_router = None
+    alerts_router = None
+    crews_router = None
 
 DB_PATH = os.getenv("ARBF_DB", os.path.expanduser("~/.arb_finder.sqlite3"))
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
@@ -49,6 +55,12 @@ if agents_router:
     app.include_router(agents_router)
 if live_updates_router:
     app.include_router(live_updates_router)
+if snipes_router:
+    app.include_router(snipes_router)
+if alerts_router:
+    app.include_router(alerts_router)
+if crews_router:
+    app.include_router(crews_router)
 
 
 class Listing(BaseModel):

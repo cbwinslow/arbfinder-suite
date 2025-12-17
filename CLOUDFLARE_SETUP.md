@@ -24,12 +24,15 @@
 This guide walks through setting up ArbFinder Suite on the Cloudflare platform, leveraging:
 
 - **Cloudflare Workers**: Serverless compute for backend API
-- **Cloudflare Pages**: Static site hosting for Next.js frontend
+- **Cloudflare Pages**: Static site hosting for Next.js frontend with Google Tag Manager
 - **Cloudflare D1**: SQLite-based edge database
 - **Cloudflare R2**: S3-compatible object storage
-- **Cloudflare KV**: Key-value storage for caching
+- **Cloudflare KV**: Key-value storage for caching and alerts
+- **Cloudflare Hyperdrive**: Database connection pooling
+- **Cloudflare Durable Objects**: Stateful edge computing for snipe scheduling
+- **Cloudflare Queues**: Async job processing for crawlers and alerts
 - **Cloudflare WAF**: Web Application Firewall
-- **Analytics Engine**: Custom business metrics
+- **Analytics Engine**: Custom business metrics and tracking
 
 ### Architecture Diagram
 
@@ -732,6 +735,119 @@ After completing setup:
 - [R2 Documentation](https://developers.cloudflare.com/r2/)
 - [Wrangler CLI Reference](https://developers.cloudflare.com/workers/wrangler/)
 - [Community Discord](https://discord.gg/cloudflaredev)
+
+---
+
+## New Features Setup
+
+### Auction Sniping
+
+The sniping tool allows you to schedule bids to win auctions at the last moment:
+
+**How it works**:
+1. Monitor auction listings with API endpoints
+2. Schedule a snipe (bid) through Durable Objects
+3. System executes bid via API at precise timing before auction closes
+
+**Setup**:
+```bash
+# Create Durable Object binding (already in wrangler.toml)
+# No additional setup needed - managed by Worker
+```
+
+**API Usage**:
+```bash
+# Schedule a snipe
+curl -X POST https://api.arbfinder.com/api/snipes \
+  -H "Content-Type: application/json" \
+  -d '{
+    "listing_url": "https://example.com/auction/12345",
+    "max_bid": 150.00,
+    "auction_end_time": "2024-12-20T15:00:00Z",
+    "lead_time_seconds": 5
+  }'
+
+# List scheduled snipes
+curl https://api.arbfinder.com/api/snipes
+
+# Cancel a snipe
+curl -X DELETE https://api.arbfinder.com/api/snipes/SNIPE_ID
+```
+
+### Price Alerts
+
+Set up alerts for items matching your price criteria:
+
+**Setup KV Namespace**:
+```bash
+# Already configured in wrangler.toml as ALERTS
+```
+
+**API Usage**:
+```bash
+# Create price alert
+curl -X POST https://api.arbfinder.com/api/alerts \
+  -H "Content-Type: application/json" \
+  -d '{
+    "search_query": "RTX 3080",
+    "min_price": 200,
+    "max_price": 400,
+    "notification_method": "email",
+    "notification_target": "user@example.com"
+  }'
+
+# List alerts
+curl https://api.arbfinder.com/api/alerts
+
+# Delete alert
+curl -X DELETE https://api.arbfinder.com/api/alerts/ALERT_ID
+```
+
+### Google Tag Manager Integration
+
+Add Google Tag Manager to track user behavior:
+
+**1. Get GTM Container ID**:
+- Sign up at https://tagmanager.google.com
+- Create a new container
+- Note your container ID (GTM-XXXXXXX)
+
+**2. Update Environment Variable**:
+```bash
+# In wrangler.toml
+[vars]
+GOOGLE_TAG_MANAGER_ID = "GTM-XXXXXXX"
+```
+
+**3. Add to Pages Deployment**:
+The GTM script is automatically injected into all pages via the layout component.
+
+### Crawl4AI/CrewAI Runner
+
+Run AI agents and crews for data ingestion:
+
+**Setup**:
+```bash
+# Queue binding already configured in wrangler.toml
+```
+
+**API Usage**:
+```bash
+# Start a crawler crew
+curl -X POST https://api.arbfinder.com/api/crews/run \
+  -H "Content-Type: application/json" \
+  -d '{
+    "crew_type": "price_ingestion",
+    "targets": ["shopgoodwill", "govdeals"],
+    "query": "electronics"
+  }'
+
+# Check crew status
+curl https://api.arbfinder.com/api/crews/status/CREW_ID
+
+# Get crew results
+curl https://api.arbfinder.com/api/crews/results/CREW_ID
+```
 
 ---
 

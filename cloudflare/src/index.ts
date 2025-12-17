@@ -6,9 +6,20 @@
 export interface Env {
   IMAGES: R2Bucket;
   DATA: R2Bucket;
+  BACKUPS: R2Bucket;
   CACHE: KVNamespace;
+  SESSIONS: KVNamespace;
+  ALERTS: KVNamespace;
+  DB: D1Database;
+  HYPERDRIVE?: Hyperdrive;
+  ANALYTICS?: AnalyticsEngineDataset;
+  SNIPE_QUEUE?: Queue;
+  ALERT_QUEUE?: Queue;
+  CRAWLER_QUEUE?: Queue;
+  SNIPE_SCHEDULER: DurableObjectNamespace;
   API_BASE_URL: string;
   ENVIRONMENT: string;
+  GOOGLE_TAG_MANAGER_ID?: string;
 }
 
 export default {
@@ -64,12 +75,94 @@ export default {
       } else if (event.cron === '*/15 * * * *') {
         // Process metadata queue every 15 minutes
         await processMetadataQueue(env);
+      } else if (event.cron === '* * * * *') {
+        // Check snipe schedules every minute
+        await checkPendingSnipes(env);
+        // Check alerts
+        await checkPriceAlerts(env);
       }
     } catch (error) {
       console.error('Scheduled task error:', error);
     }
   },
+
+  /**
+   * Queue consumer handler
+   */
+  async queue(batch: MessageBatch<any>, env: Env): Promise<void> {
+    for (const message of batch.messages) {
+      try {
+        if (message.body.type === 'snipe') {
+          await executeSnipe(message.body.data, env);
+        } else if (message.body.type === 'alert') {
+          await sendAlert(message.body.data, env);
+        } else if (message.body.type === 'crawler') {
+          await runCrawler(message.body.data, env);
+        }
+        message.ack();
+      } catch (error) {
+        console.error('Queue processing error:', error);
+        message.retry();
+      }
+    }
+  },
 };
+
+/**
+ * Durable Object for snipe scheduling
+ */
+export class SnipeScheduler {
+  private state: DurableObjectState;
+  private env: Env;
+
+  constructor(state: DurableObjectState, env: Env) {
+    this.state = state;
+    this.env = env;
+  }
+
+  async fetch(request: Request): Promise<Response> {
+    const url = new URL(request.url);
+
+    if (url.pathname === '/schedule') {
+      // Schedule a new snipe
+      const snipeData = await request.json();
+      const snipeId = `snipe-${Date.now()}`;
+      
+      // Store snipe data
+      await this.state.storage.put(snipeId, snipeData);
+      
+      // Set alarm for execution
+      const executeTime = snipeData.auction_end_time - snipeData.lead_time_seconds;
+      await this.state.storage.setAlarm(executeTime * 1000);
+
+      return new Response(JSON.stringify({ success: true, snipe_id: snipeId }), {
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    return new Response('Not found', { status: 404 });
+  }
+
+  async alarm(): Promise<void> {
+    // Get all pending snipes
+    const snipes = await this.state.storage.list();
+    const now = Date.now() / 1000;
+
+    for (const [snipeId, snipeData] of snipes) {
+      const executeTime = snipeData.auction_end_time - snipeData.lead_time_seconds;
+      
+      if (now >= executeTime) {
+        // Execute snipe via queue
+        if (this.env.SNIPE_QUEUE) {
+          await this.env.SNIPE_QUEUE.send({ type: 'snipe', data: snipeData });
+        }
+        
+        // Remove from storage
+        await this.state.storage.delete(snipeId);
+      }
+    }
+  }
+}
 
 /**
  * Handle image upload to R2
@@ -226,4 +319,99 @@ async function processMetadataQueue(env: Env): Promise<void> {
   } catch (error) {
     console.error('Error processing metadata queue:', error);
   }
+}
+
+/**
+ * Check and execute pending snipes
+ */
+async function checkPendingSnipes(env: Env): Promise<void> {
+  console.log('Checking pending snipes...');
+  
+  try {
+    const response = await fetch(`${env.API_BASE_URL}/api/snipes/execute-pending`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log('Snipes executed:', data);
+      
+      // Track in analytics
+      if (env.ANALYTICS && data.executed > 0) {
+        env.ANALYTICS.writeDataPoint({
+          blobs: ['snipe_executed'],
+          doubles: [data.executed],
+          indexes: ['system'],
+        });
+      }
+    } else {
+      console.error('Snipe execution failed:', response.status);
+    }
+  } catch (error) {
+    console.error('Error checking pending snipes:', error);
+  }
+}
+
+/**
+ * Check price alerts
+ */
+async function checkPriceAlerts(env: Env): Promise<void> {
+  console.log('Checking price alerts...');
+  
+  try {
+    const response = await fetch(`${env.API_BASE_URL}/api/alerts/check-and-notify`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log('Alerts checked:', data);
+      
+      // Track in analytics
+      if (env.ANALYTICS && data.notifications_sent > 0) {
+        env.ANALYTICS.writeDataPoint({
+          blobs: ['alert_sent'],
+          doubles: [data.notifications_sent],
+          indexes: ['system'],
+        });
+      }
+    } else {
+      console.error('Alert check failed:', response.status);
+    }
+  } catch (error) {
+    console.error('Error checking alerts:', error);
+  }
+}
+
+/**
+ * Execute a snipe (from queue)
+ */
+async function executeSnipe(snipeData: any, env: Env): Promise<void> {
+  console.log('Executing snipe:', snipeData);
+  // In production, integrate with auction platform API
+  // For now, this would call the backend API to mark as executed
+}
+
+/**
+ * Send an alert notification (from queue)
+ */
+async function sendAlert(alertData: any, env: Env): Promise<void> {
+  console.log('Sending alert:', alertData);
+  // In production, integrate with email/notification service
+  // For now, this would call the backend API to send notifications
+}
+
+/**
+ * Run a crawler (from queue)
+ */
+async function runCrawler(crawlerData: any, env: Env): Promise<void> {
+  console.log('Running crawler:', crawlerData);
+  // In production, this would trigger the actual crawler
+  // For now, this would call the backend API
 }
