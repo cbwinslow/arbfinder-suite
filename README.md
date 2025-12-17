@@ -17,6 +17,8 @@
 - 🎯 **Auction Sniping**: Schedule bids to win auctions at the last moment
 - 🔔 **Price Alerts**: Get notified when items match your price criteria
 - 📈 **Google Analytics**: Track user behavior with Cloudflare's Google Tag Manager integration
+- 🔬 **Site Analysis System**: Automated website investigation and integration code generation **(NEW!)**
+- 🛠️ **MCP Server Generation**: OpenAI-compatible tools for AI agents **(NEW!)**
 - 📚 **Comprehensive Docs**: 150KB+ of documentation covering all aspects
 - 🛠️ **Setup Automation**: Automated Cloudflare deployment scripts
 
@@ -39,6 +41,8 @@
 - 🏷️ **Smart Tagging**: AI-powered categorization and metadata extraction
 - 🔄 **LangChain Workflows**: Multi-step agent orchestration
 - 📈 **Market Analysis**: AI-driven pricing recommendations
+- 🔬 **Site Analysis System**: Automated website investigation, API discovery, and code generation
+- 🛠️ **MCP Server Generator**: Creates OpenAI-compatible tool servers for AI agents
 
 ### Cloud Platform
 - ☁️ **Cloudflare Workers**: Serverless edge compute
@@ -71,6 +75,9 @@ pip install -e .
 # Run CLI
 arbfinder --version
 arbfinder search "RTX 3060" --csv deals.csv
+
+# NEW: Analyze websites automatically
+python backend/site_analysis_cli.py investigate shopgoodwill https://shopgoodwill.com
 ```
 
 ### Using Docker
