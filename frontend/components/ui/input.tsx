@@ -1,6 +1,13 @@
-import React from 'react';
+import React from "react";
 
-export function Input({ className = '', type = 'text', value, onChange, placeholder, id }: { 
+export function Input({
+  className = "",
+  type = "text",
+  value,
+  onChange,
+  placeholder,
+  id,
+}: {
   className?: string;
   type?: string;
   value?: string | number;

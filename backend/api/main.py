@@ -15,11 +15,11 @@ from pydantic import BaseModel
 # Import new routers
 try:
     from .agents import router as agents_router
+    from .alerts import router as alerts_router
     from .crawler import router as crawler_router
+    from .crews import router as crews_router
     from .live_updates import router as live_updates_router
     from .snipes import router as snipes_router
-    from .alerts import router as alerts_router
-    from .crews import router as crews_router
 except ImportError:
     crawler_router = None
     agents_router = None

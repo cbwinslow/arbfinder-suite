@@ -1,10 +1,10 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = { 
+const nextConfig = {
   reactStrictMode: true,
-  output: 'standalone',
+  output: "standalone",
   // Enable static exports for Cloudflare Pages
   // Uncomment the line below for Cloudflare deployment
   // output: 'export',
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

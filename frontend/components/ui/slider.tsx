@@ -1,6 +1,14 @@
-import React from 'react';
+import React from "react";
 
-export function Slider({ value, onValueChange, min = 0, max = 100, step = 1, className = '', id }: { 
+export function Slider({
+  value,
+  onValueChange,
+  min = 0,
+  max = 100,
+  step = 1,
+  className = "",
+  id,
+}: {
   value?: number[];
   onValueChange?: (value: number[]) => void;
   min?: number;

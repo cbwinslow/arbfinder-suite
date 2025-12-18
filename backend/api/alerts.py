@@ -2,7 +2,6 @@
 API endpoints for price alerts functionality
 """
 
-import json
 import logging
 import os
 import sqlite3
@@ -10,7 +9,7 @@ import time
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, HTTPException, Query
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +22,8 @@ def init_alerts_table():
     """Initialize alerts table if it doesn't exist"""
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute("""
+    c.execute(
+        """
         CREATE TABLE IF NOT EXISTS alerts (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             search_query TEXT NOT NULL,
@@ -37,11 +37,15 @@ def init_alerts_table():
             trigger_count INTEGER DEFAULT 0,
             metadata TEXT
         )
-    """)
-    c.execute("""
+    """
+    )
+    c.execute(
+        """
         CREATE INDEX IF NOT EXISTS idx_alerts_status ON alerts(status)
-    """)
-    c.execute("""
+    """
+    )
+    c.execute(
+        """
         CREATE TABLE IF NOT EXISTS alert_matches (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             alert_id INTEGER NOT NULL,
@@ -53,10 +57,13 @@ def init_alerts_table():
             notification_sent BOOLEAN DEFAULT 0,
             FOREIGN KEY (alert_id) REFERENCES alerts(id) ON DELETE CASCADE
         )
-    """)
-    c.execute("""
+    """
+    )
+    c.execute(
+        """
         CREATE INDEX IF NOT EXISTS idx_alert_matches_alert_id ON alert_matches(alert_id)
-    """)
+    """
+    )
     conn.commit()
     conn.close()
 
@@ -332,9 +339,7 @@ async def resume_alert(alert_id: int) -> Dict[str, Any]:
 
 
 @router.get("/{alert_id}/matches")
-async def get_alert_matches(
-    alert_id: int, limit: int = Query(50, ge=1, le=200)
-) -> Dict[str, Any]:
+async def get_alert_matches(alert_id: int, limit: int = Query(50, ge=1, le=200)) -> Dict[str, Any]:
     """Get matches for a specific alert"""
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()

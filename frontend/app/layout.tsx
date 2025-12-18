@@ -1,13 +1,17 @@
-import './globals.css'
-import Script from 'next/script'
+import "./globals.css";
+import Script from "next/script";
 
 export const metadata = {
-  title: 'ArbFinder Suite - Arbitrage Finder',
-  description: 'Find arbitrage opportunities across multiple marketplaces'
-}
+  title: "ArbFinder Suite - Arbitrage Finder",
+  description: "Find arbitrage opportunities across multiple marketplaces",
+};
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const gtmId = process.env.NEXT_PUBLIC_GTM_ID || '';
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const gtmId = process.env.NEXT_PUBLIC_GTM_ID || "";
 
   return (
     <html lang="en">
@@ -37,7 +41,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
               height="0"
               width="0"
-              style={{ display: 'none', visibility: 'hidden' }}
+              style={{ display: "none", visibility: "hidden" }}
             />
           </noscript>
         )}
@@ -49,5 +53,5 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </footer>
       </body>
     </html>
-  )
+  );
 }

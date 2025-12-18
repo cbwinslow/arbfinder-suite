@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef } from "react";
 
 interface Update {
   id: number;
@@ -27,28 +27,28 @@ export default function LiveUpdates({ updates, isLoading }: LiveUpdatesProps) {
 
   const getUpdateIcon = (type: string) => {
     const icons: Record<string, string> = {
-      crawler: '🕷️',
-      agent: '🤖',
-      price: '💰',
-      image: '🖼️',
-      metadata: '🔍',
-      error: '❌',
-      success: '✅',
-      info: 'ℹ️',
+      crawler: "🕷️",
+      agent: "🤖",
+      price: "💰",
+      image: "🖼️",
+      metadata: "🔍",
+      error: "❌",
+      success: "✅",
+      info: "ℹ️",
     };
-    return icons[type] || '📝';
+    return icons[type] || "📝";
   };
 
   const getUpdateColor = (type: string) => {
     const colors: Record<string, string> = {
-      error: 'text-red-600 bg-red-50',
-      success: 'text-green-600 bg-green-50',
-      crawler: 'text-blue-600 bg-blue-50',
-      agent: 'text-purple-600 bg-purple-50',
-      price: 'text-yellow-600 bg-yellow-50',
-      info: 'text-gray-600 bg-gray-50',
+      error: "text-red-600 bg-red-50",
+      success: "text-green-600 bg-green-50",
+      crawler: "text-blue-600 bg-blue-50",
+      agent: "text-purple-600 bg-purple-50",
+      price: "text-yellow-600 bg-yellow-50",
+      info: "text-gray-600 bg-gray-50",
     };
-    return colors[type] || 'text-gray-600 bg-gray-50';
+    return colors[type] || "text-gray-600 bg-gray-50";
   };
 
   if (isLoading) {
@@ -65,7 +65,7 @@ export default function LiveUpdates({ updates, isLoading }: LiveUpdatesProps) {
       ref={scrollRef}
       className="p-3 h-[400px] overflow-y-auto bg-black text-green-400 font-mono text-sm"
       style={{
-        fontFamily: 'Courier New, monospace',
+        fontFamily: "Courier New, monospace",
       }}
     >
       {updates.length === 0 ? (

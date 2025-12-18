@@ -23,7 +23,8 @@ def init_snipes_table():
     """Initialize snipes table if it doesn't exist"""
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute("""
+    c.execute(
+        """
         CREATE TABLE IF NOT EXISTS snipes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             listing_url TEXT NOT NULL,
@@ -37,13 +38,18 @@ def init_snipes_table():
             result TEXT,
             metadata TEXT
         )
-    """)
-    c.execute("""
+    """
+    )
+    c.execute(
+        """
         CREATE INDEX IF NOT EXISTS idx_snipes_status ON snipes(status)
-    """)
-    c.execute("""
+    """
+    )
+    c.execute(
+        """
         CREATE INDEX IF NOT EXISTS idx_snipes_auction_end ON snipes(auction_end_time)
-    """)
+    """
+    )
     conn.commit()
     conn.close()
 
@@ -249,9 +255,7 @@ async def cancel_snipe(snipe_id: int) -> Dict[str, Any]:
 
     if row[0] != "scheduled":
         conn.close()
-        raise HTTPException(
-            status_code=400, detail=f"Cannot cancel snipe with status '{row[0]}'"
-        )
+        raise HTTPException(status_code=400, detail=f"Cannot cancel snipe with status '{row[0]}'")
 
     # Update status to cancelled
     c.execute("UPDATE snipes SET status = 'cancelled' WHERE id = ?", (snipe_id,))
