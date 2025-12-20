@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+- chore: auto-format code with AI assistance (3a47dca)
+- Add site analysis feature to main README and quickstart guide (df1b78a)
+- Fix import paths and add comprehensive examples and tests (13622ea)
+- Add comprehensive site analysis system with agents and MCP server generation (e2a86dc)
+- Initial plan (595f6a4)
+- docs: update changelog [skip ci] (e6b4743)
 - docs: update changelog [skip ci] (4bdc19d)
 - Fix pre-existing frontend build failures: add UI components, convert config to JS, install lucide-react (21117fc)
 - Create dependabot.yml (a443eb2)
