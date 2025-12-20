@@ -29,7 +29,7 @@ class APIEndpoint(BaseModel):
 class APIAnalysisAgent:
     """
     Agent specialized in API analysis and reverse engineering
-    
+
     Responsibilities:
     - Analyze discovered API endpoints
     - Generate Python and TypeScript function wrappers
@@ -43,20 +43,18 @@ class APIAnalysisAgent:
         self.output_dir = Path(output_dir) / site_name
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
-    def analyze_endpoints(
-        self, endpoints: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+    def analyze_endpoints(self, endpoints: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
         Analyze discovered endpoints and generate comprehensive documentation
-        
+
         Args:
             endpoints: List of discovered endpoint data
-        
+
         Returns:
             Analysis results with generated code and schemas
         """
         logger.info(f"Analyzing {len(endpoints)} endpoints for {self.site_name}")
-        
+
         results = {
             "site": self.site_name,
             "endpoint_count": len(endpoints),
@@ -64,40 +62,40 @@ class APIAnalysisAgent:
             "schemas": {},
             "postman_collection": None,
         }
-        
+
         # Categorize endpoints
         categorized = self._categorize_endpoints(endpoints)
-        
+
         # Generate Python functions
         python_code = self._generate_python_functions(categorized)
         python_file = self.output_dir / f"{self.site_name}_api.py"
         with open(python_file, "w") as f:
             f.write(python_code)
         results["functions"]["python"] = str(python_file)
-        
+
         # Generate TypeScript functions
         typescript_code = self._generate_typescript_functions(categorized)
         typescript_file = self.output_dir / f"{self.site_name}_api.ts"
         with open(typescript_file, "w") as f:
             f.write(typescript_code)
         results["functions"]["typescript"] = str(typescript_file)
-        
+
         # Generate SQL schema
         sql_schema = self._generate_sql_schema(categorized)
         sql_file = self.output_dir / f"{self.site_name}_schema.sql"
         with open(sql_file, "w") as f:
             f.write(sql_schema)
         results["schemas"]["sql"] = str(sql_file)
-        
+
         # Generate Postman collection
         postman_collection = self._generate_postman_collection(categorized)
         postman_file = self.output_dir / f"{self.site_name}_postman.json"
         with open(postman_file, "w") as f:
             json.dump(postman_collection, f, indent=2)
         results["postman_collection"] = str(postman_file)
-        
+
         logger.info(f"Analysis complete. Files saved to {self.output_dir}")
-        
+
         return results
 
     def _categorize_endpoints(
@@ -105,30 +103,28 @@ class APIAnalysisAgent:
     ) -> Dict[str, List[Dict[str, Any]]]:
         """Categorize endpoints by resource type"""
         categories = {}
-        
+
         for endpoint in endpoints:
             path = endpoint.get("path", "")
-            
+
             # Extract resource from path (e.g., /api/items -> items)
             parts = [p for p in path.split("/") if p and p not in ["api", "v1", "v2"]]
-            
+
             if parts:
                 resource = parts[0]
             else:
                 resource = "general"
-            
+
             if resource not in categories:
                 categories[resource] = []
-            
+
             categories[resource].append(endpoint)
-        
+
         return categories
 
-    def _generate_python_functions(
-        self, categorized: Dict[str, List[Dict[str, Any]]]
-    ) -> str:
+    def _generate_python_functions(self, categorized: Dict[str, List[Dict[str, Any]]]) -> str:
         """Generate Python API client code"""
-        
+
         lines = [
             '"""',
             f"API Client for {self.site_name}",
@@ -156,16 +152,16 @@ class APIAnalysisAgent:
             "        return headers",
             "",
         ]
-        
+
         # Generate methods for each category
         for resource, endpoints in categorized.items():
             lines.append(f"    # {resource.upper()} methods")
             lines.append("")
-            
+
             for endpoint in endpoints:
                 method_name = self._generate_method_name(endpoint)
                 params = self._extract_parameters(endpoint)
-                
+
                 lines.extend(
                     [
                         f"    async def {method_name}(self, {params}) -> Dict[str, Any]:",
@@ -184,7 +180,7 @@ class APIAnalysisAgent:
                         "",
                     ]
                 )
-        
+
         lines.extend(
             [
                 "    async def close(self):",
@@ -193,14 +189,12 @@ class APIAnalysisAgent:
                 "",
             ]
         )
-        
+
         return "\n".join(lines)
 
-    def _generate_typescript_functions(
-        self, categorized: Dict[str, List[Dict[str, Any]]]
-    ) -> str:
+    def _generate_typescript_functions(self, categorized: Dict[str, List[Dict[str, Any]]]) -> str:
         """Generate TypeScript API client code"""
-        
+
         lines = [
             "/**",
             f" * API Client for {self.site_name}",
@@ -228,16 +222,16 @@ class APIAnalysisAgent:
             "  }",
             "",
         ]
-        
+
         # Generate methods for each category
         for resource, endpoints in categorized.items():
             lines.append(f"  // {resource.upper()} methods")
             lines.append("")
-            
+
             for endpoint in endpoints:
                 method_name = self._generate_method_name(endpoint)
                 params = self._extract_parameters_typescript(endpoint)
-                
+
                 lines.extend(
                     [
                         f"  async {method_name}({params}): Promise<any> {{",
@@ -249,26 +243,24 @@ class APIAnalysisAgent:
                         "",
                     ]
                 )
-        
+
         lines.append("}")
-        
+
         return "\n".join(lines)
 
-    def _generate_sql_schema(
-        self, categorized: Dict[str, List[Dict[str, Any]]]
-    ) -> str:
+    def _generate_sql_schema(self, categorized: Dict[str, List[Dict[str, Any]]]) -> str:
         """Generate SQL schema for storing API responses"""
-        
+
         lines = [
             f"-- SQL Schema for {self.site_name}",
             "-- Auto-generated by APIAnalysisAgent",
             "",
         ]
-        
+
         # Generate a table for each resource type
         for resource, endpoints in categorized.items():
             table_name = f"{self.site_name}_{resource}"
-            
+
             lines.extend(
                 [
                     f"CREATE TABLE IF NOT EXISTS {table_name} (",
@@ -282,14 +274,14 @@ class APIAnalysisAgent:
                     "",
                 ]
             )
-        
+
         return "\n".join(lines)
 
     def _generate_postman_collection(
         self, categorized: Dict[str, List[Dict[str, Any]]]
     ) -> Dict[str, Any]:
         """Generate Postman collection for API testing"""
-        
+
         collection = {
             "info": {
                 "name": f"{self.site_name} API",
@@ -298,13 +290,13 @@ class APIAnalysisAgent:
             },
             "item": [],
         }
-        
+
         for resource, endpoints in categorized.items():
             folder = {
                 "name": resource.upper(),
                 "item": [],
             }
-            
+
             for endpoint in endpoints:
                 request = {
                     "name": endpoint.get("description", endpoint.get("path", "")),
@@ -316,19 +308,15 @@ class APIAnalysisAgent:
                         "url": {
                             "raw": "{{baseUrl}}" + endpoint.get("path", ""),
                             "host": ["{{baseUrl}}"],
-                            "path": [
-                                p
-                                for p in endpoint.get("path", "").split("/")
-                                if p
-                            ],
+                            "path": [p for p in endpoint.get("path", "").split("/") if p],
                         },
                     },
                 }
-                
+
                 folder["item"].append(request)
-            
+
             collection["item"].append(folder)
-        
+
         return collection
 
     def _to_class_name(self, name: str) -> str:
@@ -339,16 +327,16 @@ class APIAnalysisAgent:
         """Generate method name from endpoint"""
         path = endpoint.get("path", "")
         method = endpoint.get("method", "get").lower()
-        
+
         # Extract meaningful parts from path
         parts = [p for p in path.split("/") if p and not p.startswith("{")]
-        
+
         if not parts:
             return f"{method}_data"
-        
+
         # Use last meaningful part
         name = parts[-1].replace("-", "_")
-        
+
         # Prefix with HTTP method
         if method == "get" and name.endswith("s"):
             return f"get_{name}"
@@ -366,29 +354,29 @@ class APIAnalysisAgent:
     def _extract_parameters(self, endpoint: Dict[str, Any]) -> str:
         """Extract parameters for Python function signature"""
         params = []
-        
+
         for param in endpoint.get("parameters", []):
             param_name = param.get("name", "param")
             param_type = "str"  # Default type
-            
+
             if not param.get("required", False):
                 params.append(f"{param_name}: Optional[{param_type}] = None")
             else:
                 params.append(f"{param_name}: {param_type}")
-        
+
         return ", ".join(params) if params else ""
 
     def _extract_parameters_typescript(self, endpoint: Dict[str, Any]) -> str:
         """Extract parameters for TypeScript function signature"""
         params = []
-        
+
         for param in endpoint.get("parameters", []):
             param_name = param.get("name", "param")
             param_type = "string"  # Default type
-            
+
             if not param.get("required", False):
                 params.append(f"{param_name}?: {param_type}")
             else:
                 params.append(f"{param_name}: {param_type}")
-        
+
         return ", ".join(params) if params else ""

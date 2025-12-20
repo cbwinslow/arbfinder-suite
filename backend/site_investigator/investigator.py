@@ -6,17 +6,16 @@ Coordinates analysis of website structure, API endpoints, and data access
 import asyncio
 import json
 import logging
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-from datetime import datetime
 
-import httpx
 from pydantic import BaseModel
 
-from .robots_analyzer import RobotsAnalyzer
-from .terms_analyzer import TermsAnalyzer
 from .api_discoverer import APIDiscoverer
 from .historical_data import HistoricalDataFetcher
+from .robots_analyzer import RobotsAnalyzer
+from .terms_analyzer import TermsAnalyzer
 
 logger = logging.getLogger(__name__)
 
@@ -27,33 +26,33 @@ class SiteInvestigationReport(BaseModel):
     site_name: str
     site_url: str
     investigation_date: str
-    
+
     # Robots.txt analysis
     robots_allowed: bool
     robots_crawl_delay: Optional[int] = None
     robots_rules: Dict[str, Any] = {}
-    
+
     # Terms of Service
     terms_url: Optional[str] = None
     api_allowed: bool = False
     scraping_allowed: bool = False
     rate_limits: Dict[str, Any] = {}
     restrictions: List[str] = []
-    
+
     # API Discovery
     api_endpoints: List[Dict[str, Any]] = []
     api_documentation_url: Optional[str] = None
     requires_authentication: bool = False
-    
+
     # Historical data capabilities
     wayback_available: bool = False
     historical_snapshots: int = 0
     historical_date_range: Optional[Dict[str, str]] = None
-    
+
     # Recommendations
     recommended_approach: str = ""
     implementation_notes: List[str] = []
-    
+
     # Generated artifacts
     config_file: Optional[str] = None
     schema_file: Optional[str] = None
@@ -73,7 +72,7 @@ class SiteInvestigator:
         self.site_name = site_name
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
-        
+
         # Initialize analyzers
         self.robots_analyzer = RobotsAnalyzer(site_url)
         self.terms_analyzer = TermsAnalyzer(site_url, site_name)
@@ -83,12 +82,12 @@ class SiteInvestigator:
     async def investigate(self) -> SiteInvestigationReport:
         """
         Perform comprehensive site investigation
-        
+
         Returns:
             SiteInvestigationReport with all findings
         """
         logger.info(f"Starting investigation of {self.site_name} ({self.site_url})")
-        
+
         # Run all analyses in parallel
         robots_result, terms_result, api_result, historical_result = await asyncio.gather(
             self.robots_analyzer.analyze(),
@@ -97,7 +96,7 @@ class SiteInvestigator:
             self.historical_fetcher.check_availability(),
             return_exceptions=True,
         )
-        
+
         # Handle any exceptions
         if isinstance(robots_result, Exception):
             logger.error(f"Robots analysis failed: {robots_result}")
@@ -111,7 +110,7 @@ class SiteInvestigator:
         if isinstance(historical_result, Exception):
             logger.error(f"Historical data check failed: {historical_result}")
             historical_result = {}
-        
+
         # Build comprehensive report
         report = SiteInvestigationReport(
             site_name=self.site_name,
@@ -132,21 +131,21 @@ class SiteInvestigator:
             historical_snapshots=historical_result.get("snapshot_count", 0),
             historical_date_range=historical_result.get("date_range"),
         )
-        
+
         # Generate recommendations
         report.recommended_approach = self._determine_approach(report)
         report.implementation_notes = self._generate_implementation_notes(report)
-        
+
         # Save report and generate configuration files
         await self._save_report(report)
-        
+
         logger.info(f"Investigation complete. Report saved to {self.output_dir}")
-        
+
         return report
 
     def _determine_approach(self, report: SiteInvestigationReport) -> str:
         """Determine the recommended data collection approach"""
-        
+
         if report.api_endpoints and report.api_allowed:
             return "API_PREFERRED"
         elif report.scraping_allowed and report.robots_allowed:
@@ -156,47 +155,41 @@ class SiteInvestigator:
         else:
             return "MANUAL_EXPORT"
 
-    def _generate_implementation_notes(
-        self, report: SiteInvestigationReport
-    ) -> List[str]:
+    def _generate_implementation_notes(self, report: SiteInvestigationReport) -> List[str]:
         """Generate implementation notes based on findings"""
         notes = []
-        
+
         if report.robots_crawl_delay:
-            notes.append(
-                f"Respect crawl delay of {report.robots_crawl_delay} seconds"
-            )
-        
+            notes.append(f"Respect crawl delay of {report.robots_crawl_delay} seconds")
+
         if report.rate_limits:
             for key, value in report.rate_limits.items():
                 notes.append(f"Rate limit: {key} = {value}")
-        
+
         if report.requires_authentication:
             notes.append("API authentication required - obtain API key")
-        
+
         if not report.scraping_allowed:
-            notes.append(
-                "Terms of Service prohibit scraping - use official API or manual export"
-            )
-        
+            notes.append("Terms of Service prohibit scraping - use official API or manual export")
+
         if report.restrictions:
             notes.extend([f"Restriction: {r}" for r in report.restrictions])
-        
+
         return notes
 
     async def _save_report(self, report: SiteInvestigationReport) -> None:
         """Save investigation report and generate config files"""
-        
+
         # Save JSON report
         report_path = self.output_dir / f"{self.site_name}_investigation.json"
         with open(report_path, "w") as f:
             json.dump(report.model_dump(), f, indent=2)
-        
+
         # Generate site-specific configuration
         config_path = self.output_dir / f"{self.site_name}_config.toml"
         await self._generate_site_config(report, config_path)
         report.config_file = str(config_path)
-        
+
         # Generate schema file
         schema_path = self.output_dir / f"{self.site_name}_schema.json"
         await self._generate_schema(report, schema_path)
@@ -206,7 +199,7 @@ class SiteInvestigator:
         self, report: SiteInvestigationReport, output_path: Path
     ) -> None:
         """Generate TOML configuration file for the site"""
-        
+
         config_lines = [
             f"# Configuration for {report.site_name}",
             f"# Generated: {report.investigation_date}",
@@ -220,12 +213,10 @@ class SiteInvestigator:
             "[crawler]",
             f"enabled = {str(report.robots_allowed).lower()}",
         ]
-        
+
         if report.robots_crawl_delay:
-            config_lines.append(
-                f"crawl_delay = {report.robots_crawl_delay}"
-            )
-        
+            config_lines.append(f"crawl_delay = {report.robots_crawl_delay}")
+
         config_lines.extend(
             [
                 "",
@@ -234,17 +225,15 @@ class SiteInvestigator:
                 f"requires_auth = {str(report.requires_authentication).lower()}",
             ]
         )
-        
+
         if report.api_documentation_url:
-            config_lines.append(
-                f'documentation_url = "{report.api_documentation_url}"'
-            )
-        
+            config_lines.append(f'documentation_url = "{report.api_documentation_url}"')
+
         if report.api_endpoints:
             config_lines.extend(["", "# Discovered API endpoints", "[[endpoints]]"])
             for endpoint in report.api_endpoints[:5]:  # Include first 5
                 config_lines.append(f"# {endpoint.get('path', 'unknown')}")
-        
+
         config_lines.extend(
             [
                 "",
@@ -253,15 +242,13 @@ class SiteInvestigator:
                 f"snapshot_count = {report.historical_snapshots}",
             ]
         )
-        
+
         with open(output_path, "w") as f:
             f.write("\n".join(config_lines))
 
-    async def _generate_schema(
-        self, report: SiteInvestigationReport, output_path: Path
-    ) -> None:
+    async def _generate_schema(self, report: SiteInvestigationReport, output_path: Path) -> None:
         """Generate JSON schema file for the site's data structure"""
-        
+
         schema = {
             "site": report.site_name,
             "version": "1.0",
@@ -297,7 +284,7 @@ class SiteInvestigator:
                 },
             },
         }
-        
+
         with open(output_path, "w") as f:
             json.dump(schema, f, indent=2)
 
@@ -309,9 +296,9 @@ async def investigate_shopgoodwill():
         site_url="https://shopgoodwill.com",
         site_name="shopgoodwill",
     )
-    
+
     report = await investigator.investigate()
-    
+
     print(f"\n{'=' * 60}")
     print(f"Investigation Report: {report.site_name}")
     print(f"{'=' * 60}")
@@ -325,7 +312,7 @@ async def investigate_shopgoodwill():
     for note in report.implementation_notes:
         print(f"  - {note}")
     print(f"{'=' * 60}\n")
-    
+
     return report
 
 

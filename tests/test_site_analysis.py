@@ -14,11 +14,11 @@ backend_dir = Path(__file__).parent.parent / "backend"
 sys.path.insert(0, str(backend_dir))
 
 from site_investigator import (
-    RobotsAnalyzer,
-    TermsAnalyzer,
     APIDiscoverer,
     HistoricalDataFetcher,
+    RobotsAnalyzer,
     SiteInvestigator,
+    TermsAnalyzer,
 )
 
 
@@ -29,7 +29,7 @@ class TestRobotsAnalyzer:
     async def test_robots_analyzer_basic(self):
         """Test basic robots.txt analysis"""
         analyzer = RobotsAnalyzer("https://example.com")
-        
+
         # Check initialization
         assert analyzer.site_url == "https://example.com"
         assert analyzer.robots_url == "https://example.com/robots.txt"
@@ -38,7 +38,7 @@ class TestRobotsAnalyzer:
     async def test_parse_robots_txt(self):
         """Test robots.txt parsing"""
         analyzer = RobotsAnalyzer("https://example.com")
-        
+
         content = """
 User-agent: *
 Disallow: /admin/
@@ -48,9 +48,9 @@ Crawl-delay: 2
 
 Sitemap: https://example.com/sitemap.xml
         """
-        
+
         result = analyzer._parse_robots_txt(content)
-        
+
         assert result["disallowed_paths"] == ["/admin/", "/private/"]
         assert result["allowed_paths"] == ["/public/"]
         assert result["crawl_delay"] == 2.0
@@ -64,35 +64,37 @@ class TestAPIDiscoverer:
     async def test_api_discoverer_init(self):
         """Test API discoverer initialization"""
         discoverer = APIDiscoverer("https://api.example.com")
-        
+
         assert discoverer.site_url == "https://api.example.com"
         assert len(discoverer.discovered_endpoints) == 0
 
     def test_parse_openapi_spec(self):
         """Test OpenAPI specification parsing"""
         discoverer = APIDiscoverer("https://api.example.com")
-        
-        spec = json.dumps({
-            "paths": {
-                "/users": {
-                    "get": {
-                        "summary": "Get users",
-                        "description": "Retrieve list of users",
-                        "parameters": [
-                            {
-                                "name": "limit",
-                                "in": "query",
-                                "type": "integer",
-                                "required": False,
-                            }
-                        ],
+
+        spec = json.dumps(
+            {
+                "paths": {
+                    "/users": {
+                        "get": {
+                            "summary": "Get users",
+                            "description": "Retrieve list of users",
+                            "parameters": [
+                                {
+                                    "name": "limit",
+                                    "in": "query",
+                                    "type": "integer",
+                                    "required": False,
+                                }
+                            ],
+                        }
                     }
                 }
             }
-        })
-        
+        )
+
         endpoints = discoverer._parse_openapi_spec(spec)
-        
+
         assert len(endpoints) == 1
         assert endpoints[0]["method"] == "GET"
         assert endpoints[0]["path"] == "/users"
@@ -101,13 +103,13 @@ class TestAPIDiscoverer:
     def test_detect_base_path(self):
         """Test API base path detection"""
         discoverer = APIDiscoverer("https://api.example.com")
-        
+
         endpoints = [
             {"path": "/api/v1/users"},
             {"path": "/api/v1/posts"},
             {"path": "/api/v1/comments"},
         ]
-        
+
         base_path = discoverer._detect_base_path(endpoints)
         assert base_path in ["/api", "/api/v1"]
 
@@ -119,28 +121,25 @@ class TestHistoricalDataFetcher:
     async def test_historical_fetcher_init(self):
         """Test historical data fetcher initialization"""
         fetcher = HistoricalDataFetcher("https://example.com")
-        
+
         assert fetcher.site_url == "https://example.com"
         assert fetcher.wayback_api == "https://archive.org/wayback/available"
 
     def test_parse_timestamp(self):
         """Test Wayback timestamp parsing"""
         fetcher = HistoricalDataFetcher("https://example.com")
-        
+
         timestamp = "20240101120000"
         result = fetcher._parse_timestamp(timestamp)
-        
+
         assert "2024-01-01" in result
 
     def test_build_wayback_url(self):
         """Test Wayback URL construction"""
         fetcher = HistoricalDataFetcher("https://example.com")
-        
-        url = fetcher._build_wayback_url(
-            "20240101120000",
-            "https://example.com/page"
-        )
-        
+
+        url = fetcher._build_wayback_url("20240101120000", "https://example.com/page")
+
         assert "web.archive.org" in url
         assert "20240101120000" in url
         assert "example.com/page" in url
@@ -157,7 +156,7 @@ class TestSiteInvestigator:
             site_name="example",
             output_dir="/tmp/test_output",
         )
-        
+
         assert investigator.site_url == "https://example.com"
         assert investigator.site_name == "example"
         assert Path("/tmp/test_output").exists()
@@ -165,12 +164,12 @@ class TestSiteInvestigator:
     def test_determine_approach(self):
         """Test approach determination logic"""
         from site_investigator.investigator import SiteInvestigationReport
-        
+
         investigator = SiteInvestigator(
             site_url="https://example.com",
             site_name="example",
         )
-        
+
         # Test API preferred
         report = SiteInvestigationReport(
             site_name="example",
@@ -180,36 +179,30 @@ class TestSiteInvestigator:
             api_allowed=True,
             api_endpoints=[{"path": "/api/test"}],
         )
-        
+
         approach = investigator._determine_approach(report)
         assert approach == "API_PREFERRED"
-        
+
         # Test web scraping
         report.api_allowed = False
         report.api_endpoints = []
         report.scraping_allowed = True
-        
+
         approach = investigator._determine_approach(report)
         assert approach == "WEB_SCRAPING"
 
 
 def test_imports():
     """Test that all modules can be imported"""
+    from agents import APIAnalysisAgent, MCPServerAgent, SchemaGeneratorAgent, SiteAnalysisCrew
     from site_investigator import (
-        SiteInvestigator,
-        RobotsAnalyzer,
-        TermsAnalyzer,
         APIDiscoverer,
         HistoricalDataFetcher,
+        RobotsAnalyzer,
+        SiteInvestigator,
+        TermsAnalyzer,
     )
-    
-    from agents import (
-        APIAnalysisAgent,
-        MCPServerAgent,
-        SchemaGeneratorAgent,
-        SiteAnalysisCrew,
-    )
-    
+
     # All imports successful
     assert True
 

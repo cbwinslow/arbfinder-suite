@@ -10,9 +10,6 @@ import logging
 import sys
 from pathlib import Path
 
-import sys
-from pathlib import Path
-
 # Add backend directory to path
 backend_dir = Path(__file__).parent
 sys.path.insert(0, str(backend_dir))
@@ -31,15 +28,15 @@ logger = logging.getLogger(__name__)
 async def investigate_site(args):
     """Run site investigation only"""
     logger.info(f"Investigating {args.site_name} at {args.url}")
-    
+
     investigator = SiteInvestigator(
         site_url=args.url,
         site_name=args.site_name,
         output_dir=args.output_dir,
     )
-    
+
     report = await investigator.investigate()
-    
+
     print(f"\n{'=' * 80}")
     print(f"Investigation Report: {report.site_name}")
     print(f"{'=' * 80}")
@@ -60,20 +57,20 @@ async def investigate_site(args):
 async def analyze_site(args):
     """Run full site analysis with all agents"""
     logger.info(f"Analyzing {args.site_name} at {args.url}")
-    
+
     crew = SiteAnalysisCrew(
         site_url=args.url,
         site_name=args.site_name,
         output_dir=args.output_dir,
     )
-    
+
     results = await crew.analyze_site()
-    
+
     print(f"\n{'=' * 80}")
     print(f"Site Analysis Complete: {results['site_name']}")
     print(f"{'=' * 80}")
     print(f"Status: {results['status']}")
-    
+
     if results["status"] == "completed":
         print(f"\n✓ Investigation completed")
         if results.get("api_analysis"):
@@ -82,13 +79,13 @@ async def analyze_site(args):
             print(f"✓ Schemas generated")
         if results.get("mcp_server"):
             print(f"✓ MCP server generated")
-        
+
         print(f"\nGenerated {len(results['artifacts'])} artifacts:")
         for artifact in results["artifacts"]:
             print(f"  - {artifact}")
     elif results["status"] == "failed":
         print(f"\n✗ Analysis failed: {results.get('error')}")
-    
+
     print(f"{'=' * 80}\n")
 
 
@@ -96,27 +93,27 @@ async def list_sites(args):
     """List analyzed sites"""
     output_dir = Path(args.output_dir)
     sites_dir = output_dir / "sites"
-    
+
     if not sites_dir.exists():
         print("No sites analyzed yet.")
         return
-    
+
     print(f"\n{'=' * 80}")
     print("Analyzed Sites")
     print(f"{'=' * 80}")
-    
+
     for investigation_file in sites_dir.glob("*_investigation.json"):
         import json
-        
+
         with open(investigation_file) as f:
             data = json.load(f)
-        
+
         print(f"\n{data['site_name']}")
         print(f"  URL: {data['site_url']}")
         print(f"  Approach: {data['recommended_approach']}")
         print(f"  API Endpoints: {len(data['api_endpoints'])}")
         print(f"  Date: {data['investigation_date']}")
-    
+
     print(f"\n{'=' * 80}\n")
 
 
@@ -137,22 +134,22 @@ Examples:
   %(prog)s list
         """,
     )
-    
+
     parser.add_argument(
         "--output-dir",
         default="output",
         help="Output directory for generated files (default: output)",
     )
-    
+
     parser.add_argument(
         "--verbose",
         "-v",
         action="store_true",
         help="Enable verbose logging",
     )
-    
+
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
-    
+
     # Investigate command
     investigate_parser = subparsers.add_parser(
         "investigate",
@@ -160,7 +157,7 @@ Examples:
     )
     investigate_parser.add_argument("site_name", help="Site identifier (e.g., shopgoodwill)")
     investigate_parser.add_argument("url", help="Site URL")
-    
+
     # Analyze command
     analyze_parser = subparsers.add_parser(
         "analyze",
@@ -168,22 +165,22 @@ Examples:
     )
     analyze_parser.add_argument("site_name", help="Site identifier (e.g., shopgoodwill)")
     analyze_parser.add_argument("url", help="Site URL")
-    
+
     # List command
     list_parser = subparsers.add_parser(
         "list",
         help="List analyzed sites",
     )
-    
+
     args = parser.parse_args()
-    
+
     if args.verbose:
         logging.getLogger().setLevel(logging.DEBUG)
-    
+
     if not args.command:
         parser.print_help()
         sys.exit(1)
-    
+
     # Run the appropriate command
     if args.command == "investigate":
         asyncio.run(investigate_site(args))

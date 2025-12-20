@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 class SchemaGeneratorAgent:
     """
     Agent specialized in schema generation
-    
+
     Responsibilities:
     - Generate Pydantic models from API responses
     - Create database schemas
@@ -35,48 +35,48 @@ class SchemaGeneratorAgent:
     ) -> Dict[str, str]:
         """
         Generate schemas from API analysis
-        
+
         Args:
             endpoints: List of API endpoints
             sample_responses: Optional sample API responses for better schema inference
-        
+
         Returns:
             Dict with paths to generated schema files
         """
         logger.info(f"Generating schemas for {self.site_name}")
-        
+
         results = {}
-        
+
         # Generate Pydantic models
         pydantic_code = self._generate_pydantic_models(endpoints, sample_responses)
         pydantic_file = self.output_dir / "models.py"
         with open(pydantic_file, "w") as f:
             f.write(pydantic_code)
         results["pydantic"] = str(pydantic_file)
-        
+
         # Generate TypeScript interfaces
         typescript_code = self._generate_typescript_interfaces(endpoints, sample_responses)
         typescript_file = self.output_dir / "types.ts"
         with open(typescript_file, "w") as f:
             f.write(typescript_code)
         results["typescript"] = str(typescript_file)
-        
+
         # Generate JSON Schema
         json_schema = self._generate_json_schema(endpoints)
         schema_file = self.output_dir / "schema.json"
         with open(schema_file, "w") as f:
             json.dump(json_schema, f, indent=2)
         results["json_schema"] = str(schema_file)
-        
+
         # Generate Prisma schema
         prisma_schema = self._generate_prisma_schema(endpoints)
         prisma_file = self.output_dir / "schema.prisma"
         with open(prisma_file, "w") as f:
             f.write(prisma_schema)
         results["prisma"] = str(prisma_file)
-        
+
         logger.info(f"Schemas generated at {self.output_dir}")
-        
+
         return results
 
     def _generate_pydantic_models(
@@ -85,7 +85,7 @@ class SchemaGeneratorAgent:
         sample_responses: Dict[str, Any] = None,
     ) -> str:
         """Generate Pydantic models"""
-        
+
         lines = [
             '"""',
             f"Pydantic models for {self.site_name}",
@@ -99,25 +99,27 @@ class SchemaGeneratorAgent:
             "",
             "",
         ]
-        
+
         # Generate base models for common entities
         entities = self._extract_entities(endpoints)
-        
+
         for entity_name, fields in entities.items():
             class_name = self._to_class_name(entity_name)
-            
-            lines.extend([
-                f"class {class_name}(BaseModel):",
-                f'    """Model for {entity_name}"""',
-                "",
-            ])
-            
+
+            lines.extend(
+                [
+                    f"class {class_name}(BaseModel):",
+                    f'    """Model for {entity_name}"""',
+                    "",
+                ]
+            )
+
             # Add fields
             for field_name, field_type in fields.items():
                 lines.append(f"    {field_name}: {field_type}")
-            
+
             lines.extend(["", ""])
-        
+
         return "\n".join(lines)
 
     def _generate_typescript_interfaces(
@@ -126,7 +128,7 @@ class SchemaGeneratorAgent:
         sample_responses: Dict[str, Any] = None,
     ) -> str:
         """Generate TypeScript interfaces"""
-        
+
         lines = [
             "/**",
             f" * TypeScript interfaces for {self.site_name}",
@@ -134,62 +136,64 @@ class SchemaGeneratorAgent:
             " */",
             "",
         ]
-        
+
         entities = self._extract_entities(endpoints)
-        
+
         for entity_name, fields in entities.items():
             interface_name = self._to_class_name(entity_name)
-            
-            lines.extend([
-                f"export interface {interface_name} {{",
-            ])
-            
+
+            lines.extend(
+                [
+                    f"export interface {interface_name} {{",
+                ]
+            )
+
             # Add fields
             for field_name, field_type in fields.items():
                 ts_type = self._python_type_to_typescript(field_type)
                 lines.append(f"  {field_name}: {ts_type};")
-            
-            lines.extend([
-                "}",
-                "",
-            ])
-        
+
+            lines.extend(
+                [
+                    "}",
+                    "",
+                ]
+            )
+
         return "\n".join(lines)
 
     def _generate_json_schema(self, endpoints: List[Dict[str, Any]]) -> Dict[str, Any]:
         """Generate JSON Schema"""
-        
+
         schema = {
             "$schema": "http://json-schema.org/draft-07/schema#",
             "title": f"{self.site_name} API Schema",
             "type": "object",
             "definitions": {},
         }
-        
+
         entities = self._extract_entities(endpoints)
-        
+
         for entity_name, fields in entities.items():
             schema["definitions"][entity_name] = {
                 "type": "object",
                 "properties": {},
                 "required": [],
             }
-            
+
             for field_name, field_type in fields.items():
                 json_type = self._python_type_to_json(field_type)
-                schema["definitions"][entity_name]["properties"][field_name] = {
-                    "type": json_type
-                }
-                
+                schema["definitions"][entity_name]["properties"][field_name] = {"type": json_type}
+
                 # Mark as required if not Optional
                 if "Optional" not in field_type:
                     schema["definitions"][entity_name]["required"].append(field_name)
-        
+
         return schema
 
     def _generate_prisma_schema(self, endpoints: List[Dict[str, Any]]) -> str:
         """Generate Prisma schema"""
-        
+
         lines = [
             "// Prisma schema for " + self.site_name,
             "// Auto-generated by SchemaGeneratorAgent",
@@ -204,37 +208,41 @@ class SchemaGeneratorAgent:
             "}",
             "",
         ]
-        
+
         entities = self._extract_entities(endpoints)
-        
+
         for entity_name, fields in entities.items():
             model_name = self._to_class_name(entity_name)
-            
-            lines.extend([
-                f"model {model_name} {{",
-                "  id        Int      @id @default(autoincrement())",
-            ])
-            
+
+            lines.extend(
+                [
+                    f"model {model_name} {{",
+                    "  id        Int      @id @default(autoincrement())",
+                ]
+            )
+
             # Add fields
             for field_name, field_type in fields.items():
                 prisma_type = self._python_type_to_prisma(field_type)
                 optional = "?" if "Optional" in field_type else ""
                 lines.append(f"  {field_name}  {prisma_type}{optional}")
-            
-            lines.extend([
-                "  createdAt DateTime @default(now())",
-                "  updatedAt DateTime @updatedAt",
-                "}",
-                "",
-            ])
-        
+
+            lines.extend(
+                [
+                    "  createdAt DateTime @default(now())",
+                    "  updatedAt DateTime @updatedAt",
+                    "}",
+                    "",
+                ]
+            )
+
         return "\n".join(lines)
 
     def _extract_entities(self, endpoints: List[Dict[str, Any]]) -> Dict[str, Dict[str, str]]:
         """Extract entity definitions from endpoints"""
-        
+
         entities = {}
-        
+
         # Common entity: Listing/Item
         entities["listing"] = {
             "id": "str",
@@ -250,7 +258,7 @@ class SchemaGeneratorAgent:
             "location": "Optional[str]",
             "timestamp": "datetime",
         }
-        
+
         # Common entity: Search Result
         entities["search_result"] = {
             "query": "str",
@@ -258,12 +266,12 @@ class SchemaGeneratorAgent:
             "page": "int",
             "items": "List[Dict[str, Any]]",
         }
-        
+
         # Extract more entities from endpoint paths
         for endpoint in endpoints:
             path = endpoint.get("path", "")
             parts = [p for p in path.split("/") if p and not p.startswith("{")]
-            
+
             if parts and parts[-1] not in entities:
                 # Create a basic entity for this resource
                 resource_name = parts[-1].rstrip("s")  # Singular form
@@ -273,7 +281,7 @@ class SchemaGeneratorAgent:
                         "data": "Dict[str, Any]",
                         "timestamp": "datetime",
                     }
-        
+
         return entities
 
     def _to_class_name(self, name: str) -> str:
@@ -291,12 +299,12 @@ class SchemaGeneratorAgent:
             "Dict[str, Any]": "Record<string, any>",
             "List[Dict[str, Any]]": "Array<Record<string, any>>",
         }
-        
+
         # Handle Optional types
         if py_type.startswith("Optional["):
             inner_type = py_type[9:-1]  # Extract type from Optional[...]
             return self._python_type_to_typescript(inner_type) + " | null"
-        
+
         return type_map.get(py_type, "any")
 
     def _python_type_to_json(self, py_type: str) -> str:
@@ -310,12 +318,12 @@ class SchemaGeneratorAgent:
             "Dict[str, Any]": "object",
             "List[Dict[str, Any]]": "array",
         }
-        
+
         # Handle Optional types
         if py_type.startswith("Optional["):
             inner_type = py_type[9:-1]
             return self._python_type_to_json(inner_type)
-        
+
         return type_map.get(py_type, "string")
 
     def _python_type_to_prisma(self, py_type: str) -> str:
@@ -329,10 +337,10 @@ class SchemaGeneratorAgent:
             "Dict[str, Any]": "Json",
             "List[Dict[str, Any]]": "Json",
         }
-        
+
         # Handle Optional types
         if py_type.startswith("Optional["):
             inner_type = py_type[9:-1]
             return self._python_type_to_prisma(inner_type)
-        
+
         return type_map.get(py_type, "String")
