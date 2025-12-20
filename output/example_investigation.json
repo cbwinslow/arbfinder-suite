@@ -1,0 +1,25 @@
+{
+  "site_name": "example",
+  "site_url": "https://example.com",
+  "investigation_date": "2025-12-17T18:07:15.362634",
+  "robots_allowed": true,
+  "robots_crawl_delay": null,
+  "robots_rules": {},
+  "terms_url": null,
+  "api_allowed": false,
+  "scraping_allowed": false,
+  "rate_limits": {},
+  "restrictions": [],
+  "api_endpoints": [],
+  "api_documentation_url": null,
+  "requires_authentication": false,
+  "wayback_available": false,
+  "historical_snapshots": 0,
+  "historical_date_range": null,
+  "recommended_approach": "MANUAL_EXPORT",
+  "implementation_notes": [
+    "Terms of Service prohibit scraping - use official API or manual export"
+  ],
+  "config_file": null,
+  "schema_file": null
+}

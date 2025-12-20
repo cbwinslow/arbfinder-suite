@@ -1,0 +1,37 @@
+{
+  "site": "example",
+  "version": "1.0",
+  "generated": "2025-12-17T18:07:15.362634",
+  "endpoints": [],
+  "data_structure": {
+    "listing": {
+      "id": "string",
+      "title": "string",
+      "price": "number",
+      "currency": "string",
+      "url": "string",
+      "image_url": "string",
+      "condition": "string",
+      "description": "string",
+      "timestamp": "datetime"
+    }
+  },
+  "functions": {
+    "get_listings": {
+      "description": "Fetch current listings",
+      "parameters": {
+        "query": "string",
+        "category": "string",
+        "limit": "number"
+      },
+      "returns": "array[listing]"
+    },
+    "get_item_details": {
+      "description": "Get detailed information about a specific item",
+      "parameters": {
+        "item_id": "string"
+      },
+      "returns": "listing"
+    }
+  }
+}

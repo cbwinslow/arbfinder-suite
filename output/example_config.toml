@@ -1,0 +1,19 @@
+# Configuration for example
+# Generated: 2025-12-17T18:07:15.362634
+# Investigation Report: example_investigation.json
+
+[site]
+name = "example"
+url = "https://example.com"
+approach = "MANUAL_EXPORT"
+
+[crawler]
+enabled = true
+
+[api]
+enabled = false
+requires_auth = false
+
+[historical]
+wayback_available = false
+snapshot_count = 0
