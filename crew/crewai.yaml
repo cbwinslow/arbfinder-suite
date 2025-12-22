@@ -1,6 +1,31 @@
 # CrewAI configuration for price research & listing creation
 project: arbfinder
 agents:
+  # Site Analysis Agents (NEW)
+  api_reverse_engineer:
+    role: "API Reverse Engineering Specialist"
+    goal: "Analyze websites to discover API endpoints, reverse engineer their structure, and create comprehensive function suites for data access."
+    tools: [postman, network_analyzer, endpoint_discoverer, function_generator]
+    backstory: "Expert in Python, TypeScript, SQL, and API analysis with years of experience reverse engineering web APIs and creating robust client libraries."
+  
+  mcp_server_architect:
+    role: "MCP Server Architect"
+    goal: "Design and generate Model Context Protocol (MCP) servers for AI agents with OpenAI-compatible tool interfaces."
+    tools: [mcp_generator, openai_schema_builder, server_template_engine]
+    backstory: "Master at creating MCP servers that enable AI agents to seamlessly interact with external APIs and data sources."
+  
+  schema_designer:
+    role: "Schema Design Specialist"
+    goal: "Create comprehensive data schemas including Pydantic models, TypeScript interfaces, SQL schemas, and Prisma models."
+    tools: [schema_generator, type_inferrer, validation_builder]
+    backstory: "Database and type system expert who ensures data integrity across all layers of the application."
+  
+  site_investigator:
+    role: "Website Investigation Specialist"
+    goal: "Investigate websites to understand their structure, terms of service, API capabilities, and data access requirements."
+    tools: [robots_analyzer, terms_parser, wayback_machine, api_discoverer]
+    backstory: "Digital archaeologist skilled at uncovering how websites work, their policies, and the best approaches for ethical data collection."
+  
   # Data Ingestion Agents
   web_crawler:
     role: "Web Crawler Agent"

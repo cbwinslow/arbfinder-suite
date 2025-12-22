@@ -8,12 +8,17 @@
 
 ## 🚀 What's New in 2.0
 
-- ☁️ **Cloudflare Platform**: Deploy on Cloudflare Workers, Pages, D1, and R2
+- ☁️ **Cloudflare Platform**: Deploy on Cloudflare Workers, Pages, D1, R2, Hyperdrive, and Durable Objects
 - 🤖 **AI Agents**: CrewAI + OpenRouter integration for intelligent automation
 - 🧠 **Metadata Enrichment**: AI-powered product data extraction and enhancement
 - 📝 **Listing Generation**: Automated SEO-optimized listing content creation
 - 🔍 **Crawl4AI Integration**: Intelligent web scraping with AI
 - 📊 **Observability**: LangFuse and LangSmith integration for agent monitoring
+- 🎯 **Auction Sniping**: Schedule bids to win auctions at the last moment
+- 🔔 **Price Alerts**: Get notified when items match your price criteria
+- 📈 **Google Analytics**: Track user behavior with Cloudflare's Google Tag Manager integration
+- 🔬 **Site Analysis System**: Automated website investigation and integration code generation **(NEW!)**
+- 🛠️ **MCP Server Generation**: OpenAI-compatible tools for AI agents **(NEW!)**
 - 📚 **Comprehensive Docs**: 150KB+ of documentation covering all aspects
 - 🛠️ **Setup Automation**: Automated Cloudflare deployment scripts
 
@@ -36,14 +41,19 @@
 - 🏷️ **Smart Tagging**: AI-powered categorization and metadata extraction
 - 🔄 **LangChain Workflows**: Multi-step agent orchestration
 - 📈 **Market Analysis**: AI-driven pricing recommendations
+- 🔬 **Site Analysis System**: Automated website investigation, API discovery, and code generation
+- 🛠️ **MCP Server Generator**: Creates OpenAI-compatible tool servers for AI agents
 
 ### Cloud Platform
 - ☁️ **Cloudflare Workers**: Serverless edge compute
 - 🗄️ **D1 Database**: Distributed SQLite database
 - 📦 **R2 Storage**: S3-compatible object storage
-- 🌐 **Pages Deployment**: Static site hosting
+- 🔌 **Hyperdrive**: Database connection pooling
+- 💾 **Durable Objects**: Stateful edge computing
+- 📬 **Queues**: Async job processing
+- 🌐 **Pages Deployment**: Static site hosting with Google Tag Manager
 - 🛡️ **WAF Integration**: Security and DDoS protection
-- 📊 **Analytics**: Built-in observability and monitoring
+- 📊 **Analytics Engine**: Custom business metrics and tracking
 
 ### Developer Tools
 - 🧪 **Test Suite**: Comprehensive pytest coverage
@@ -65,6 +75,9 @@ pip install -e .
 # Run CLI
 arbfinder --version
 arbfinder search "RTX 3060" --csv deals.csv
+
+# NEW: Analyze websites automatically
+python backend/site_analysis_cli.py investigate shopgoodwill https://shopgoodwill.com
 ```
 
 ### Using Docker
@@ -506,15 +519,21 @@ CREATE TABLE comps (
 ### In Progress 🚧
 - [ ] Add Reverb & Mercari providers (sold + live)
 - [ ] Add time-decay weighted comps and per-category fees
-- [ ] Add AI: automatic title/description generation with templates
 - [ ] Increase test coverage to 80%+
+
+### New in 2.1 ✅
+- [x] **Auction Sniping**: Schedule bids to win auctions at the last moment
+- [x] **Price Alerts**: Email/webhook notifications for items in price windows
+- [x] **Price Search**: Find items within specific price ranges
+- [x] **Google Tag Manager**: Track user behavior and conversions
+- [x] **Crawl4AI/CrewAI Runner**: UI for running AI agents and crews
+- [x] **Dashboard Improvements**: Fixed pseudo code, working navigation
 
 ### Planned 📋
 - [ ] Add OAuth + multi-user inventory
-- [ ] Add email/SMS notifications for deals
+- [ ] Add social media integrations (Twitter, Facebook) for alerts
 - [ ] Add price history tracking and charts
 - [ ] Add image preview for listings
-- [ ] Add scheduled crawling with cron
 - [ ] Add export to PDF/Excel formats
 - [ ] Add dark/light mode toggle
 - [ ] Add favorites/watchlist feature

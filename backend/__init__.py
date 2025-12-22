@@ -3,4 +3,3 @@
 __version__ = "0.4.0"
 __author__ = "ArbFinder Contributors"
 
-__all__ = ["__version__"]

@@ -1,63 +1,80 @@
-"use client"
+"use client";
 
-import React, { useState } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Slider } from '@/components/ui/slider'
-import { Badge } from '@/components/ui/badge'
-import { Calculator, TrendingDown, AlertCircle, DollarSign } from 'lucide-react'
+import React, { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
+import { Badge } from "@/components/ui/badge";
+import {
+  Calculator,
+  TrendingDown,
+  AlertCircle,
+  DollarSign,
+} from "lucide-react";
 
 interface PriceAdjustment {
-  type: string
-  factor: number
-  amount: number
-  description: string
+  type: string;
+  factor: number;
+  amount: number;
+  description: string;
 }
 
 interface PriceAnalysisResult {
-  base_price: number
-  final_price: number
-  total_adjustment: number
-  total_adjustment_pct: number
-  adjustments: PriceAdjustment[]
+  base_price: number;
+  final_price: number;
+  total_adjustment: number;
+  total_adjustment_pct: number;
+  adjustments: PriceAdjustment[];
 }
 
 export default function PriceAnalysisDashboard() {
-  const [basePrice, setBasePrice] = useState<number>(100)
-  const [age, setAge] = useState<number>(0)
-  const [condition, setCondition] = useState<string>('good')
-  const [completeness, setCompleteness] = useState<number>(100)
-  const [result, setResult] = useState<PriceAnalysisResult | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [basePrice, setBasePrice] = useState<number>(100);
+  const [age, setAge] = useState<number>(0);
+  const [condition, setCondition] = useState<string>("good");
+  const [completeness, setCompleteness] = useState<number>(100);
+  const [result, setResult] = useState<PriceAnalysisResult | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const calculatePrice = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
       // Simulate API call - replace with actual API
-      await new Promise(resolve => setTimeout(resolve, 500))
-      
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
       // Mock calculation
       const conditionMultipliers: Record<string, number> = {
-        'new': 1.00,
-        'like_new': 0.95,
-        'excellent': 0.85,
-        'very_good': 0.75,
-        'good': 0.65,
-        'fair': 0.50,
-        'poor': 0.30
-      }
-      
-      const depreciationFactor = Math.pow(0.5, age / 2.5) // Exponential decay
-      const conditionFactor = conditionMultipliers[condition] || 0.75
-      const completenessFactor = completeness / 100
-      
-      const afterDepreciation = basePrice * depreciationFactor
-      const afterCondition = afterDepreciation * conditionFactor
-      const finalPrice = afterCondition * completenessFactor
-      
+        new: 1.0,
+        like_new: 0.95,
+        excellent: 0.85,
+        very_good: 0.75,
+        good: 0.65,
+        fair: 0.5,
+        poor: 0.3,
+      };
+
+      const depreciationFactor = Math.pow(0.5, age / 2.5); // Exponential decay
+      const conditionFactor = conditionMultipliers[condition] || 0.75;
+      const completenessFactor = completeness / 100;
+
+      const afterDepreciation = basePrice * depreciationFactor;
+      const afterCondition = afterDepreciation * conditionFactor;
+      const finalPrice = afterCondition * completenessFactor;
+
       const mockResult: PriceAnalysisResult = {
         base_price: basePrice,
         final_price: finalPrice,
@@ -65,40 +82,40 @@ export default function PriceAnalysisDashboard() {
         total_adjustment_pct: ((basePrice - finalPrice) / basePrice) * 100,
         adjustments: [
           {
-            type: 'age_depreciation',
+            type: "age_depreciation",
             factor: depreciationFactor,
             amount: basePrice - afterDepreciation,
-            description: `${age} years old (exponential decay)`
+            description: `${age} years old (exponential decay)`,
           },
           {
-            type: 'condition',
+            type: "condition",
             factor: conditionFactor,
             amount: afterDepreciation - afterCondition,
-            description: `Condition: ${condition}`
+            description: `Condition: ${condition}`,
           },
           {
-            type: 'completeness',
+            type: "completeness",
             factor: completenessFactor,
             amount: afterCondition - finalPrice,
-            description: `${completeness}% complete`
-          }
-        ]
-      }
-      
-      setResult(mockResult)
+            description: `${completeness}% complete`,
+          },
+        ],
+      };
+
+      setResult(mockResult);
     } catch (error) {
-      console.error('Error calculating price:', error)
+      console.error("Error calculating price:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(value)
-  }
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    }).format(value);
+  };
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -106,7 +123,8 @@ export default function PriceAnalysisDashboard() {
         <div>
           <h1 className="text-3xl font-bold">Price Analysis Dashboard</h1>
           <p className="text-muted-foreground">
-            Calculate adjusted prices based on age, condition, and market factors
+            Calculate adjusted prices based on age, condition, and market
+            factors
           </p>
         </div>
         <Calculator className="h-12 w-12 text-primary" />
@@ -183,12 +201,12 @@ export default function PriceAnalysisDashboard() {
               </div>
             </div>
 
-            <Button 
-              onClick={calculatePrice} 
+            <Button
+              onClick={calculatePrice}
               className="w-full"
               disabled={loading}
             >
-              {loading ? 'Calculating...' : 'Calculate Price'}
+              {loading ? "Calculating..." : "Calculate Price"}
             </Button>
           </CardContent>
         </Card>
@@ -198,9 +216,7 @@ export default function PriceAnalysisDashboard() {
           <Card>
             <CardHeader>
               <CardTitle>Price Analysis Results</CardTitle>
-              <CardDescription>
-                Adjusted price breakdown
-              </CardDescription>
+              <CardDescription>Adjusted price breakdown</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Summary */}
@@ -244,14 +260,11 @@ export default function PriceAnalysisDashboard() {
                   Adjustment Breakdown
                 </h4>
                 {result.adjustments.map((adj, index) => (
-                  <div 
-                    key={index}
-                    className="p-3 border rounded-lg space-y-1"
-                  >
+                  <div key={index} className="p-3 border rounded-lg space-y-1">
                     <div className="flex items-start justify-between">
                       <div className="space-y-1">
                         <Badge variant="outline">
-                          {adj.type.replace('_', ' ').toUpperCase()}
+                          {adj.type.replace("_", " ").toUpperCase()}
                         </Badge>
                         <p className="text-sm text-muted-foreground">
                           {adj.description}
@@ -273,9 +286,12 @@ export default function PriceAnalysisDashboard() {
               {/* Price Range Indicator */}
               <div className="pt-4 border-t">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Fair Market Range</span>
+                  <span className="text-muted-foreground">
+                    Fair Market Range
+                  </span>
                   <span className="font-semibold">
-                    {formatCurrency(result.final_price * 0.9)} - {formatCurrency(result.final_price * 1.1)}
+                    {formatCurrency(result.final_price * 0.9)} -{" "}
+                    {formatCurrency(result.final_price * 1.1)}
                   </span>
                 </div>
               </div>
@@ -297,8 +313,8 @@ export default function PriceAnalysisDashboard() {
                 <h4 className="font-semibold">Age Depreciation</h4>
               </div>
               <p className="text-sm text-muted-foreground">
-                Exponential decay model with 2.5 year half-life for technology items.
-                Older items lose value at an accelerating rate.
+                Exponential decay model with 2.5 year half-life for technology
+                items. Older items lose value at an accelerating rate.
               </p>
             </div>
             <div className="space-y-2">
@@ -307,7 +323,7 @@ export default function PriceAnalysisDashboard() {
                 <h4 className="font-semibold">Condition Factor</h4>
               </div>
               <p className="text-sm text-muted-foreground">
-                Multiplier based on physical condition: New (100%), Good (65%), 
+                Multiplier based on physical condition: New (100%), Good (65%),
                 Fair (50%). Reflects wear and functionality.
               </p>
             </div>
@@ -317,7 +333,7 @@ export default function PriceAnalysisDashboard() {
                 <h4 className="font-semibold">Completeness</h4>
               </div>
               <p className="text-sm text-muted-foreground">
-                Percentage of original accessories and parts present. Missing 
+                Percentage of original accessories and parts present. Missing
                 items reduce overall value proportionally.
               </p>
             </div>
@@ -325,5 +341,5 @@ export default function PriceAnalysisDashboard() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

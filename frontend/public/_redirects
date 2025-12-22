@@ -1,0 +1,5 @@
+# API proxy to backend
+/api/* https://api.arbfinder.com/:splat 200
+
+# SPA fallback
+/* /index.html 200

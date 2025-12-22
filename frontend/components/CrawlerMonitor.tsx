@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 interface CrawlerData {
   target_name: string;
@@ -18,34 +18,37 @@ interface CrawlerMonitorProps {
   isLoading: boolean;
 }
 
-export default function CrawlerMonitor({ data, isLoading }: CrawlerMonitorProps) {
+export default function CrawlerMonitor({
+  data,
+  isLoading,
+}: CrawlerMonitorProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'success':
-        return 'text-green-600 bg-green-100';
-      case 'error':
-        return 'text-red-600 bg-red-100';
-      case 'running':
-        return 'text-blue-600 bg-blue-100';
-      case 'partial':
-        return 'text-yellow-600 bg-yellow-100';
+      case "success":
+        return "text-green-600 bg-green-100";
+      case "error":
+        return "text-red-600 bg-red-100";
+      case "running":
+        return "text-blue-600 bg-blue-100";
+      case "partial":
+        return "text-yellow-600 bg-yellow-100";
       default:
-        return 'text-gray-600 bg-gray-100';
+        return "text-gray-600 bg-gray-100";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'success':
-        return '✓';
-      case 'error':
-        return '✗';
-      case 'running':
-        return '⟳';
-      case 'partial':
-        return '⚠';
+      case "success":
+        return "✓";
+      case "error":
+        return "✗";
+      case "running":
+        return "⟳";
+      case "partial":
+        return "⚠";
       default:
-        return '○';
+        return "○";
     }
   };
 
@@ -130,7 +133,10 @@ export default function CrawlerMonitor({ data, isLoading }: CrawlerMonitorProps)
                 <div className="text-gray-600">Rate</div>
                 <div className="text-lg font-bold text-black">
                   {crawler.duration_ms > 0
-                    ? ((crawler.items_found / crawler.duration_ms) * 1000).toFixed(1)
+                    ? (
+                        (crawler.items_found / crawler.duration_ms) *
+                        1000
+                      ).toFixed(1)
                     : 0}
                   /s
                 </div>
@@ -148,14 +154,14 @@ export default function CrawlerMonitor({ data, isLoading }: CrawlerMonitorProps)
               <div className="h-4 bg-[#c0c0c0] border-2 border-inset border-[#808080]">
                 <div
                   className={`h-full ${
-                    crawler.status === 'success'
-                      ? 'bg-green-500'
-                      : crawler.status === 'error'
-                      ? 'bg-red-500'
-                      : 'bg-blue-500'
+                    crawler.status === "success"
+                      ? "bg-green-500"
+                      : crawler.status === "error"
+                        ? "bg-red-500"
+                        : "bg-blue-500"
                   }`}
                   style={{
-                    width: crawler.status === 'success' ? '100%' : '0%',
+                    width: crawler.status === "success" ? "100%" : "0%",
                   }}
                 />
               </div>

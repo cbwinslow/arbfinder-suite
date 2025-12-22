@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { ReactNode } from 'react';
+import { ReactNode } from "react";
 
 interface RetroWindowProps {
   title: string;
@@ -16,7 +16,7 @@ export default function RetroWindow({
   title,
   children,
   icon,
-  className = '',
+  className = "",
   onClose,
   onMinimize,
   onMaximize,
@@ -102,9 +102,7 @@ export default function RetroWindow({
       </div>
 
       {/* Window Content */}
-      <div className="bg-white">
-        {children}
-      </div>
+      <div className="bg-white">{children}</div>
     </div>
   );
 }

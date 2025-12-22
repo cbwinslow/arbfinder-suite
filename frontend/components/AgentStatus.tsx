@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 interface AgentJob {
   id: number;
@@ -18,32 +18,32 @@ interface AgentStatusProps {
 export default function AgentStatus({ jobs, isLoading }: AgentStatusProps) {
   const getAgentIcon = (agentType: string) => {
     const icons: Record<string, string> = {
-      web_crawler: '🕷️',
-      data_validator: '✅',
-      market_researcher: '📊',
-      price_specialist: '💰',
-      listing_writer: '✍️',
-      image_processor: '🖼️',
-      metadata_enricher: '🔍',
-      title_enhancer: '📝',
-      crosslister: '📤',
-      quality_monitor: '👁️',
+      web_crawler: "🕷️",
+      data_validator: "✅",
+      market_researcher: "📊",
+      price_specialist: "💰",
+      listing_writer: "✍️",
+      image_processor: "🖼️",
+      metadata_enricher: "🔍",
+      title_enhancer: "📝",
+      crosslister: "📤",
+      quality_monitor: "👁️",
     };
-    return icons[agentType] || '🤖';
+    return icons[agentType] || "🤖";
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed':
-        return 'bg-green-500';
-      case 'running':
-        return 'bg-blue-500 animate-pulse';
-      case 'failed':
-        return 'bg-red-500';
-      case 'queued':
-        return 'bg-yellow-500';
+      case "completed":
+        return "bg-green-500";
+      case "running":
+        return "bg-blue-500 animate-pulse";
+      case "failed":
+        return "bg-red-500";
+      case "queued":
+        return "bg-yellow-500";
       default:
-        return 'bg-gray-500';
+        return "bg-gray-500";
     }
   };
 
@@ -82,11 +82,9 @@ export default function AgentStatus({ jobs, isLoading }: AgentStatusProps) {
                 <span className="text-xl">{getAgentIcon(job.agentType)}</span>
                 <div className="flex-1 min-w-0">
                   <div className="font-bold text-xs text-black truncate">
-                    {job.agentType.replace(/_/g, ' ').toUpperCase()}
+                    {job.agentType.replace(/_/g, " ").toUpperCase()}
                   </div>
-                  <div className="text-[10px] text-gray-500">
-                    ID: {job.id}
-                  </div>
+                  <div className="text-[10px] text-gray-500">ID: {job.id}</div>
                   <div className="flex items-center gap-1 mt-1">
                     <div
                       className={`

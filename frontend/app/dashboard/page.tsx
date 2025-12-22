@@ -1,21 +1,21 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import RetroWindow from '@/components/RetroWindow';
-import CrawlerMonitor from '@/components/CrawlerMonitor';
-import AgentStatus from '@/components/AgentStatus';
-import LiveUpdates from '@/components/LiveUpdates';
+import { useState, useEffect } from "react";
+import RetroWindow from "@/components/RetroWindow";
+import CrawlerMonitor from "@/components/CrawlerMonitor";
+import AgentStatus from "@/components/AgentStatus";
+import LiveUpdates from "@/components/LiveUpdates";
 
 export default function DashboardPage() {
-  const [crawlerData, setCrawlerData] = useState([]);
-  const [agentJobs, setAgentJobs] = useState([]);
-  const [liveUpdates, setLiveUpdates] = useState([]);
+  const [crawlerData, setCrawlerData] = useState<any[]>([]);
+  const [agentJobs, setAgentJobs] = useState<any[]>([]);
+  const [liveUpdates, setLiveUpdates] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Fetch initial data
     fetchDashboardData();
-    
+
     // Set up polling for live updates
     const interval = setInterval(() => {
       fetchDashboardData();
@@ -26,32 +26,35 @@ export default function DashboardPage() {
 
   const fetchDashboardData = async () => {
     try {
-      const apiBase = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8080';
-      
+      const apiBase =
+        process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8080";
+
       // Fetch crawler results
       const crawlerResponse = await fetch(`${apiBase}/api/crawler/status`);
       if (crawlerResponse.ok) {
         const data = await crawlerResponse.json();
         setCrawlerData(data.results || []);
       }
-      
+
       // Fetch agent jobs
       const agentResponse = await fetch(`${apiBase}/api/agents/jobs?limit=20`);
       if (agentResponse.ok) {
         const data = await agentResponse.json();
         setAgentJobs(data.jobs || []);
       }
-      
+
       // Fetch live updates
-      const updatesResponse = await fetch(`${apiBase}/api/live-updates?limit=50`);
+      const updatesResponse = await fetch(
+        `${apiBase}/api/live-updates?limit=50`,
+      );
       if (updatesResponse.ok) {
         const data = await updatesResponse.json();
         setLiveUpdates(data.updates || []);
       }
-      
+
       setIsLoading(false);
     } catch (error) {
-      console.error('Error fetching dashboard data:', error);
+      console.error("Error fetching dashboard data:", error);
       setIsLoading(false);
     }
   };
@@ -59,6 +62,16 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-[#008080] p-4">
       <div className="max-w-[1400px] mx-auto">
+        {/* Navigation */}
+        <div className="mb-4">
+          <a
+            href="/"
+            className="inline-block bg-[#c0c0c0] border-2 border-[#000000] px-4 py-2 text-black font-bold hover:bg-[#d0d0d0] transition"
+          >
+            ← Back to Home
+          </a>
+        </div>
+
         {/* Header */}
         <RetroWindow
           title="ArbFinder Dashboard - Control Panel"
@@ -69,7 +82,8 @@ export default function DashboardPage() {
               Web Crawler & AI Agent Dashboard
             </h1>
             <p className="text-sm text-gray-700">
-              Real-time monitoring of web crawlers, AI agents, and price data ingestion
+              Real-time monitoring of web crawlers, AI agents, and price data
+              ingestion
             </p>
           </div>
         </RetroWindow>
@@ -103,7 +117,10 @@ export default function DashboardPage() {
           <RetroWindow title="Total Items" icon="📦">
             <div className="p-4 text-center">
               <div className="text-3xl font-bold text-blue-600">
-                {crawlerData.reduce((sum, crawler) => sum + (crawler.items_found || 0), 0)}
+                {crawlerData.reduce(
+                  (sum, crawler) => sum + (crawler.items_found || 0),
+                  0,
+                )}
               </div>
               <div className="text-sm text-gray-600 mt-1">Items Crawled</div>
             </div>
@@ -112,7 +129,7 @@ export default function DashboardPage() {
           <RetroWindow title="Active Agents" icon="⚡">
             <div className="p-4 text-center">
               <div className="text-3xl font-bold text-green-600">
-                {agentJobs.filter(job => job.status === 'running').length}
+                {agentJobs.filter((job) => job.status === "running").length}
               </div>
               <div className="text-sm text-gray-600 mt-1">Running Now</div>
             </div>
@@ -123,11 +140,13 @@ export default function DashboardPage() {
               <div className="text-3xl font-bold text-purple-600">
                 {crawlerData.length > 0
                   ? Math.round(
-                      (crawlerData.filter(c => c.status === 'success').length /
+                      (crawlerData.filter((c) => c.status === "success")
+                        .length /
                         crawlerData.length) *
-                        100
+                        100,
                     )
-                  : 0}%
+                  : 0}
+                %
               </div>
               <div className="text-sm text-gray-600 mt-1">Crawler Success</div>
             </div>
@@ -136,7 +155,7 @@ export default function DashboardPage() {
           <RetroWindow title="Queue Size" icon="📋">
             <div className="p-4 text-center">
               <div className="text-3xl font-bold text-orange-600">
-                {agentJobs.filter(job => job.status === 'queued').length}
+                {agentJobs.filter((job) => job.status === "queued").length}
               </div>
               <div className="text-sm text-gray-600 mt-1">Pending Jobs</div>
             </div>
