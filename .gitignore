@@ -24,6 +24,7 @@ wheels/
 venv/
 ENV/
 env/
+requirements-frozen.txt
 
 # Node
 node_modules/

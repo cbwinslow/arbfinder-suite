@@ -1,0 +1,51 @@
+# Python Requirements Lock File
+# Generated from pyproject.toml
+# To install: pip install -r requirements.lock
+
+# Core API Framework
+fastapi==0.115.0
+uvicorn==0.30.5
+httpx==0.27.0
+pydantic==2.9.2
+python-dotenv==1.0.0
+
+# String Processing
+rapidfuzz==3.9.6
+
+# Payment Processing
+stripe==10.6.0
+
+# Terminal UI
+rich==13.7.0
+
+# Database & ORM
+sqlalchemy==2.0.23
+psycopg2-binary==2.9.9
+pymysql==1.1.0
+prisma==0.11.0
+
+# Web Scraping
+beautifulsoup4==4.12.0
+lxml==4.9.0
+toml==0.10.2
+
+# Cloud Storage
+minio==7.2.0
+boto3==1.34.0
+
+# Image Processing
+Pillow==10.1.0
+
+# AI/ML
+openai==1.0.0
+langchain==0.1.0
+langchain-openai==0.0.5
+
+# Development Dependencies (optional, install with: pip install -r requirements.lock -r requirements-dev.lock)
+# pytest==7.4.0
+# pytest-asyncio==0.21.0
+# pytest-cov==4.1.0
+# black==23.0.0
+# flake8==6.0.0
+# mypy==1.5.0
+# pre-commit==3.3.0
