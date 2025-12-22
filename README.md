@@ -104,10 +104,13 @@ cd arbfinder-suite
 python3 -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
-# Install in development mode
+# Install with locked dependencies (recommended for production)
+pip install -r requirements.lock
+
+# Or install in development mode with all dependencies
 pip install -e ".[dev,test]"
 
-# Or install just the dependencies
+# Or install just the base requirements
 pip install -r backend/requirements.txt
 ```
 
@@ -545,11 +548,17 @@ CREATE TABLE comps (
 ### Quick Start
 
 ```bash
-# Install development dependencies
+# Install development dependencies with locked versions
+pip install -r requirements.lock -r requirements-dev.lock
+
+# Or install in development mode
 pip install -e ".[dev,test]"
 
 # Run tests
 pytest
+
+# Run tests with coverage
+pytest --cov=backend --cov-report=html
 
 # Format code
 black backend/
@@ -562,6 +571,57 @@ make test
 make lint
 make format
 ```
+
+### Testing
+
+The project includes comprehensive test coverage:
+
+- **Python Tests**: 15+ test cases covering backend functionality
+  - `tests/test_cli.py` - CLI command tests
+  - `tests/test_api.py` - API endpoint tests
+  - `tests/test_utils.py` - Utility function tests
+  - `tests/test_cloudflare_client.py` - Cloud storage tests
+
+- **TypeScript Tests**: 32+ test cases for frontend and packages
+  - `packages/client/tests/` - API client library tests (22 tests)
+  - `frontend/__tests__/` - Frontend component tests (10 tests)
+
+- **Browser Tests**: Automated UI testing with Playwright
+  - Homepage functionality
+  - Navigation and routing
+  - Search and filter features
+
+Run all tests:
+```bash
+# Python tests
+pytest -v
+
+# TypeScript client tests
+cd packages/client && npm test
+
+# Frontend tests
+cd frontend && npm test
+```
+
+### CI/CD Pipeline
+
+The project uses GitHub Actions for continuous integration:
+
+- **comprehensive-ci.yml**: Multi-version testing (Python 3.9-3.12)
+  - Unit tests with coverage reporting
+  - TypeScript package testing
+  - Frontend build verification
+  - Go TUI compilation
+  - Security scanning with Trivy
+  - Code quality checks (Black, flake8, isort, mypy)
+
+- **deploy-production.yml**: Automated deployments
+  - Cloudflare Workers deployment
+  - Cloudflare Pages deployment
+  - Docker image builds
+  - Semantic versioning
+
+All PRs are automatically tested before merge.
 
 ### Using Makefile
 

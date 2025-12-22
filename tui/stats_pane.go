@@ -32,7 +32,8 @@ func (p *StatsPane) Update(msg tea.Msg) (StatsPane, tea.Cmd) {
 		case "r":
 			// Refresh statistics
 			p.loading = true
-			// TODO: Implement refresh
+			// Reload stats from database and API
+			go p.LoadStats(p.db)
 			return *p, nil
 		}
 	}

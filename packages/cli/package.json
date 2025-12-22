@@ -39,7 +39,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "@arbfinder/client": "^0.4.0",
+    "@arbfinder/client": "file:../client",
     "commander": "^11.0.0",
     "chalk": "^5.3.0",
     "ora": "^8.0.0",

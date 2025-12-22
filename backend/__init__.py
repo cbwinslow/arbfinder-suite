@@ -3,6 +3,3 @@
 __version__ = "0.4.0"
 __author__ = "ArbFinder Contributors"
 
-from backend.arb_finder import Comp, Listing
-
-__all__ = ["Listing", "Comp", "__version__"]

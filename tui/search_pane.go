@@ -49,7 +49,9 @@ func (p *SearchPane) Update(msg tea.Msg) (SearchPane, tea.Cmd) {
 			if p.focusIndex == 0 && p.queryInput.Value() != "" {
 				p.lastQuery = p.queryInput.Value()
 				p.searching = true
-				// TODO: Trigger search
+				p.lastError = ""
+				// Search will be triggered by the main model
+				// which checks for p.searching and p.lastQuery
 				return *p, nil
 			}
 			return *p, nil
