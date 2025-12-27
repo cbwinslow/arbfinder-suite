@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+- Fix code review issues: improve URL extraction patterns and fix test_warning references (2e554df)
+- Add deployment summary and complete Cloudflare setup (508e59c)
+- Add GitHub Actions workflow and comprehensive deployment documentation (ccbf286)
+- Add comprehensive Cloudflare Pages and Workers deployment scripts (83576fc)
+- docs: update changelog [skip ci] (2083d87)
+- Initial plan (4a55aa8)
 - Add PROJECT_STRUCTURE.md guide and finalize documentation organization (a52e841)
 - Update documentation links and add README redirects in subdirectories (831f501)
 - Organize documentation: move all docs to docs/ folder with structured subdirectories (d4a9edd)
