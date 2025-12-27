@@ -67,8 +67,8 @@ Contribute to ArbFinder development.
 ### TUI (Terminal User Interface)
 Documentation for the Go-based Bubbletea TUI.
 
-- [TUI README](tui/README.md) - TUI overview and usage
-- [TUI Architecture](tui/ARCHITECTURE.md) - TUI design and structure
+- [TUI README](docs/tui/README.md) - TUI overview and usage
+- [TUI Architecture](docs/tui/ARCHITECTURE.md) - TUI design and structure
 - [TUI Examples](tui/EXAMPLES.md) - TUI usage examples
 - [TUI Screenshots](tui/SCREENSHOTS.md) - Visual guide to the TUI
 

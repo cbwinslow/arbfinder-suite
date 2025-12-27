@@ -8,21 +8,21 @@ Before asking for help, please check our documentation:
 
 ### Getting Started
 - [README.md](README.md) - Main documentation and quick start guide
-- [QUICKSTART.md](QUICKSTART.md) - Quick setup instructions
-- [DEVELOPER.md](DEVELOPER.md) - Developer setup and guidelines
+- [Quick Start Guide](docs/getting-started/QUICKSTART.md) - Quick setup instructions
+- [Developer Guide](docs/development/DEVELOPER.md) - Developer setup and guidelines
 - [CONTRIBUTING.md](CONTRIBUTING.md) - How to contribute to the project
 
 ### Component Documentation
-- [TUI Documentation](tui/README.md) - Go TUI interface guide
-- [TUI Architecture](tui/ARCHITECTURE.md) - TUI design and structure
+- [TUI Documentation](docs/tui/README.md) - Go TUI interface guide
+- [TUI Architecture](docs/tui/ARCHITECTURE.md) - TUI design and structure
 - [API Documentation](README.md#api-endpoints) - API endpoints and usage
 - [TypeScript SDK](packages/client/README.md) - Node.js/TypeScript client library
 
 ### Guides and Tutorials
-- [Examples](docs/EXAMPLES.md) - Usage examples
-- [CI/CD Guide](docs/CI_CD_AUTOMATION.md) - Automation setup
-- [Platform Guide](PLATFORM_GUIDE.md) - Platform deployment
-- [Enterprise Roadmap](docs/ENTERPRISE_ROADMAP.md) - Enterprise features
+- [Examples](docs/guides/EXAMPLES.md) - Usage examples
+- [CI/CD Guide](docs/development/CI_CD_AUTOMATION.md) - Automation setup
+- [Platform Guide](docs/platform/PLATFORM_GUIDE.md) - Platform deployment
+- [Enterprise Roadmap](docs/development/ENTERPRISE_ROADMAP.md) - Enterprise features
 
 ## 🐛 Found a Bug?
 
@@ -78,7 +78,7 @@ For more detailed questions or discussions:
 ### Self-Service Resources
 
 1. **Read the docs** - Most questions are answered in our documentation
-2. **Check examples** - See working examples in [docs/EXAMPLES.md](docs/EXAMPLES.md)
+2. **Check examples** - See working examples in [docs/guides/EXAMPLES.md](docs/guides/EXAMPLES.md)
 3. **Search issues** - Someone may have had the same problem
 4. **Use the CLI help** - Run `arbfinder --help` for CLI documentation
 
@@ -205,13 +205,13 @@ A: The application has built-in rate limiting to be respectful to source website
 ### Deployment
 
 **Q: Can I deploy this to production?**
-A: Yes! See [PLATFORM_GUIDE.md](PLATFORM_GUIDE.md) for deployment instructions. Consider security best practices in [SECURITY.md](SECURITY.md).
+A: Yes! See [docs/platform/PLATFORM_GUIDE.md](docs/platform/PLATFORM_GUIDE.md) for deployment instructions. Consider security best practices in [SECURITY.md](SECURITY.md).
 
 **Q: Does it support Docker?**
 A: Yes! Use `docker-compose up` to run all services. See [README.md](README.md#using-docker) for details.
 
 **Q: How do I scale this application?**
-A: You can run multiple instances of the crawler with different queries, or use a task queue like Celery. See [docs/ENTERPRISE_ROADMAP.md](docs/ENTERPRISE_ROADMAP.md).
+A: You can run multiple instances of the crawler with different queries, or use a task queue like Celery. See [docs/development/ENTERPRISE_ROADMAP.md](docs/development/ENTERPRISE_ROADMAP.md).
 
 ### Data and Privacy
 

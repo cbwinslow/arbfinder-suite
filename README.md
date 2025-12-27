@@ -219,7 +219,7 @@ Features:
 - **Keyboard Navigation**: Full keyboard-driven interface
 - **Data Persistence**: SQLite database for local storage
 
-See [tui/README.md](tui/README.md) for detailed TUI documentation.
+See [docs/tui/README.md](docs/tui/README.md) for detailed TUI documentation.
 
 ### Command Line Mode
 
@@ -643,7 +643,7 @@ All documentation has been organized in the [docs/](docs/) folder. See the [Docu
 - [Changelog](CHANGELOG.md) - Version history
 
 **TUI (Terminal Interface)**
-- [TUI Documentation](docs/tui/README.md) - Bubbletea TUI guide
+- [TUI Documentation](docs/docs/tui/README.md) - Bubbletea TUI guide
 
 For the complete documentation index, visit [docs/README.md](docs/README.md).
 
