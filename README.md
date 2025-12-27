@@ -91,6 +91,26 @@ docker-compose up -d
 # - Frontend: http://localhost:3000
 ```
 
+### Deploy to Cloudflare (Recommended for Production)
+
+Deploy the entire application to Cloudflare's edge network in minutes:
+
+```bash
+# One-command deployment
+./scripts/cloudflare/deploy_complete.sh
+
+# This will:
+# - Set up D1 database, R2 storage, KV namespaces
+# - Deploy Worker backend
+# - Build and deploy Pages frontend
+# - Configure service bindings
+# - Run verification tests
+```
+
+Your site will be live at `https://arbfinder-suite.pages.dev`
+
+See [Cloudflare Quick Start Guide](scripts/cloudflare/QUICKSTART.md) for detailed instructions.
+
 ## Installation
 
 ### Backend Setup
@@ -635,6 +655,8 @@ For a detailed explanation of the repository organization, see [PROJECT_STRUCTUR
 - [AI Agents Architecture](docs/architecture/AGENTS.md) - AI agents design and configuration
 
 **Platform & Deployment**
+- [Cloudflare Quick Start](scripts/cloudflare/QUICKSTART.md) - Deploy to Cloudflare Pages in 10 minutes ⚡
+- [Deployment Scripts Guide](scripts/cloudflare/README.md) - Automated deployment scripts
 - [Cloudflare Setup Guide](docs/platform/CLOUDFLARE_SETUP.md) - Complete Cloudflare deployment
 - [OpenRouter Integration](docs/platform/OPENROUTER_INTEGRATION.md) - AI/LLM integration guide
 - [Deployment Guide](docs/platform/DEPLOYMENT.md) - General deployment instructions
