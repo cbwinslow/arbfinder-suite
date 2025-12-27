@@ -79,11 +79,12 @@ Coming soon! API documentation will be added here.
 
 ### Essential Documentation
 - [Main README](../README.md) - Project overview
-- [Contributing Guide](../../CONTRIBUTING.md) - How to contribute
+- [Project Structure](../PROJECT_STRUCTURE.md) - Repository organization guide
+- [Contributing Guide](../CONTRIBUTING.md) - How to contribute
 - [Code of Conduct](../CODE_OF_CONDUCT.md) - Community guidelines
 - [Security Policy](../SECURITY.md) - Security and vulnerability reporting
 - [Support](../SUPPORT.md) - Getting help
-- [Changelog](../../CHANGELOG.md) - Version history
+- [Changelog](../CHANGELOG.md) - Version history
 
 ### GitHub Resources
 - [GitHub Copilot Instructions](../.github/copilot-instructions.md) - AI assistant configuration

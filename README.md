@@ -614,11 +614,13 @@ The repository includes VS Code settings for:
 
 See `.vscode/settings.json` for configuration.
 
-For detailed development information, see [DEVELOPER.md](DEVELOPER.md).
+For detailed development information, see [docs/development/DEVELOPER.md](docs/development/DEVELOPER.md).
 
 ## 📚 Documentation
 
 All documentation has been organized in the [docs/](docs/) folder. See the [Documentation Index](docs/README.md) for a complete guide.
+
+For a detailed explanation of the repository organization, see [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md).
 
 ### Quick Links
 
