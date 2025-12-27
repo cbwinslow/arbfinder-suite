@@ -120,7 +120,7 @@ backend/watch.py:         21%
 
 ### 4. Documentation (3 Files)
 
-1. **docs/CI_CD_AUTOMATION.md** (11,621 characters)
+1. **docs/development/CI_CD_AUTOMATION.md** (11,621 characters)
    - Complete workflow documentation
    - Setup instructions
    - Troubleshooting guide
@@ -128,7 +128,7 @@ backend/watch.py:         21%
    - Cost analysis
    - Monitoring guide
 
-2. **docs/AI_QUICKSTART.md** (8,950 characters)
+2. **docs/getting-started/AI_QUICKSTART.md** (8,950 characters)
    - Quick start guide
    - Step-by-step tutorials
    - Example workflows
@@ -435,7 +435,7 @@ The project is now positioned to grow into a **fully functional, production-read
 
 ## Contact & Support
 
-- **Documentation**: See `docs/CI_CD_AUTOMATION.md` and `docs/AI_QUICKSTART.md`
+- **Documentation**: See `docs/development/CI_CD_AUTOMATION.md` and `docs/getting-started/AI_QUICKSTART.md`
 - **Scripts**: See `scripts/README.md`
 - **Issues**: GitHub Issues tab
 - **Workflows**: GitHub Actions tab

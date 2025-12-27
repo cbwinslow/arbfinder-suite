@@ -137,7 +137,7 @@ This PR adds a comprehensive GitHub project management infrastructure to help or
    - Check FAQ in SUPPORT.md
 
 3. **Contributing**
-   - Follow [CONTRIBUTING.md](CONTRIBUTING.md)
+   - Follow [CONTRIBUTING.md](../../CONTRIBUTING.md)
    - Use issue templates when reporting bugs
    - Use PR template when submitting changes
    - Follow [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)

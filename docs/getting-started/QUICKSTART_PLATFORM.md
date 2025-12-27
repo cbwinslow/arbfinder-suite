@@ -363,8 +363,8 @@ docker-compose up -d --build
 
 - [README.md](README.md) - Project overview
 - [PLATFORM_GUIDE.md](PLATFORM_GUIDE.md) - Comprehensive platform documentation
-- [DEVELOPER.md](DEVELOPER.md) - Development guide
-- [CONTRIBUTING.md](CONTRIBUTING.md) - Contribution guidelines
+- [DEVELOPER.md](../development/DEVELOPER.md) - Development guide
+- [CONTRIBUTING.md](../../CONTRIBUTING.md) - Contribution guidelines
 
 ## 💬 Support
 
