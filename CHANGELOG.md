@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+- Add PROJECT_STRUCTURE.md guide and finalize documentation organization (a52e841)
+- Update documentation links and add README redirects in subdirectories (831f501)
+- Organize documentation: move all docs to docs/ folder with structured subdirectories (d4a9edd)
+- Initial plan (765bb84)
+- chore: auto-format code with AI assistance (4eaa5f1)
+- docs: update changelog [skip ci] (3ee348c)
 - chore: auto-format code with AI assistance (3a47dca)
 - Add site analysis feature to main README and quickstart guide (df1b78a)
 - Fix import paths and add comprehensive examples and tests (13622ea)
