@@ -304,19 +304,25 @@ test_response_time() {
     test_start "Response time performance"
     
     if [ -z "$WORKER_URL" ]; then
-        test_warning "Worker URL not configured, skipping response time test"
+        log_warning "Worker URL not configured, skipping response time test"
         return
     fi
     
     local response_time=$(curl -s -w "%{time_total}" -o /dev/null "${WORKER_URL}/api/health" 2>/dev/null || echo "0")
     
-    # Convert to milliseconds
-    local ms=$(echo "$response_time * 1000" | bc 2>/dev/null || echo "0")
+    # Convert to milliseconds using bash arithmetic
+    local ms=0
+    if command -v bc &> /dev/null; then
+        ms=$(echo "$response_time * 1000" | bc 2>/dev/null || echo "0")
+    else
+        # Fallback if bc is not available - approximate conversion
+        ms=$(awk "BEGIN {printf \"%.0f\", $response_time * 1000}")
+    fi
     
-    if (( $(echo "$ms < 1000" | bc -l 2>/dev/null || echo 0) )); then
+    if [ "$ms" -lt 1000 ] 2>/dev/null; then
         test_pass "Response time: ${ms}ms (< 1000ms)"
     else
-        test_warning "Response time: ${ms}ms (> 1000ms)"
+        log_warning "Response time: ${ms}ms (> 1000ms)"
     fi
 }
 

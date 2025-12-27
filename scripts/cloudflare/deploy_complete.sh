@@ -292,7 +292,8 @@ deploy_worker() {
     local deploy_output=$(wrangler deploy 2>&1)
     
     if echo "$deploy_output" | grep -q -E "(Published|deployed)"; then
-        local worker_url=$(echo "$deploy_output" | grep -oP 'https://[^\s]+' | head -1 || echo "")
+        # Extract Worker URL with more specific pattern
+        local worker_url=$(echo "$deploy_output" | grep -oP 'https://[a-zA-Z0-9.-]+\.workers\.dev[/\S]*' | head -1 || echo "")
         log_success "Worker deployed successfully"
         
         if [ -n "$worker_url" ]; then

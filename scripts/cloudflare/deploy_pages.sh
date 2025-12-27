@@ -192,7 +192,8 @@ deploy_to_pages() {
     local deploy_output=$(wrangler pages deploy out --project-name="$PROJECT_NAME" --branch="$BRANCH" 2>&1)
     
     if echo "$deploy_output" | grep -q -E "(Published|Deployment complete)"; then
-        local pages_url=$(echo "$deploy_output" | grep -oP 'https://[^\s]+' | head -1 || echo "")
+        # Extract Pages URL with more specific pattern
+        local pages_url=$(echo "$deploy_output" | grep -oP 'https://[a-zA-Z0-9.-]+\.pages\.dev[/\S]*' | head -1 || echo "")
         log_success "Deployed to Cloudflare Pages"
         
         if [ -n "$pages_url" ]; then

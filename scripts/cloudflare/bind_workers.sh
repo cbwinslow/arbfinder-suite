@@ -154,7 +154,7 @@ setup_pages_functions() {
     local functions_dir="$PROJECT_ROOT/frontend/functions"
     
     if [ ! -d "$functions_dir" ]; then
-        mkdir -p "$functions_dir"
+        mkdir -p "$functions_dir/api"
         log_success "Created functions directory"
         
         # Create example API function
