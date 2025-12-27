@@ -367,7 +367,7 @@ Example:
 - [PyGithub Library](https://pygithub.readthedocs.io/)
 - [TASKS.md](TASKS.md)
 - [PROJECT_BOARD.md](PROJECT_BOARD.md)
-- [CONTRIBUTING.md](CONTRIBUTING.md)
+- [CONTRIBUTING.md](../../CONTRIBUTING.md)
 
 ## 🆘 Need Help?
 

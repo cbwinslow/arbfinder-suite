@@ -408,54 +408,66 @@ arbfinder-suite/
 ├── backend/                # Python backend
 │   ├── __init__.py         # Package initialization
 │   ├── arb_finder.py       # Core arbitrage finder
-│   ├── cli.py              # Enhanced CLI with subcommands (NEW)
+│   ├── cli.py              # Enhanced CLI with subcommands
 │   ├── tui.py              # Rich TUI components
 │   ├── config.py           # Configuration management
 │   ├── utils.py            # Database utilities
 │   ├── watch.py            # Watch mode
-│   ├── api/
-│   │   ├── __init__.py
-│   │   └── main.py         # FastAPI server
-│   └── requirements.txt
-├── tui/                    # Go Bubbletea TUI (NEW)
+│   ├── agents/             # AI agents
+│   ├── api/                # FastAPI REST API
+│   ├── crawler/            # Web crawlers
+│   ├── openrouter/         # OpenRouter integration
+│   ├── site_investigator/  # Site analysis tools
+│   └── storage/            # Storage utilities
+├── frontend/               # Next.js frontend
+│   ├── app/                # Next.js app directory
+│   ├── components/         # React components
+│   └── public/             # Static assets
+├── tui/                    # Go Bubbletea TUI
 │   ├── main.go             # Main TUI application
 │   ├── database.go         # SQLite database layer
 │   ├── api_client.go       # API client
-│   ├── search_pane.go      # Search interface
-│   ├── results_pane.go     # Results display
-│   ├── stats_pane.go       # Statistics view
-│   ├── config_pane.go      # Configuration manager
-│   ├── go.mod              # Go dependencies
-│   └── README.md           # TUI documentation
-├── frontend/               # Next.js frontend
-│   ├── app/
-│   │   ├── page.tsx        # Main UI
-│   │   ├── layout.tsx      # Layout
-│   │   ├── globals.css     # Styles
-│   │   └── comps/
-│   │       └── page.tsx    # Comps viewer
-│   └── package.json
-├── packages/               # TypeScript/Node.js packages (NEW)
+│   └── *_pane.go           # UI panes (search, results, stats, config)
+├── packages/               # TypeScript/Node.js packages
 │   ├── client/             # API client SDK
-│   │   ├── src/
-│   │   │   └── index.ts
-│   │   └── package.json
 │   └── cli/                # TypeScript CLI
-│       ├── src/
-│       │   └── cli.ts
-│       └── package.json
-├── tests/                  # Test suite (NEW)
-│   ├── test_cli.py
-│   └── test_config.py
-├── crew/
-│   └── crewai.yaml         # AI agent config
-├── exporters/
-│   └── fb_marketplace_template.csv
-├── pyproject.toml          # Python project config (NEW)
-├── Makefile                # Development tasks (NEW)
-├── Dockerfile              # Docker image (NEW)
-├── docker-compose.yml      # Docker Compose config (NEW)
-└── DEVELOPER.md            # Developer guide (NEW)
+├── cloudflare/             # Cloudflare Workers
+│   └── src/                # Worker source code
+├── infrastructure/         # Infrastructure as code
+│   └── pulumi/             # Pulumi deployment configs
+├── docs/                   # Documentation (organized)
+│   ├── getting-started/    # Quick starts and installation
+│   ├── guides/             # User guides and how-tos
+│   ├── architecture/       # Design and implementation docs
+│   ├── development/        # Developer guides
+│   ├── platform/           # Deployment and platform docs
+│   ├── tui/                # TUI documentation
+│   └── api/                # API documentation
+├── tests/                  # Test suite
+├── scripts/                # Utility scripts
+│   └── cloudflare/         # Cloudflare deployment scripts
+├── examples/               # Example files and configurations
+├── crew/                   # CrewAI configuration
+├── database/               # Database schemas and migrations
+│   ├── migrations/         # Database migrations
+│   └── schemas/            # Database schemas
+├── config/                 # Configuration files
+├── exporters/              # Export templates
+├── prisma/                 # Prisma ORM configuration
+├── .github/                # GitHub configuration
+│   ├── workflows/          # GitHub Actions
+│   ├── ISSUE_TEMPLATE/     # Issue templates
+│   └── DISCUSSION_TEMPLATE/ # Discussion templates
+├── pyproject.toml          # Python project config
+├── Makefile                # Development tasks
+├── Dockerfile              # Docker image
+├── docker-compose.yml      # Docker Compose config
+├── README.md               # Main documentation
+├── CHANGELOG.md            # Version history
+├── CONTRIBUTING.md         # Contributing guidelines
+├── CODE_OF_CONDUCT.md      # Community guidelines
+├── SECURITY.md             # Security policy
+└── SUPPORT.md              # Support information
 ```
 
 ## Database Schema
@@ -606,32 +618,34 @@ For detailed development information, see [DEVELOPER.md](DEVELOPER.md).
 
 ## 📚 Documentation
 
-### Getting Started
-- [Quick Start Guide](QUICKSTART.md) - Get up and running in 5 minutes
-- [Installation Guide](README.md#installation) - Detailed setup instructions
-- [Features Overview](docs/FEATURES.md) - Complete feature documentation
+All documentation has been organized in the [docs/](docs/) folder. See the [Documentation Index](docs/README.md) for a complete guide.
 
-### Architecture & Design
-- [Software Requirements Specification](docs/SRS.md) - Comprehensive requirements
-- [Implementation Guide](docs/IMPLEMENTATION_GUIDE.md) - High-level architecture
-- [AI Agents Architecture](docs/AGENTS.md) - AI agents design and configuration
-- [Project Summary](docs/PROJECT_SUMMARY.md) - Project overview and roadmap
+### Quick Links
 
-### Platform Setup
-- [Cloudflare Setup Guide](docs/CLOUDFLARE_SETUP.md) - Complete Cloudflare deployment
-- [OpenRouter Integration](docs/OPENROUTER_INTEGRATION.md) - AI/LLM integration guide
+**Getting Started**
+- [Quick Start Guide](docs/getting-started/QUICKSTART.md) - Get up and running in 5 minutes
+- [Installation Guide](#installation) - Detailed setup instructions (see below)
+- [Features Overview](docs/guides/FEATURES_OVERVIEW.md) - Complete feature documentation
 
-### Development
-- [Developer Guide](DEVELOPER.md) - Development workflow
-- [GitHub Copilot Instructions](.github/copilot-instructions.md) - AI assistant configuration
-- [Prompts Collection](.github/PROMPTS.md) - Useful AI prompts
-- [Model-Specific Prompts](.github/MODEL_PROMPTS.md) - Optimized prompts per model
-- [Task Tracking](TASKS.md) - Project tasks with microgoals
+**Architecture & Design**
+- [Software Requirements Specification](docs/architecture/SRS.md) - Comprehensive requirements
+- [Implementation Guide](docs/architecture/IMPLEMENTATION_GUIDE.md) - High-level architecture
+- [AI Agents Architecture](docs/architecture/AGENTS.md) - AI agents design and configuration
 
-### Additional Resources
-- [Changelog](CHANGELOG.md) - Version history
+**Platform & Deployment**
+- [Cloudflare Setup Guide](docs/platform/CLOUDFLARE_SETUP.md) - Complete Cloudflare deployment
+- [OpenRouter Integration](docs/platform/OPENROUTER_INTEGRATION.md) - AI/LLM integration guide
+- [Deployment Guide](docs/platform/DEPLOYMENT.md) - General deployment instructions
+
+**Development**
+- [Developer Guide](docs/development/DEVELOPER.md) - Development workflow
 - [Contributing Guide](CONTRIBUTING.md) - How to contribute
-- [Enterprise Roadmap](docs/ENTERPRISE_ROADMAP.md) - Long-term development plan
+- [Changelog](CHANGELOG.md) - Version history
+
+**TUI (Terminal Interface)**
+- [TUI Documentation](docs/tui/README.md) - Bubbletea TUI guide
+
+For the complete documentation index, visit [docs/README.md](docs/README.md).
 
 ## 🤝 Contributing
 
