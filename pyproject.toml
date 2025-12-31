@@ -7,7 +7,7 @@ name = "arbfinder-suite"
 version = "0.4.0"
 description = "Find arbitrage opportunities across multiple marketplaces"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10,<3.14"
 license = {text = "MIT"}
 authors = [
     {name = "ArbFinder Contributors"}
@@ -18,10 +18,10 @@ classifiers = [
     "Intended Audience :: End Users/Desktop",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 
 dependencies = [
@@ -33,7 +33,7 @@ dependencies = [
     "stripe>=10.6.0",
     "rich>=13.7.0",
     "python-dotenv>=1.0.0",
-    "crewai>=0.1.0",
+    "crewai>=1.0.0",
     "openai>=1.0.0",
     "langchain>=0.1.0",
     "langchain-openai>=0.0.5",
@@ -95,7 +95,7 @@ asyncio_mode = "auto"
 
 [tool.black]
 line-length = 100
-target-version = ['py39', 'py310', 'py311', 'py312']
+target-version = ['py310', 'py311', 'py312', 'py313']
 include = '\.pyi?$'
 extend-exclude = '''
 /(
@@ -112,7 +112,7 @@ extend-exclude = '''
 '''
 
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.10"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = false
