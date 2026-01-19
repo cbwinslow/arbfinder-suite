@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Utility functions for ArbFinder development and maintenance."""
+
 from __future__ import annotations
 
 import json

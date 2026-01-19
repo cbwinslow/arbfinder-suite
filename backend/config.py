@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Configuration file support for ArbFinder."""
+
 from __future__ import annotations
 
 import json

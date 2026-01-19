@@ -23,8 +23,7 @@ def init_snipes_table():
     """Initialize snipes table if it doesn't exist"""
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute(
-        """
+    c.execute("""
         CREATE TABLE IF NOT EXISTS snipes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             listing_url TEXT NOT NULL,
@@ -38,18 +37,13 @@ def init_snipes_table():
             result TEXT,
             metadata TEXT
         )
-    """
-    )
-    c.execute(
-        """
+    """)
+    c.execute("""
         CREATE INDEX IF NOT EXISTS idx_snipes_status ON snipes(status)
-    """
-    )
-    c.execute(
-        """
+    """)
+    c.execute("""
         CREATE INDEX IF NOT EXISTS idx_snipes_auction_end ON snipes(auction_end_time)
-    """
-    )
+    """)
     conn.commit()
     conn.close()
 

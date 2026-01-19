@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Watch mode for continuous monitoring of arbitrage opportunities."""
+
 from __future__ import annotations
 
 import asyncio

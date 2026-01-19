@@ -94,23 +94,19 @@ def sqlite_conn(db_path: str):
 def db_init(db_path: str) -> None:
     with sqlite_conn(db_path) as conn:
         c = conn.cursor()
-        c.execute(
-            """
+        c.execute("""
             CREATE TABLE IF NOT EXISTS listings (
               id INTEGER PRIMARY KEY AUTOINCREMENT,
               source TEXT, url TEXT UNIQUE, title TEXT, price REAL,
               currency TEXT, condition TEXT, ts REAL, meta_json TEXT
             );
-            """
-        )
-        c.execute(
-            """
+            """)
+        c.execute("""
             CREATE TABLE IF NOT EXISTS comps (
               key_title TEXT PRIMARY KEY, avg_price REAL, median_price REAL,
               count INTEGER, ts REAL
             );
-            """
-        )
+            """)
         conn.commit()
 
 

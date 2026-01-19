@@ -22,8 +22,7 @@ def init_alerts_table():
     """Initialize alerts table if it doesn't exist"""
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute(
-        """
+    c.execute("""
         CREATE TABLE IF NOT EXISTS alerts (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             search_query TEXT NOT NULL,
@@ -37,15 +36,11 @@ def init_alerts_table():
             trigger_count INTEGER DEFAULT 0,
             metadata TEXT
         )
-    """
-    )
-    c.execute(
-        """
+    """)
+    c.execute("""
         CREATE INDEX IF NOT EXISTS idx_alerts_status ON alerts(status)
-    """
-    )
-    c.execute(
-        """
+    """)
+    c.execute("""
         CREATE TABLE IF NOT EXISTS alert_matches (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             alert_id INTEGER NOT NULL,
@@ -57,13 +52,10 @@ def init_alerts_table():
             notification_sent BOOLEAN DEFAULT 0,
             FOREIGN KEY (alert_id) REFERENCES alerts(id) ON DELETE CASCADE
         )
-    """
-    )
-    c.execute(
-        """
+    """)
+    c.execute("""
         CREATE INDEX IF NOT EXISTS idx_alert_matches_alert_id ON alert_matches(alert_id)
-    """
-    )
+    """)
     conn.commit()
     conn.close()
 
@@ -393,14 +385,12 @@ async def check_alerts_and_notify() -> Dict[str, Any]:
     c = conn.cursor()
 
     # Get all active alerts
-    c.execute(
-        """
+    c.execute("""
         SELECT id, search_query, min_price, max_price, notification_method,
                notification_target, last_triggered_at
         FROM alerts
         WHERE status = 'active'
-    """
-    )
+    """)
     alerts = c.fetchall()
 
     total_matches = 0

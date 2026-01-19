@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Interactive TUI for ArbFinder using Rich library."""
+
 from __future__ import annotations
 
 from typing import Any, Dict, List, Optional

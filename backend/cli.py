@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Enhanced CLI for ArbFinder Suite with subcommands."""
+
 from __future__ import annotations
 
 import argparse
@@ -314,8 +315,7 @@ def handle_server(args: argparse.Namespace) -> int:
 def handle_completion(args: argparse.Namespace) -> int:
     """Handle completion command."""
     if args.shell == "bash":
-        print(
-            """
+        print("""
 # ArbFinder bash completion
 _arbfinder_completion() {
     local cur prev opts
@@ -331,11 +331,9 @@ complete -F _arbfinder_completion arbfinder
 
 # Add to ~/.bashrc to enable permanently:
 # eval "$(arbfinder completion bash)"
-        """
-        )
+        """)
     elif args.shell == "zsh":
-        print(
-            """
+        print("""
 #compdef arbfinder
 
 _arbfinder() {
@@ -356,8 +354,7 @@ _arbfinder "$@"
 
 # Add to ~/.zshrc to enable permanently:
 # eval "$(arbfinder completion zsh)"
-        """
-        )
+        """)
     return 0
 
 

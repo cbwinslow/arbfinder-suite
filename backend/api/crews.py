@@ -23,8 +23,7 @@ def init_crews_table():
     """Initialize crews table if it doesn't exist"""
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute(
-        """
+    c.execute("""
         CREATE TABLE IF NOT EXISTS crew_runs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             crew_type TEXT NOT NULL,
@@ -39,18 +38,13 @@ def init_crews_table():
             error_message TEXT,
             result_data TEXT
         )
-    """
-    )
-    c.execute(
-        """
+    """)
+    c.execute("""
         CREATE INDEX IF NOT EXISTS idx_crew_runs_status ON crew_runs(status)
-    """
-    )
-    c.execute(
-        """
+    """)
+    c.execute("""
         CREATE INDEX IF NOT EXISTS idx_crew_runs_type ON crew_runs(crew_type)
-    """
-    )
+    """)
     conn.commit()
     conn.close()
 
