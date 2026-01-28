@@ -39,10 +39,10 @@ jobs:
     outputs:
       task-completed: ${{ steps.crew.outputs.completed }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       
@@ -69,7 +69,7 @@ jobs:
         continue-on-error: true
       
       - name: Upload crew output
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: crew-output
           path: crew-output.json
@@ -83,10 +83,10 @@ jobs:
     name: Code Research Agent
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       
@@ -104,7 +104,7 @@ jobs:
         continue-on-error: true
       
       - name: Upload research report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: research-report
           path: research-report.md
@@ -119,12 +119,12 @@ jobs:
     runs-on: ubuntu-latest
     needs: research-agent
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       
@@ -133,7 +133,7 @@ jobs:
           pip install -e ".[dev,test]"
       
       - name: Download research report
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: research-report
       
@@ -168,10 +168,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: implementation-agent
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       
@@ -195,7 +195,7 @@ jobs:
         continue-on-error: true
       
       - name: Upload coverage report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: coverage-report
           path: htmlcov/
@@ -210,10 +210,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: [implementation-agent, testing-agent]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       
@@ -231,14 +231,14 @@ jobs:
         continue-on-error: true
       
       - name: Upload review report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: review-report
           path: review-report.md
           retention-days: 30
       
       - name: Comment on issues
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const fs = require('fs');
@@ -266,16 +266,16 @@ jobs:
     needs: [crewai-development, implementation-agent, testing-agent, review-agent]
     if: always()
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       
       - name: Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         continue-on-error: true
       
       - name: Create PR with CrewAI improvements
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "feat: CrewAI automated development improvements"
