@@ -144,7 +144,7 @@ async def create_snipe(snipe: SnipeCreate) -> Dict[str, Any]:
 
 @router.get("", response_model=SnipesResponse)
 async def list_snipes(
-    status: Optional[str] = Query(None, regex="^(scheduled|executed|cancelled|failed)$"),
+    status: Optional[str] = Query(None, pattern="^(scheduled|executed|cancelled|failed)$"),
     limit: int = Query(50, ge=1, le=200),
 ) -> SnipesResponse:
     """List scheduled snipes"""

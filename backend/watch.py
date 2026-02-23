@@ -38,11 +38,11 @@ class WatchMode:
         logger.info(f"Starting watch mode (interval: {self.interval}s)")
 
         while True:
-            self.iteration += 1
-
-            if self.max_iterations and self.iteration > self.max_iterations:
+            if self.max_iterations and self.iteration >= self.max_iterations:
                 logger.info(f"Reached max iterations ({self.max_iterations}), stopping")
                 break
+
+            self.iteration += 1
 
             try:
                 logger.info(
@@ -84,7 +84,7 @@ class WatchMode:
         existing_urls = {d["url"] for d in self.best_deals}
 
         for result in results:
-            discount = result.get("discount_vs_avg_pct", 0)
+            discount = result.get("discount_vs_avg_pct") or 0
             if discount >= self.notify_threshold and result["url"] not in existing_urls:
                 new_deals.append(result)
                 self.best_deals.append(result)
