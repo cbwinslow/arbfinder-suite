@@ -68,9 +68,9 @@ if [[ ! -d "node_modules" ]]; then
   npm ci
 fi
 
-# Ensure next.config.js has output: 'export'
-if ! grep -q "output.*export" next.config.js 2>/dev/null; then
-  warn "next.config.js may not have 'output: export'. Cloudflare Pages requires static export."
+# Check for output: 'export' in next.config.js (informational only)
+if ! grep -qE "output\s*:\s*['\"]export['\"]" next.config.js 2>/dev/null; then
+  warn "next.config.js may not have output: 'export'. Cloudflare Pages requires static export."
 fi
 
 NEXT_PUBLIC_API_BASE="${NEXT_PUBLIC_API_BASE:-}" npm run build

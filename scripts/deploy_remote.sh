@@ -49,8 +49,11 @@ if [[ -z "$REMOTE_HOST" ]]; then
   exit 1
 fi
 
-SSH_OPTS="-p $SSH_PORT -o StrictHostKeyChecking=accept-new"
-SCP_OPTS="-P $SSH_PORT -o StrictHostKeyChecking=accept-new"
+SSH_OPTS="-p $SSH_PORT -o StrictHostKeyChecking=yes"
+SCP_OPTS="-P $SSH_PORT -o StrictHostKeyChecking=yes"
+
+# NOTE: If this is the first connection to the host, add it to known_hosts first:
+#   ssh-keyscan -p "$SSH_PORT" "$REMOTE_HOST" >> ~/.ssh/known_hosts
 
 remote() { ssh $SSH_OPTS "$REMOTE_HOST" "$@"; }
 

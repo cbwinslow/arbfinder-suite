@@ -33,7 +33,8 @@ done
 
 # Load .env if it exists
 if [[ -f "$ROOT_DIR/.env" ]]; then
-  info "Loading environment from .env"
+  warn ".env found — loading environment variables (ensure this file is not world-readable)"
+  chmod 600 "$ROOT_DIR/.env" 2>/dev/null || true
   set -a; source "$ROOT_DIR/.env"; set +a
 fi
 
