@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+- Address code review: improve SSH host key verification, .env warning, and regex precision (9ca503c)
+- Add comprehensive tests, fix bugs, add deployment scripts, and create bug report (2c2f1c9)
+- Initial plan (5a18ccc)
+- Complete website review with comprehensive documentation (5cfea2f)
+- chore: auto-format code with AI assistance (ae3ccad)
+- Update Next.js to v14.2.35 to fix security vulnerability (f80b0ad)
+- Initial plan (aef1837)
+- Add executive summary and quick start guide for Cloudflare deployment (8337056)
+- Add Python package management with UV, update dependencies, and create comprehensive deployment documentation (f11dc65)
+- Initial plan (25d96a9)
+- docs: update changelog [skip ci] (861306e)
 - Fix code review issues: improve URL extraction patterns and fix test_warning references (2e554df)
 - Add deployment summary and complete Cloudflare setup (508e59c)
 - Add GitHub Actions workflow and comprehensive deployment documentation (ccbf286)
