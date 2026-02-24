@@ -2,7 +2,11 @@
 API endpoints for crawler management and monitoring
 """
 
+import json
 import logging
+import os
+import sqlite3
+import time
 from typing import Any, Dict, List
 
 from fastapi import APIRouter, HTTPException
@@ -21,8 +25,43 @@ except ImportError:
 
 router = APIRouter(prefix="/api/crawler", tags=["crawler"])
 
+logger = logging.getLogger(__name__)
+
+DB_PATH = os.getenv("ARBF_DB", os.path.expanduser("~/.arb_finder.sqlite3"))
+
 # Global crawler instance
 _crawler_service = None
+
+
+def init_crawl_results_table():
+    """Initialize crawl_results table if it doesn't exist"""
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS crawl_results (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            target_name TEXT NOT NULL,
+            url TEXT,
+            status TEXT NOT NULL,
+            items_found INTEGER DEFAULT 0,
+            duration_ms INTEGER,
+            error_msg TEXT,
+            metadata TEXT,
+            crawled_at REAL NOT NULL
+        )
+    """)
+    c.execute("""
+        CREATE INDEX IF NOT EXISTS idx_crawl_results_target ON crawl_results(target_name)
+    """)
+    c.execute("""
+        CREATE INDEX IF NOT EXISTS idx_crawl_results_crawled_at ON crawl_results(crawled_at)
+    """)
+    conn.commit()
+    conn.close()
+
+
+# Initialize table on module load
+init_crawl_results_table()
 
 
 def get_crawler_service():
@@ -31,6 +70,31 @@ def get_crawler_service():
     if _crawler_service is None and CrawlerService is not None:
         _crawler_service = CrawlerService()
     return _crawler_service
+
+
+def _store_crawl_result(result: Any) -> None:
+    """Persist a CrawlResult to the crawl_results table."""
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute(
+        """
+        INSERT INTO crawl_results
+            (target_name, url, status, items_found, duration_ms, error_msg, metadata, crawled_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            result.target_name,
+            result.url,
+            result.status,
+            result.items_found,
+            result.duration_ms,
+            result.error_msg,
+            json.dumps(result.metadata) if result.metadata else None,
+            time.time(),
+        ),
+    )
+    conn.commit()
+    conn.close()
 
 
 class CrawlerStatusResponse(BaseModel):
@@ -43,43 +107,39 @@ class CrawlerStatusResponse(BaseModel):
 
 @router.get("/status", response_model=CrawlerStatusResponse)
 async def get_crawler_status():
-    """Get current status of all crawlers"""
-    crawler = get_crawler_service()
+    """Get status of most recent crawl per target from the database"""
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
 
-    if crawler is None:
-        return CrawlerStatusResponse(results=[], total_items=0, active_targets=0)
+    # Fetch the most recent crawl result for each target
+    c.execute("""
+        SELECT target_name, url, status, items_found, duration_ms, error_msg, metadata, crawled_at
+        FROM crawl_results
+        WHERE id IN (
+            SELECT MAX(id) FROM crawl_results GROUP BY target_name
+        )
+        ORDER BY crawled_at DESC
+    """)
+    rows = c.fetchall()
+    conn.close()
 
-    # Get mock data for now (replace with actual DB queries in production)
     results = [
         {
-            "target_name": "shopgoodwill",
-            "url": "https://shopgoodwill.com",
-            "status": "success",
-            "items_found": 45,
-            "duration_ms": 3500,
-            "metadata": {"timestamp": "2024-12-04T07:00:00Z"},
-        },
-        {
-            "target_name": "govdeals",
-            "url": "https://www.govdeals.com",
-            "status": "success",
-            "items_found": 32,
-            "duration_ms": 2800,
-            "metadata": {"timestamp": "2024-12-04T07:05:00Z"},
-        },
-        {
-            "target_name": "governmentsurplus",
-            "url": "https://www.governmentsurplus.com",
-            "status": "partial",
-            "items_found": 18,
-            "duration_ms": 4200,
-            "error_msg": "Timeout on category page 3",
-            "metadata": {"timestamp": "2024-12-04T07:10:00Z"},
-        },
+            "target_name": row[0],
+            "url": row[1],
+            "status": row[2],
+            "items_found": row[3],
+            "duration_ms": row[4],
+            "error_msg": row[5],
+            "metadata": json.loads(row[6]) if row[6] else {},
+            "crawled_at": row[7],
+        }
+        for row in rows
     ]
 
-    total_items = sum(r.get("items_found", 0) for r in results)
+    crawler = get_crawler_service()
     active_targets = len(crawler.targets) if crawler else 0
+    total_items = sum(r["items_found"] for r in results)
 
     return CrawlerStatusResponse(
         results=results, total_items=total_items, active_targets=active_targets
@@ -99,6 +159,8 @@ async def run_crawler(target_name: str):
     if result is None:
         raise HTTPException(status_code=404, detail=f"Target {target_name} not found")
 
+    _store_crawl_result(result)
+
     return {
         "success": True,
         "target": target_name,
@@ -117,6 +179,9 @@ async def run_all_crawlers():
         raise HTTPException(status_code=503, detail="Crawler service not available")
 
     results = await crawler.crawl_all()
+
+    for result in results:
+        _store_crawl_result(result)
 
     return {
         "success": True,

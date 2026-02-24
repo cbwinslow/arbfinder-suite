@@ -35,7 +35,7 @@ FRONTEND_ORIGIN = os.getenv("FRONTEND_ORIGIN", "http://localhost:3000")
 app = FastAPI(
     title="ArbFinder API",
     description="API for finding arbitrage opportunities across marketplaces",
-    version="0.3.0",
+    version="0.4.0",
 )
 app.add_middleware(
     CORSMiddleware,
@@ -85,7 +85,7 @@ def root():
     """API root endpoint."""
     return {
         "name": "ArbFinder API",
-        "version": "0.3.0",
+        "version": "0.4.0",
         "endpoints": {
             "listings": "/api/listings",
             "search": "/api/listings/search",
