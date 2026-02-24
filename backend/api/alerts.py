@@ -171,7 +171,7 @@ async def create_alert(alert: AlertCreate) -> Dict[str, Any]:
 
 @router.get("", response_model=AlertsResponse)
 async def list_alerts(
-    status: Optional[str] = Query(None, regex="^(active|paused|deleted)$"),
+    status: Optional[str] = Query(None, pattern="^(active|paused|deleted)$"),
     limit: int = Query(50, ge=1, le=200),
 ) -> AlertsResponse:
     """List price alerts"""

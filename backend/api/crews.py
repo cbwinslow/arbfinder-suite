@@ -145,7 +145,7 @@ async def start_crew_run(request: CrewRunRequest) -> Dict[str, Any]:
 @router.get("/runs", response_model=CrewRunsResponse)
 async def list_crew_runs(
     crew_type: Optional[str] = None,
-    status: Optional[str] = Query(None, regex="^(queued|running|completed|failed)$"),
+    status: Optional[str] = Query(None, pattern="^(queued|running|completed|failed)$"),
     limit: int = Query(50, ge=1, le=200),
 ) -> CrewRunsResponse:
     """List crew runs"""

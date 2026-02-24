@@ -39,7 +39,7 @@ app = FastAPI(
 )
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[FRONTEND_ORIGIN, "*"],
+    allow_origins=[FRONTEND_ORIGIN],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -95,12 +95,18 @@ def root():
     }
 
 
+@app.get("/healthz")
+def healthz() -> Dict[str, str]:
+    """Liveness probe endpoint."""
+    return {"status": "ok"}
+
+
 @app.get("/api/listings")
 def get_listings(
     limit: int = Query(100, ge=1, le=500),
     offset: int = Query(0, ge=0),
     source: Optional[str] = None,
-    order_by: str = Query("ts", regex="^(ts|price|title)$"),
+    order_by: str = Query("ts", pattern="^(ts|price|title)$"),
 ) -> Dict[str, Any]:
     """Get listings with pagination and filtering."""
     conn = sqlite3.connect(DB_PATH)
