@@ -1,0 +1,327 @@
+name: ETL Reports & AI Feedback
+
+on:
+  schedule:
+    # Run every day at 02:00 UTC to collect and process test/log data
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      report_type:
+        description: 'Type of report to generate'
+        required: false
+        default: 'full'
+        type: choice
+        options:
+          - full
+          - test-summary
+          - error-analysis
+          - performance
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  # ============================================================================
+  # Collect artifacts from recent workflow runs
+  # ============================================================================
+  collect-artifacts:
+    name: Collect Workflow Artifacts
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests python-dateutil
+
+      - name: Create workspace directories
+        run: |
+          mkdir -p output/logs output/reports output/errors \
+                   output/etl-workspace/raw output/etl-workspace/processed
+
+      - name: Download recent test artifacts via API
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 - <<'EOF'
+          import json, os, sys, urllib.request, urllib.error
+          from datetime import datetime, timedelta
+
+          token = os.environ["GH_TOKEN"]
+          repo = os.environ.get("GITHUB_REPOSITORY", "cbwinslow/arbfinder-suite")
+          headers = {
+              "Authorization": f"Bearer {token}",
+              "Accept": "application/vnd.github+json",
+              "X-GitHub-Api-Version": "2022-11-28",
+          }
+          cutoff = (datetime.utcnow() - timedelta(days=7)).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+          url = f"https://api.github.com/repos/{repo}/actions/runs?per_page=30&created=>{cutoff}"
+          try:
+              req = urllib.request.Request(url, headers=headers)
+              with urllib.request.urlopen(req) as resp:
+                  runs = json.loads(resp.read())
+              with open("output/etl-workspace/raw/recent_runs.json", "w") as f:
+                  json.dump(runs, f, indent=2)
+              print(f"Collected {len(runs.get('workflow_runs', []))} workflow runs")
+          except urllib.error.URLError as e:
+              print(f"Warning: could not fetch workflow runs: {e}", file=sys.stderr)
+              # Write empty placeholder so subsequent steps don't fail
+              with open("output/etl-workspace/raw/recent_runs.json", "w") as f:
+                  json.dump({"workflow_runs": []}, f)
+          EOF
+
+      - name: Upload raw artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: etl-raw-${{ github.run_number }}
+          path: output/etl-workspace/raw/
+          retention-days: 7
+
+  # ============================================================================
+  # Run the ETL pipeline and generate reports
+  # ============================================================================
+  generate-reports:
+    name: Generate ETL Reports
+    runs-on: ubuntu-latest
+    needs: collect-artifacts
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-asyncio pytest-cov httpx fastapi uvicorn \
+                      rapidfuzz stripe toml pydantic
+          pip install -e ".[test]" --no-deps
+
+      - name: Create output directories
+        run: |
+          mkdir -p output/logs output/reports output/errors
+
+      - name: Download raw artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: etl-raw-${{ github.run_number }}
+          path: output/etl-workspace/raw/
+        continue-on-error: true
+
+      - name: Run ETL pipeline
+        run: |
+          python3 - <<'EOF'
+          import json, os, sys, datetime
+          from pathlib import Path
+
+          sys.path.insert(0, ".")
+          from backend.logging_etl import ETLPipeline, ArbLogger, ReportWriter
+
+          report_type = os.environ.get("INPUT_REPORT_TYPE", "full")
+          raw_dir = Path("output/etl-workspace/raw")
+          out_dir = Path("output/reports")
+
+          logger = ArbLogger(log_dir="output/logs")
+
+          # Load workflow run data if available
+          runs_file = raw_dir / "recent_runs.json"
+          workflow_runs = []
+          if runs_file.exists():
+              with open(runs_file) as f:
+                  data = json.load(f)
+              workflow_runs = data.get("workflow_runs", [])
+
+          # Compute aggregate statistics from workflow runs
+          records = []
+          success_count = 0
+          failure_count = 0
+          for run in workflow_runs:
+              conclusion = run.get("conclusion") or "in_progress"
+              if conclusion == "success":
+                  success_count += 1
+              elif conclusion in ("failure", "cancelled"):
+                  failure_count += 1
+              records.append({
+                  "source": run.get("name", "unknown"),
+                  "title": run.get("display_title", ""),
+                  "price": 0.0,
+                  "conclusion": conclusion,
+                  "workflow": run.get("name", ""),
+              })
+
+          pipeline = ETLPipeline(output_dir=str(out_dir))
+          result = pipeline.run(records=records, report_name=f"etl_{report_type}_report")
+
+          # Write high-level summary report
+          writer = ReportWriter(report_dir=str(out_dir))
+          writer.write_report(
+              "ci_health_summary",
+              {
+                  "generated_at": datetime.datetime.utcnow().isoformat() + "Z",
+                  "report_type": report_type,
+                  "total_workflow_runs": len(workflow_runs),
+                  "success_count": success_count,
+                  "failure_count": failure_count,
+                  "success_rate": (
+                      round(success_count / len(workflow_runs) * 100, 1)
+                      if workflow_runs else None
+                  ),
+                  "etl_result": result,
+              },
+          )
+
+          logger.log_event("etl_report_generated", {
+              "report_type": report_type,
+              "run_count": len(workflow_runs),
+              "status": result["status"],
+          })
+          logger.flush()
+          print(f"ETL complete: {result}")
+          print(f"CI health: {success_count} success / {failure_count} failure")
+          EOF
+        env:
+          INPUT_REPORT_TYPE: ${{ github.event.inputs.report_type || 'full' }}
+
+      - name: Run error analysis
+        run: |
+          python3 - <<'EOF'
+          import json, datetime
+          from pathlib import Path
+          from backend.logging_etl import ReportWriter
+
+          out_dir = Path("output/reports")
+          writer = ReportWriter(report_dir=str(out_dir))
+
+          # Collect any error logs
+          error_dir = Path("output/errors")
+          error_count = 0
+          error_files = list(error_dir.glob("*.jsonl")) + list(error_dir.glob("*.json"))
+          for f in error_files:
+              try:
+                  lines = f.read_text().strip().splitlines()
+                  error_count += len([l for l in lines if l.strip()])
+              except Exception:
+                  pass
+
+          writer.write_report(
+              "error_analysis",
+              {
+                  "generated_at": datetime.datetime.utcnow().isoformat() + "Z",
+                  "error_log_files": len(error_files),
+                  "total_error_events": error_count,
+                  "recommendation": (
+                      "Review error logs for patterns" if error_count > 0
+                      else "No errors detected in recent runs"
+                  ),
+              },
+          )
+          print(f"Error analysis: {error_count} error events across {len(error_files)} files")
+          EOF
+
+      - name: Upload generated reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: etl-reports-${{ github.run_number }}
+          path: |
+            output/reports/
+            output/logs/
+          retention-days: 90
+
+      - name: Print report summary
+        if: always()
+        run: |
+          echo "=== Generated Reports ==="
+          ls -la output/reports/ || echo "(no reports)"
+          echo ""
+          echo "=== Log Files ==="
+          ls -la output/logs/ || echo "(no logs)"
+
+  # ============================================================================
+  # AI feedback preparation — package reports for model ingestion
+  # ============================================================================
+  ai-feedback-package:
+    name: Package Reports for AI Ingestion
+    runs-on: ubuntu-latest
+    needs: generate-reports
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[test]" --no-deps
+
+      - name: Download generated reports
+        uses: actions/download-artifact@v4
+        with:
+          name: etl-reports-${{ github.run_number }}
+          path: output/
+        continue-on-error: true
+
+      - name: Build AI-ready feedback bundle
+        run: |
+          python3 - <<'EOF'
+          """
+          Aggregate all JSON reports into a single consolidated bundle
+          suitable for feeding into an AI model for analysis and improvement
+          suggestions.
+          """
+          import json, datetime
+          from pathlib import Path
+
+          reports_dir = Path("output/reports")
+          bundle = {
+              "bundle_type": "arbfinder_ai_feedback",
+              "generated_at": datetime.datetime.utcnow().isoformat() + "Z",
+              "source_repo": "cbwinslow/arbfinder-suite",
+              "reports": [],
+          }
+
+          for report_file in sorted(reports_dir.glob("*.json")):
+              try:
+                  data = json.loads(report_file.read_text())
+                  bundle["reports"].append({
+                      "filename": report_file.name,
+                      "content": data,
+                  })
+              except Exception as e:
+                  bundle["reports"].append({
+                      "filename": report_file.name,
+                      "error": str(e),
+                  })
+
+          out_path = Path("output") / "ai_feedback_bundle.json"
+          out_path.write_text(json.dumps(bundle, indent=2, ensure_ascii=False))
+          print(f"Bundle written: {out_path}")
+          print(f"Reports included: {len(bundle['reports'])}")
+          EOF
+
+      - name: Upload AI feedback bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-feedback-bundle-${{ github.run_number }}
+          path: output/ai_feedback_bundle.json
+          retention-days: 90
