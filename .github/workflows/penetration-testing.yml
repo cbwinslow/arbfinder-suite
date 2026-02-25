@@ -27,10 +27,10 @@ jobs:
     name: OWASP ZAP Security Scan
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - name: ZAP Baseline Scan
-        uses: zaproxy/action-baseline@v0.11.0
+        uses: zaproxy/action-baseline@v0.15.0
         with:
           target: 'http://localhost:8080'
           rules_file_name: '.zap/rules.tsv'
@@ -38,7 +38,7 @@ jobs:
         continue-on-error: true
       
       - name: Upload ZAP results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: zap-scan-results
           path: |
@@ -54,10 +54,10 @@ jobs:
     name: API Security Testing
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
       
@@ -151,7 +151,7 @@ jobs:
     name: Dependency Confusion Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - name: Check for package confusion
         run: |
@@ -183,7 +183,7 @@ jobs:
     name: Authentication Testing
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - name: Test authentication endpoints
         run: |
@@ -291,14 +291,14 @@ jobs:
           cat pentest-report.md
       
       - name: Upload report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: penetration-test-report
           path: pentest-report.md
           retention-days: 90
       
       - name: Create security issue if failures
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         if: contains(needs.*.result, 'failure')
         with:
           script: |
