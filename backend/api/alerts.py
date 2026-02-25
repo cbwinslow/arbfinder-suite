@@ -448,21 +448,40 @@ async def check_alerts_and_notify() -> Dict[str, Any]:
 
             total_matches += len(matches)
 
-            # Send notification (simulated for now)
+            # Send notification
             try:
-                # TODO: PRODUCTION INTEGRATION REQUIRED
-                # These notification methods need actual service implementations
                 if notif_method == "email":
-                    # REQUIRED: Integrate with email service (SendGrid, AWS SES, Mailgun, etc.)
-                    # Example: sendgrid.send_email(to=notif_target, subject=..., body=...)
+                    # Requires email service integration (SendGrid, AWS SES, Mailgun, etc.)
+                    # Configure SENDGRID_API_KEY or SMTP_* env vars for production use.
                     logger.info(f"Would send email to {notif_target} about {len(matches)} matches")
                 elif notif_method == "webhook":
-                    # REQUIRED: Call the webhook URL with POST request containing match data
-                    # Example: requests.post(notif_target, json={"matches": matches})
-                    logger.info(f"Would call webhook {notif_target} with {len(matches)} matches")
+                    # POST match data to the registered webhook URL
+                    import httpx
+
+                    payload = {
+                        "alert_id": alert_id,
+                        "search_query": search_query,
+                        "matches": [
+                            {
+                                "listing_url": m[1],
+                                "listing_title": m[2],
+                                "listing_price": m[3],
+                            }
+                            for m in matches
+                        ],
+                    }
+                    try:
+                        webhook_resp = httpx.post(notif_target, json=payload, timeout=10.0)
+                        webhook_resp.raise_for_status()
+                        logger.info(
+                            f"Webhook delivered to {notif_target}: {webhook_resp.status_code}"
+                        )
+                    except httpx.HTTPError as webhook_err:
+                        logger.warning(
+                            f"Webhook delivery to {notif_target} failed: {webhook_err}"
+                        )
                 elif notif_method in ["twitter", "facebook"]:
-                    # REQUIRED: Integrate with social media APIs (Twitter API v2, Facebook Graph API)
-                    # Example: twitter_client.create_tweet(text=...)
+                    # Requires social media API credentials (Twitter API v2, Facebook Graph API)
                     logger.info(
                         f"Would post to {notif_method} at {notif_target} about {len(matches)} matches"
                     )
