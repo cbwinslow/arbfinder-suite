@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+- chore: auto-format code with AI assistance (569c9b7)
+- feat: replace placeholder API code with real DB-backed implementations (2854a49)
+- Initial plan (d783fb0)
+- docs: update changelog [skip ci] (c4fe342)
 - Address code review: improve SSH host key verification, .env warning, and regex precision (9ca503c)
 - Add comprehensive tests, fix bugs, add deployment scripts, and create bug report (2c2f1c9)
 - Initial plan (5a18ccc)
