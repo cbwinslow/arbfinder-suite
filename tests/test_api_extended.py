@@ -40,10 +40,46 @@ def test_db_path():
     c.executemany(
         "INSERT INTO listings (source, url, title, price, currency, condition, ts, meta_json) VALUES (?,?,?,?,?,?,?,?)",
         [
-            ("ebay", "http://ebay.com/1", "RTX 3060 Graphics Card", 250.0, "USD", "sold", now, "{}"),
-            ("shopgoodwill", "http://sg.com/1", "RTX 3060 GPU", 180.0, "USD", "live", now - 100, "{}"),
-            ("govdeals", "http://gd.com/1", "iPad Pro 12.9 Inch", 300.0, "USD", "live", now - 200, "{}"),
-            ("govdeals", "http://gd.com/2", "MacBook Pro M1", 700.0, "USD", "live", now - 300, "{}"),
+            (
+                "ebay",
+                "http://ebay.com/1",
+                "RTX 3060 Graphics Card",
+                250.0,
+                "USD",
+                "sold",
+                now,
+                "{}",
+            ),
+            (
+                "shopgoodwill",
+                "http://sg.com/1",
+                "RTX 3060 GPU",
+                180.0,
+                "USD",
+                "live",
+                now - 100,
+                "{}",
+            ),
+            (
+                "govdeals",
+                "http://gd.com/1",
+                "iPad Pro 12.9 Inch",
+                300.0,
+                "USD",
+                "live",
+                now - 200,
+                "{}",
+            ),
+            (
+                "govdeals",
+                "http://gd.com/2",
+                "MacBook Pro M1",
+                700.0,
+                "USD",
+                "live",
+                now - 300,
+                "{}",
+            ),
         ],
     )
     c.executemany(
@@ -70,7 +106,6 @@ def client(test_db_path):
 
     with patch.object(api_main, "DB_PATH", test_db_path):
         yield TestClient(app)
-
 
 
 class TestRootEndpoint:

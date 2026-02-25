@@ -6,6 +6,7 @@ import csv
 import json
 import os
 import sqlite3
+import sys
 import tempfile
 import time
 from pathlib import Path
@@ -14,7 +15,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-import sys
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from backend.arb_finder import (
@@ -110,18 +110,14 @@ class TestDbInit:
 
     def test_creates_listings_table(self, temp_db):
         conn = sqlite3.connect(temp_db)
-        tables = conn.execute(
-            "SELECT name FROM sqlite_master WHERE type='table'"
-        ).fetchall()
+        tables = conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
         conn.close()
         table_names = [t[0] for t in tables]
         assert "listings" in table_names
 
     def test_creates_comps_table(self, temp_db):
         conn = sqlite3.connect(temp_db)
-        tables = conn.execute(
-            "SELECT name FROM sqlite_master WHERE type='table'"
-        ).fetchall()
+        tables = conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
         conn.close()
         table_names = [t[0] for t in tables]
         assert "comps" in table_names
@@ -130,9 +126,7 @@ class TestDbInit:
         """Should not raise if tables already exist."""
         db_init(temp_db)  # Second init should not fail
         conn = sqlite3.connect(temp_db)
-        count = conn.execute(
-            "SELECT COUNT(*) FROM sqlite_master WHERE type='table'"
-        ).fetchone()[0]
+        count = conn.execute("SELECT COUNT(*) FROM sqlite_master WHERE type='table'").fetchone()[0]
         conn.close()
         assert count >= 2
 
@@ -145,8 +139,9 @@ class TestDbUpsertListing:
         db_upsert_listing(temp_db, listing)
 
         conn = sqlite3.connect(temp_db)
-        row = conn.execute("SELECT title, price FROM listings WHERE url=?",
-                           ("http://ebay.com/1",)).fetchone()
+        row = conn.execute(
+            "SELECT title, price FROM listings WHERE url=?", ("http://ebay.com/1",)
+        ).fetchone()
         conn.close()
         assert row is not None
         assert row[0] == "RTX 3060"
@@ -193,8 +188,7 @@ class TestDbUpsertComp:
 
         conn = sqlite3.connect(temp_db)
         row = conn.execute(
-            "SELECT avg_price, median_price, count FROM comps WHERE key_title=?",
-            ("rtx 3060",)
+            "SELECT avg_price, median_price, count FROM comps WHERE key_title=?", ("rtx 3060",)
         ).fetchone()
         conn.close()
         assert row is not None
@@ -431,25 +425,29 @@ class TestManualImport:
     async def test_manual_import_csv(self):
         client = MagicMock()
 
-        with tempfile.NamedTemporaryFile(
-            delete=False, suffix=".csv", mode="w", newline=""
-        ) as f:
-            writer = csv.DictWriter(f, fieldnames=["title", "price", "url", "currency", "condition"])
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".csv", mode="w", newline="") as f:
+            writer = csv.DictWriter(
+                f, fieldnames=["title", "price", "url", "currency", "condition"]
+            )
             writer.writeheader()
-            writer.writerow({
-                "title": "RTX 3060",
-                "price": "250.00",
-                "url": "http://example.com/1",
-                "currency": "USD",
-                "condition": "used",
-            })
-            writer.writerow({
-                "title": "iPad Pro",
-                "price": "400.00",
-                "url": "http://example.com/2",
-                "currency": "USD",
-                "condition": "good",
-            })
+            writer.writerow(
+                {
+                    "title": "RTX 3060",
+                    "price": "250.00",
+                    "url": "http://example.com/1",
+                    "currency": "USD",
+                    "condition": "used",
+                }
+            )
+            writer.writerow(
+                {
+                    "title": "iPad Pro",
+                    "price": "400.00",
+                    "url": "http://example.com/2",
+                    "currency": "USD",
+                    "condition": "good",
+                }
+            )
             csv_path = f.name
 
         try:
@@ -471,9 +469,7 @@ class TestManualImport:
             {"title": "iPad Pro", "price": 400.0, "url": "http://example.com/2"},
         ]
 
-        with tempfile.NamedTemporaryFile(
-            delete=False, suffix=".json", mode="w"
-        ) as f:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".json", mode="w") as f:
             json.dump(data, f)
             json_path = f.name
 
@@ -489,12 +485,12 @@ class TestManualImport:
     @pytest.mark.asyncio
     async def test_manual_import_respects_limit(self):
         client = MagicMock()
-        data = [{"title": f"Item {i}", "price": float(i * 10), "url": f"http://e.com/{i}"}
-                for i in range(10)]
+        data = [
+            {"title": f"Item {i}", "price": float(i * 10), "url": f"http://e.com/{i}"}
+            for i in range(10)
+        ]
 
-        with tempfile.NamedTemporaryFile(
-            delete=False, suffix=".json", mode="w"
-        ) as f:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".json", mode="w") as f:
             json.dump(data, f)
             json_path = f.name
 
@@ -510,9 +506,7 @@ class TestManualImport:
     async def test_manual_import_csv_invalid_price(self):
         client = MagicMock()
 
-        with tempfile.NamedTemporaryFile(
-            delete=False, suffix=".csv", mode="w", newline=""
-        ) as f:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".csv", mode="w", newline="") as f:
             writer = csv.DictWriter(f, fieldnames=["title", "price", "url"])
             writer.writeheader()
             writer.writerow({"title": "Item", "price": "not_a_price", "url": "http://e.com/1"})
@@ -562,12 +556,14 @@ class TestBuildParser:
 
     def test_build_parser_returns_parser(self):
         from backend.arb_finder import build_parser
+
         parser = build_parser()
         assert parser is not None
         assert parser.prog == "ArbFinder"
 
     def test_parser_default_args(self):
         from backend.arb_finder import build_parser
+
         parser = build_parser()
         args = parser.parse_args(["test query"])
         assert args.query == "test query"
@@ -578,16 +574,25 @@ class TestBuildParser:
 
     def test_parser_custom_args(self):
         from backend.arb_finder import build_parser
+
         parser = build_parser()
-        args = parser.parse_args([
-            "RTX 3060",
-            "--live-limit", "50",
-            "--comp-limit", "100",
-            "--sim-threshold", "90",
-            "--threshold-pct", "30.0",
-            "--csv", "output.csv",
-            "--json", "output.json",
-        ])
+        args = parser.parse_args(
+            [
+                "RTX 3060",
+                "--live-limit",
+                "50",
+                "--comp-limit",
+                "100",
+                "--sim-threshold",
+                "90",
+                "--threshold-pct",
+                "30.0",
+                "--csv",
+                "output.csv",
+                "--json",
+                "output.json",
+            ]
+        )
         assert args.query == "RTX 3060"
         assert args.live_limit == 50
         assert args.comp_limit == 100

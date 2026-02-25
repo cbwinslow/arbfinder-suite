@@ -44,10 +44,20 @@ class TestFindNewDeals:
     def test_find_new_deals_above_threshold(self):
         wm = WatchMode(notify_threshold=20.0)
         results = [
-            {"url": "http://example.com/1", "title": "RTX 3060", "price": 100.0,
-             "discount_vs_avg_pct": 30.0, "source": "test"},
-            {"url": "http://example.com/2", "title": "iPad Pro", "price": 200.0,
-             "discount_vs_avg_pct": 15.0, "source": "test"},
+            {
+                "url": "http://example.com/1",
+                "title": "RTX 3060",
+                "price": 100.0,
+                "discount_vs_avg_pct": 30.0,
+                "source": "test",
+            },
+            {
+                "url": "http://example.com/2",
+                "title": "iPad Pro",
+                "price": 200.0,
+                "discount_vs_avg_pct": 15.0,
+                "source": "test",
+            },
         ]
         new_deals = wm._find_new_deals(results)
         assert len(new_deals) == 1
@@ -55,8 +65,13 @@ class TestFindNewDeals:
 
     def test_find_new_deals_no_duplicates(self):
         wm = WatchMode(notify_threshold=20.0)
-        deal = {"url": "http://example.com/1", "title": "RTX 3060", "price": 100.0,
-                "discount_vs_avg_pct": 30.0, "source": "test"}
+        deal = {
+            "url": "http://example.com/1",
+            "title": "RTX 3060",
+            "price": 100.0,
+            "discount_vs_avg_pct": 30.0,
+            "source": "test",
+        }
         wm.best_deals.append(deal)
 
         new_deals = wm._find_new_deals([deal])
@@ -65,8 +80,13 @@ class TestFindNewDeals:
     def test_find_new_deals_adds_to_best_deals(self):
         wm = WatchMode(notify_threshold=20.0)
         results = [
-            {"url": "http://example.com/1", "title": "RTX 3060", "price": 100.0,
-             "discount_vs_avg_pct": 30.0, "source": "test"},
+            {
+                "url": "http://example.com/1",
+                "title": "RTX 3060",
+                "price": 100.0,
+                "discount_vs_avg_pct": 30.0,
+                "source": "test",
+            },
         ]
         wm._find_new_deals(results)
         assert len(wm.best_deals) == 1
@@ -79,8 +99,13 @@ class TestFindNewDeals:
     def test_find_new_deals_none_discount(self):
         wm = WatchMode(notify_threshold=20.0)
         results = [
-            {"url": "http://example.com/1", "title": "Item", "price": 100.0,
-             "discount_vs_avg_pct": None, "source": "test"},
+            {
+                "url": "http://example.com/1",
+                "title": "Item",
+                "price": 100.0,
+                "discount_vs_avg_pct": None,
+                "source": "test",
+            },
         ]
         new_deals = wm._find_new_deals(results)
         assert len(new_deals) == 0
@@ -96,8 +121,13 @@ class TestFindNewDeals:
     def test_find_new_deals_exactly_at_threshold(self):
         wm = WatchMode(notify_threshold=20.0)
         results = [
-            {"url": "http://example.com/1", "title": "Item", "price": 100.0,
-             "discount_vs_avg_pct": 20.0, "source": "test"},
+            {
+                "url": "http://example.com/1",
+                "title": "Item",
+                "price": 100.0,
+                "discount_vs_avg_pct": 20.0,
+                "source": "test",
+            },
         ]
         new_deals = wm._find_new_deals(results)
         assert len(new_deals) == 1
@@ -166,8 +196,13 @@ class TestWatchModeRun:
 
         async def mock_search():
             return [
-                {"url": "http://example.com/1", "title": "Deal Item", "price": 100.0,
-                 "discount_vs_avg_pct": 35.0, "source": "test"}
+                {
+                    "url": "http://example.com/1",
+                    "title": "Deal Item",
+                    "price": 100.0,
+                    "discount_vs_avg_pct": 35.0,
+                    "source": "test",
+                }
             ]
 
         result = await wm.run(mock_search)
@@ -192,8 +227,13 @@ class TestWatchModeRun:
 
         async def mock_search():
             return [
-                {"url": "http://example.com/1", "title": "Item", "price": 100.0,
-                 "discount_vs_avg_pct": 10.0, "source": "test"}
+                {
+                    "url": "http://example.com/1",
+                    "title": "Item",
+                    "price": 100.0,
+                    "discount_vs_avg_pct": 10.0,
+                    "source": "test",
+                }
             ]
 
         result = await wm.run(mock_search)
@@ -208,8 +248,13 @@ class TestWatchModeRun:
             nonlocal iteration
             iteration += 1
             return [
-                {"url": f"http://example.com/{iteration}", "title": f"Deal {iteration}",
-                 "price": 100.0, "discount_vs_avg_pct": 35.0, "source": "test"}
+                {
+                    "url": f"http://example.com/{iteration}",
+                    "title": f"Deal {iteration}",
+                    "price": 100.0,
+                    "discount_vs_avg_pct": 35.0,
+                    "source": "test",
+                }
             ]
 
         result = await wm.run(mock_search)

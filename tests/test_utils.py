@@ -5,15 +5,15 @@ from __future__ import annotations
 import json
 import os
 import sqlite3
+
+# Ensure backend is on the path
+import sys
 import tempfile
 import time
 from pathlib import Path
 from unittest.mock import patch
 
 import pytest
-
-# Ensure backend is on the path
-import sys
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
