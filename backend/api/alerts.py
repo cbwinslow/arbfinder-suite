@@ -477,9 +477,7 @@ async def check_alerts_and_notify() -> Dict[str, Any]:
                             f"Webhook delivered to {notif_target}: {webhook_resp.status_code}"
                         )
                     except httpx.HTTPError as webhook_err:
-                        logger.warning(
-                            f"Webhook delivery to {notif_target} failed: {webhook_err}"
-                        )
+                        logger.warning(f"Webhook delivery to {notif_target} failed: {webhook_err}")
                 elif notif_method in ["twitter", "facebook"]:
                     # Requires social media API credentials (Twitter API v2, Facebook Graph API)
                     logger.info(

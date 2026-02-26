@@ -172,10 +172,10 @@ def test_db_path():
 @pytest.fixture(scope="module")
 def client(test_db_path):
     """Create test client with all API modules patched to use test DB."""
-    import backend.api.main as api_main
     import backend.api.agents as api_agents
     import backend.api.crawler as api_crawler
     import backend.api.live_updates as api_live
+    import backend.api.main as api_main
     from backend.api.main import app
 
     with (

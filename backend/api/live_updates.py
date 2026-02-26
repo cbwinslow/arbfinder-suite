@@ -35,9 +35,7 @@ class LiveUpdatesResponse(BaseModel):
 
 
 @router.get("/live-updates", response_model=LiveUpdatesResponse)
-async def get_live_updates(
-    limit: int = Query(50, ge=1, le=200), type_filter: Optional[str] = None
-):
+async def get_live_updates(limit: int = Query(50, ge=1, le=200), type_filter: Optional[str] = None):
     """Get live activity updates sourced from DB tables (crawl_results, crew_runs, agent_jobs)"""
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
@@ -88,9 +86,7 @@ async def get_live_updates(
             else:
                 msg = f"Crew '{crew}' queued"
                 upd_type = "agent"
-            updates.append(
-                {"id": f"crew-{rid}", "timestamp": ts, "type": upd_type, "message": msg}
-            )
+            updates.append({"id": f"crew-{rid}", "timestamp": ts, "type": upd_type, "message": msg})
     except sqlite3.OperationalError:
         pass  # Table not yet created
 
@@ -112,9 +108,7 @@ async def get_live_updates(
             else:
                 msg = f"Agent '{agent}' is {status}"
                 upd_type = "agent"
-            updates.append(
-                {"id": f"job-{rid}", "timestamp": ts, "type": upd_type, "message": msg}
-            )
+            updates.append({"id": f"job-{rid}", "timestamp": ts, "type": upd_type, "message": msg})
     except sqlite3.OperationalError:
         pass  # Table not yet created
 
