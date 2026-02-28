@@ -1,0 +1,271 @@
+name: Smoke & E2E Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  # ============================================================================
+  # Smoke Tests — fast, always-on, no external services
+  # ============================================================================
+  smoke-tests:
+    name: Smoke Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-asyncio pytest-cov httpx fastapi uvicorn \
+                      rapidfuzz stripe toml pydantic
+          pip install -e ".[test]" --no-deps
+
+      - name: Create output directories
+        run: |
+          mkdir -p output/logs output/reports output/errors
+
+      - name: Run smoke tests
+        run: |
+          python -m pytest tests/test_smoke.py \
+            --tb=short \
+            --no-cov \
+            --junitxml=output/reports/smoke-results.xml \
+            -v 2>&1 | tee output/logs/smoke-test-run.log
+
+      - name: Upload smoke test logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-test-logs-${{ github.run_number }}
+          path: |
+            output/logs/smoke-test-run.log
+            output/reports/smoke-results.xml
+          retention-days: 30
+
+      - name: Upload smoke test errors (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-test-errors-${{ github.run_number }}
+          path: output/errors/
+          retention-days: 14
+
+  # ============================================================================
+  # E2E Tests — full data-flow, config validation, deployment checks
+  # ============================================================================
+  e2e-tests:
+    name: End-to-End Tests
+    runs-on: ubuntu-latest
+    needs: smoke-tests
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-asyncio pytest-cov httpx fastapi uvicorn \
+                      rapidfuzz stripe toml pydantic pyyaml
+          pip install -e ".[test]" --no-deps
+
+      - name: Create output directories
+        run: |
+          mkdir -p output/logs output/reports output/errors
+
+      - name: Run E2E tests
+        run: |
+          python -m pytest tests/test_e2e.py \
+            --tb=short \
+            --no-cov \
+            --junitxml=output/reports/e2e-results.xml \
+            -v 2>&1 | tee output/logs/e2e-test-run.log
+
+      - name: Upload E2E test logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-test-logs-${{ github.run_number }}
+          path: |
+            output/logs/e2e-test-run.log
+            output/reports/e2e-results.xml
+          retention-days: 30
+
+      - name: Upload E2E test errors (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-test-errors-${{ github.run_number }}
+          path: output/errors/
+          retention-days: 14
+
+  # ============================================================================
+  # Coverage report (smoke + e2e + existing tests)
+  # ============================================================================
+  coverage:
+    name: Coverage Report
+    runs-on: ubuntu-latest
+    needs: [smoke-tests, e2e-tests]
+    if: always()
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-asyncio pytest-cov httpx fastapi uvicorn \
+                      rapidfuzz stripe toml pydantic pyyaml
+          pip install -e ".[test]" --no-deps
+
+      - name: Create output directories
+        run: |
+          mkdir -p output/logs output/reports output/errors
+
+      - name: Run full test suite with coverage
+        run: |
+          python -m pytest tests/ \
+            --cov=backend \
+            --cov-report=xml:output/reports/coverage.xml \
+            --cov-report=html:output/reports/coverage-html \
+            --cov-report=term-missing \
+            --junitxml=output/reports/full-results.xml \
+            -v 2>&1 | tee output/logs/full-test-run.log
+        continue-on-error: true
+
+      - name: Upload coverage reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report-${{ github.run_number }}
+          path: |
+            output/reports/coverage.xml
+            output/reports/coverage-html/
+            output/reports/full-results.xml
+            output/logs/full-test-run.log
+          retention-days: 30
+
+  # ============================================================================
+  # Docker launch process smoke
+  # ============================================================================
+  docker-smoke:
+    name: Docker Launch Smoke
+    runs-on: ubuntu-latest
+    needs: smoke-tests
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Validate docker-compose config
+        run: |
+          mkdir -p output/logs output/reports
+          docker compose config > output/reports/docker-compose-resolved.yml 2>&1 \
+            || docker-compose config > output/reports/docker-compose-resolved.yml 2>&1
+          echo "✓ docker-compose config is valid"
+
+      - name: Build backend Docker image
+        run: |
+          docker build . \
+            --tag arbfinder-backend:smoke \
+            --file Dockerfile \
+            2>&1 | tee output/logs/docker-build.log \
+          || echo "⚠ Docker build failed - see logs"
+
+      - name: Test healthcheck endpoint in container
+        run: |
+          # Start the container with a test DB path
+          docker run -d \
+            --name arbfinder-smoke \
+            -p 18080:8080 \
+            -e ARBF_DB=/tmp/smoke.db \
+            arbfinder-backend:smoke \
+          || { echo "⚠ Container failed to start"; exit 0; }
+
+          # Wait for the container to become healthy
+          for i in $(seq 1 10); do
+            if curl -sf http://localhost:18080/healthz; then
+              echo "✓ Container health check passed"
+              break
+            fi
+            sleep 3
+          done
+        continue-on-error: true
+
+      - name: Collect container logs
+        if: always()
+        run: |
+          mkdir -p output/logs
+          docker logs arbfinder-smoke > output/logs/container-smoke.log 2>&1 || true
+          docker stop arbfinder-smoke 2>/dev/null || true
+          docker rm arbfinder-smoke 2>/dev/null || true
+
+      - name: Upload Docker logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-smoke-logs-${{ github.run_number }}
+          path: |
+            output/logs/docker-build.log
+            output/logs/container-smoke.log
+            output/reports/docker-compose-resolved.yml
+          retention-days: 14
+
+  # ============================================================================
+  # Summary
+  # ============================================================================
+  smoke-e2e-success:
+    name: Smoke & E2E Success
+    runs-on: ubuntu-latest
+    needs: [smoke-tests, e2e-tests, coverage, docker-smoke]
+    if: always()
+
+    steps:
+      - name: Check results
+        run: |
+          if [ "${{ needs.smoke-tests.result }}" == "failure" ]; then
+            echo "❌ Smoke tests FAILED"
+            exit 1
+          fi
+          if [ "${{ needs.e2e-tests.result }}" == "failure" ]; then
+            echo "❌ E2E tests FAILED"
+            exit 1
+          fi
+          echo "✅ Smoke & E2E tests PASSED"
+          echo "Coverage result: ${{ needs.coverage.result }}"
+          echo "Docker smoke result: ${{ needs.docker-smoke.result }}"

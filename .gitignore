@@ -79,6 +79,13 @@ htmlcov/
 coverage/
 .nyc_output/
 
+# Output directory – keep directory structure, ignore generated content
+output/logs/*.jsonl
+output/logs/*.log
+output/reports/*.json
+output/errors/*.jsonl
+output/errors/*.json
+
 # AI Generated Files
 *-report.json
 *-report.md
