@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+- chore: auto-format code with AI assistance (49bb51a)
+- Add issue creation script and workflow for tracking test/logging/ETL initiative (5a20063)
+- Add smoke tests, E2E tests, logging/ETL module, output dirs, and CI workflows (e102c6e)
+- Initial plan (25a2def)
+- docs: update changelog [skip ci] (21f2a6f)
 - chore: auto-format code with AI assistance (569c9b7)
 - feat: replace placeholder API code with real DB-backed implementations (2854a49)
 - Initial plan (d783fb0)
