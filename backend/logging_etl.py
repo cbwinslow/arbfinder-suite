@@ -40,16 +40,15 @@ import datetime
 import json
 import logging
 import logging.handlers
-import os
 import sys
 import traceback
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence
 
-
 # ---------------------------------------------------------------------------
 # Standard logging helper
 # ---------------------------------------------------------------------------
+
 
 class _JSONFormatter(logging.Formatter):
     """Emit each log record as a single JSON line."""
@@ -132,6 +131,7 @@ def get_logger(
 # ---------------------------------------------------------------------------
 # ArbLogger — structured JSONL event logger
 # ---------------------------------------------------------------------------
+
 
 class ArbLogger:
     """Write structured events to newline-delimited JSON log files.
@@ -220,6 +220,7 @@ class ArbLogger:
 # ReportWriter — structured JSON report files
 # ---------------------------------------------------------------------------
 
+
 class ReportWriter:
     """Write versioned JSON reports to a directory.
 
@@ -263,7 +264,9 @@ class ReportWriter:
             "data": data,
         }
         try:
-            out_path.write_text(json.dumps(envelope, indent=2, ensure_ascii=False), encoding="utf-8")
+            out_path.write_text(
+                json.dumps(envelope, indent=2, ensure_ascii=False), encoding="utf-8"
+            )
         except OSError as exc:
             print(f"[ReportWriter] Failed to write report '{report_name}': {exc}", file=sys.stderr)
         return out_path
@@ -272,6 +275,7 @@ class ReportWriter:
 # ---------------------------------------------------------------------------
 # ETLPipeline — Extract / Transform / Load
 # ---------------------------------------------------------------------------
+
 
 class ETLPipeline:
     """Lightweight ETL pipeline for ArbFinder listing/comp records.

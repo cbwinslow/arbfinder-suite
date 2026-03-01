@@ -20,10 +20,10 @@ from unittest.mock import MagicMock, patch
 import pytest
 from fastapi.testclient import TestClient
 
-
 # ---------------------------------------------------------------------------
 # Shared helpers
 # ---------------------------------------------------------------------------
+
 
 def _make_temp_db() -> str:
     """Create a minimal in-memory SQLite database and return its path."""
@@ -31,19 +31,15 @@ def _make_temp_db() -> str:
         db_path = f.name
     conn = sqlite3.connect(db_path)
     c = conn.cursor()
-    c.execute(
-        """CREATE TABLE IF NOT EXISTS listings (
+    c.execute("""CREATE TABLE IF NOT EXISTS listings (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             source TEXT, url TEXT UNIQUE, title TEXT, price REAL,
             currency TEXT, condition TEXT, ts REAL, meta_json TEXT
-        )"""
-    )
-    c.execute(
-        """CREATE TABLE IF NOT EXISTS comps (
+        )""")
+    c.execute("""CREATE TABLE IF NOT EXISTS comps (
             key_title TEXT PRIMARY KEY, avg_price REAL, median_price REAL,
             count INTEGER, ts REAL
-        )"""
-    )
+        )""")
     conn.commit()
     conn.close()
     return db_path
@@ -71,6 +67,7 @@ def smoke_client(smoke_db):
 # ---------------------------------------------------------------------------
 # 1. Import smoke tests
 # ---------------------------------------------------------------------------
+
 
 class TestImports:
     """Verify that all backend modules can be imported without error."""
@@ -113,15 +110,18 @@ class TestImports:
 # 2. API startup smoke tests
 # ---------------------------------------------------------------------------
 
+
 class TestAPIStartup:
     """Verify the FastAPI application starts and responds to core probes."""
 
     def test_app_object_exists(self):
         from backend.api.main import app
+
         assert app is not None
 
     def test_app_has_routes(self):
         from backend.api.main import app
+
         routes = [r.path for r in app.routes]
         assert "/" in routes
         assert "/healthz" in routes
@@ -159,19 +159,18 @@ class TestAPIStartup:
 # 3. Database initialisation smoke tests
 # ---------------------------------------------------------------------------
 
+
 class TestDatabaseInit:
     """Verify the database tables can be created and queried."""
 
     def test_db_creates_listings_table(self, tmp_path):
         db_path = str(tmp_path / "smoke.db")
         conn = sqlite3.connect(db_path)
-        conn.execute(
-            """CREATE TABLE listings (
+        conn.execute("""CREATE TABLE listings (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 source TEXT, url TEXT UNIQUE, title TEXT, price REAL,
                 currency TEXT, condition TEXT, ts REAL, meta_json TEXT
-            )"""
-        )
+            )""")
         conn.commit()
         tables = [r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")]
         assert "listings" in tables
@@ -180,12 +179,10 @@ class TestDatabaseInit:
     def test_db_creates_comps_table(self, tmp_path):
         db_path = str(tmp_path / "smoke.db")
         conn = sqlite3.connect(db_path)
-        conn.execute(
-            """CREATE TABLE comps (
+        conn.execute("""CREATE TABLE comps (
                 key_title TEXT PRIMARY KEY, avg_price REAL, median_price REAL,
                 count INTEGER, ts REAL
-            )"""
-        )
+            )""")
         conn.commit()
         tables = [r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")]
         assert "comps" in tables
@@ -200,7 +197,9 @@ class TestDatabaseInit:
             ("smoke_source", "http://smoke.test/1", "Smoke Item", 9.99, "USD", "live", now, "{}"),
         )
         conn.commit()
-        row = conn.execute("SELECT title FROM listings WHERE url=?", ("http://smoke.test/1",)).fetchone()
+        row = conn.execute(
+            "SELECT title FROM listings WHERE url=?", ("http://smoke.test/1",)
+        ).fetchone()
         assert row is not None
         assert row[0] == "Smoke Item"
         conn.close()
@@ -210,11 +209,13 @@ class TestDatabaseInit:
 # 4. Configuration smoke tests
 # ---------------------------------------------------------------------------
 
+
 class TestConfiguration:
     """Verify configuration loading doesn't crash under minimal env."""
 
     def test_config_module_loadable(self):
         import backend.config as cfg  # noqa: F401
+
         assert cfg is not None
 
     def test_env_var_db_path_respected(self, tmp_path):
@@ -236,6 +237,7 @@ class TestConfiguration:
 # ---------------------------------------------------------------------------
 # 5. Docker config smoke tests (no daemon needed)
 # ---------------------------------------------------------------------------
+
 
 class TestDockerConfig:
     """Validate Dockerfile and docker-compose.yml are present and well-formed."""
@@ -269,6 +271,7 @@ class TestDockerConfig:
 # 6. Cloudflare config smoke tests
 # ---------------------------------------------------------------------------
 
+
 class TestCloudflareConfig:
     """Validate Cloudflare worker configuration files are present and valid."""
 
@@ -278,6 +281,7 @@ class TestCloudflareConfig:
 
     def test_wrangler_toml_has_worker_name(self):
         import toml
+
         config = toml.loads(
             (Path(__file__).parent.parent / "cloudflare" / "wrangler.toml").read_text()
         )
@@ -285,6 +289,7 @@ class TestCloudflareConfig:
 
     def test_wrangler_toml_has_main_entry(self):
         import toml
+
         config = toml.loads(
             (Path(__file__).parent.parent / "cloudflare" / "wrangler.toml").read_text()
         )
@@ -292,6 +297,7 @@ class TestCloudflareConfig:
 
     def test_wrangler_toml_has_d1_binding(self):
         import toml
+
         config = toml.loads(
             (Path(__file__).parent.parent / "cloudflare" / "wrangler.toml").read_text()
         )
@@ -306,21 +312,25 @@ class TestCloudflareConfig:
 # 7. Logging / ETL smoke tests
 # ---------------------------------------------------------------------------
 
+
 class TestLoggingETL:
     """Verify the logging/ETL module initialises correctly."""
 
     def test_get_logger_returns_logger(self):
         from backend.logging_etl import get_logger
+
         logger = get_logger("smoke_test")
         assert logger is not None
 
     def test_log_event_does_not_raise(self, tmp_path):
         from backend.logging_etl import ArbLogger
+
         logger = ArbLogger(log_dir=str(tmp_path))
         logger.log_event("smoke", {"key": "value"})
 
     def test_write_report_creates_file(self, tmp_path):
         from backend.logging_etl import ReportWriter
+
         writer = ReportWriter(report_dir=str(tmp_path))
         writer.write_report("smoke_report", {"status": "ok", "count": 1})
         files = list(tmp_path.iterdir())
@@ -328,6 +338,7 @@ class TestLoggingETL:
 
     def test_etl_pipeline_runs(self, tmp_path):
         from backend.logging_etl import ETLPipeline
+
         pipeline = ETLPipeline(output_dir=str(tmp_path))
         result = pipeline.run(
             records=[{"source": "smoke", "price": 9.99, "title": "Smoke Item"}],

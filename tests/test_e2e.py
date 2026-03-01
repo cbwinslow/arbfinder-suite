@@ -26,38 +26,70 @@ from unittest.mock import patch
 import pytest
 from fastapi.testclient import TestClient
 
-
 # ---------------------------------------------------------------------------
 # Helpers / fixtures
 # ---------------------------------------------------------------------------
+
 
 def _populate_db(db_path: str) -> None:
     """Insert a realistic set of sample records into *db_path*."""
     conn = sqlite3.connect(db_path)
     c = conn.cursor()
-    c.execute(
-        """CREATE TABLE IF NOT EXISTS listings (
+    c.execute("""CREATE TABLE IF NOT EXISTS listings (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             source TEXT, url TEXT UNIQUE, title TEXT, price REAL,
             currency TEXT, condition TEXT, ts REAL, meta_json TEXT
-        )"""
-    )
-    c.execute(
-        """CREATE TABLE IF NOT EXISTS comps (
+        )""")
+    c.execute("""CREATE TABLE IF NOT EXISTS comps (
             key_title TEXT PRIMARY KEY, avg_price REAL, median_price REAL,
             count INTEGER, ts REAL
-        )"""
-    )
+        )""")
     now = time.time()
     c.executemany(
         "INSERT OR IGNORE INTO listings (source,url,title,price,currency,condition,ts,meta_json)"
         " VALUES (?,?,?,?,?,?,?,?)",
         [
             ("ebay", "https://ebay.com/e2e/1", "RTX 4090 GPU", 1200.0, "USD", "live", now, "{}"),
-            ("govdeals", "https://govdeals.com/e2e/2", "iPad Pro M2 12.9", 650.0, "USD", "live", now - 60, "{}"),
-            ("shopgoodwill", "https://shopgoodwill.com/e2e/3", "MacBook Air M1", 450.0, "USD", "sold", now - 120, "{}"),
-            ("ebay", "https://ebay.com/e2e/4", "PlayStation 5 Console", 380.0, "USD", "live", now - 180, "{}"),
-            ("govdeals", "https://govdeals.com/e2e/5", "iPhone 14 Pro Max", 700.0, "USD", "live", now - 240, "{}"),
+            (
+                "govdeals",
+                "https://govdeals.com/e2e/2",
+                "iPad Pro M2 12.9",
+                650.0,
+                "USD",
+                "live",
+                now - 60,
+                "{}",
+            ),
+            (
+                "shopgoodwill",
+                "https://shopgoodwill.com/e2e/3",
+                "MacBook Air M1",
+                450.0,
+                "USD",
+                "sold",
+                now - 120,
+                "{}",
+            ),
+            (
+                "ebay",
+                "https://ebay.com/e2e/4",
+                "PlayStation 5 Console",
+                380.0,
+                "USD",
+                "live",
+                now - 180,
+                "{}",
+            ),
+            (
+                "govdeals",
+                "https://govdeals.com/e2e/5",
+                "iPhone 14 Pro Max",
+                700.0,
+                "USD",
+                "live",
+                now - 240,
+                "{}",
+            ),
         ],
     )
     c.executemany(
@@ -94,6 +126,7 @@ def e2e_client(e2e_db):
 # ---------------------------------------------------------------------------
 # 1. Full API data-flow E2E
 # ---------------------------------------------------------------------------
+
 
 class TestAPIDataFlow:
     """Full round-trip: seed DB → query API → validate response shape/values."""
@@ -201,6 +234,7 @@ class TestAPIDataFlow:
 # 2. Validation / Error handling E2E
 # ---------------------------------------------------------------------------
 
+
 class TestAPIErrorHandling:
     """Verify that the API responds with correct HTTP status codes for bad input."""
 
@@ -225,7 +259,9 @@ class TestAPIErrorHandling:
         assert resp.status_code == 422
 
     def test_create_listing_missing_price(self, e2e_client):
-        resp = e2e_client.post("/api/listings", json={"title": "Missing Price", "url": "http://x.com/1"})
+        resp = e2e_client.post(
+            "/api/listings", json={"title": "Missing Price", "url": "http://x.com/1"}
+        )
         assert resp.status_code == 422
 
     def test_create_listing_missing_url(self, e2e_client):
@@ -246,6 +282,7 @@ class TestAPIErrorHandling:
 # ---------------------------------------------------------------------------
 # 3. Docker deployment config E2E
 # ---------------------------------------------------------------------------
+
 
 class TestDockerDeployment:
     """Validate Docker deployment configuration files are production-ready."""
@@ -315,6 +352,7 @@ class TestDockerDeployment:
 # 4. Cloudflare deployment config E2E
 # ---------------------------------------------------------------------------
 
+
 class TestCloudflareDeployment:
     """Validate Cloudflare worker configuration is deployment-ready."""
 
@@ -322,6 +360,7 @@ class TestCloudflareDeployment:
 
     def _load_wrangler(self) -> dict:
         import toml
+
         return toml.loads((self.ROOT / "cloudflare" / "wrangler.toml").read_text())
 
     def test_wrangler_compatibility_date_set(self):
@@ -366,6 +405,7 @@ class TestCloudflareDeployment:
 # 5. GitHub Actions workflow config E2E
 # ---------------------------------------------------------------------------
 
+
 class TestGitHubActionsWorkflows:
     """Validate that all critical CI/CD workflows exist and are structurally valid."""
 
@@ -373,11 +413,13 @@ class TestGitHubActionsWorkflows:
 
     def _load_yaml(self, filename: str) -> dict:
         import yaml  # type: ignore[import]
+
         return yaml.safe_load((self.WF_DIR / filename).read_text())
 
     def _yaml_available(self) -> bool:
         try:
             import yaml  # noqa: F401
+
             return True
         except ImportError:
             return False
@@ -392,19 +434,20 @@ class TestGitHubActionsWorkflows:
         assert (self.WF_DIR / "cloudflare-deploy.yml").exists()
 
     def test_smoke_e2e_workflow_exists(self):
-        assert (self.WF_DIR / "smoke-e2e-tests.yml").exists(), (
-            "smoke-e2e-tests.yml workflow missing — add it with artifact collection"
-        )
+        assert (
+            self.WF_DIR / "smoke-e2e-tests.yml"
+        ).exists(), "smoke-e2e-tests.yml workflow missing — add it with artifact collection"
 
     def test_etl_reports_workflow_exists(self):
-        assert (self.WF_DIR / "etl-reports.yml").exists(), (
-            "etl-reports.yml workflow missing — add ETL report generation workflow"
-        )
+        assert (
+            self.WF_DIR / "etl-reports.yml"
+        ).exists(), "etl-reports.yml workflow missing — add ETL report generation workflow"
 
 
 # ---------------------------------------------------------------------------
 # 6. Logging / ETL E2E
 # ---------------------------------------------------------------------------
+
 
 class TestLoggingETLE2E:
     """Full end-to-end exercise of the logging and ETL pipeline."""
@@ -413,8 +456,12 @@ class TestLoggingETLE2E:
         from backend.logging_etl import ArbLogger
 
         logger = ArbLogger(log_dir=str(tmp_path))
-        logger.log_event("api_request", {"endpoint": "/api/listings", "status": 200, "duration_ms": 12})
-        logger.log_event("api_request", {"endpoint": "/api/statistics", "status": 200, "duration_ms": 8})
+        logger.log_event(
+            "api_request", {"endpoint": "/api/listings", "status": 200, "duration_ms": 12}
+        )
+        logger.log_event(
+            "api_request", {"endpoint": "/api/statistics", "status": 200, "duration_ms": 8}
+        )
         logger.flush()
 
         log_files = list(tmp_path.glob("*.jsonl"))
@@ -492,5 +539,7 @@ class TestLoggingETLE2E:
 
         out = tmp_path / "nested" / "output"
         pipeline = ETLPipeline(output_dir=str(out))
-        pipeline.run(records=[{"source": "smoke", "price": 1.0, "title": "x"}], report_name="dir_test")
+        pipeline.run(
+            records=[{"source": "smoke", "price": 1.0, "title": "x"}], report_name="dir_test"
+        )
         assert out.exists()
