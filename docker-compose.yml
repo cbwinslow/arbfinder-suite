@@ -7,7 +7,7 @@ services:
     environment:
       - POSTGRES_DB=arbfinder
       - POSTGRES_USER=arbfinder
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-arbfinder123}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-changeme}
     ports:
       - "5432:5432"
     volumes:
@@ -48,7 +48,7 @@ services:
       - ./prisma:/app/prisma
     environment:
       - DATABASE_PROVIDER=postgresql
-      - DATABASE_URL=postgresql://arbfinder:${POSTGRES_PASSWORD:-arbfinder123}@postgres:5432/arbfinder
+      - DATABASE_URL=postgresql://arbfinder:${POSTGRES_PASSWORD:-changeme}@postgres:5432/arbfinder
       - FRONTEND_ORIGIN=http://localhost:3000
       - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-}
       - MINIO_ENDPOINT=minio:9000

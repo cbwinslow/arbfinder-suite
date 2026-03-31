@@ -114,3 +114,6 @@ minio-data/
 
 # TypeScript build info
 *.tsbuildinfo
+
+.env
+.env.local
