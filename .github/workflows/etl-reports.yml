@@ -30,10 +30,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'
@@ -81,7 +81,7 @@ jobs:
           EOF
 
       - name: Upload raw artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: etl-raw-${{ github.run_number }}
           path: output/etl-workspace/raw/
@@ -97,10 +97,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'
@@ -117,7 +117,7 @@ jobs:
           mkdir -p output/logs output/reports output/errors
 
       - name: Download raw artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: etl-raw-${{ github.run_number }}
           path: output/etl-workspace/raw/
@@ -235,7 +235,7 @@ jobs:
 
       - name: Upload generated reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: etl-reports-${{ github.run_number }}
           path: |
@@ -262,10 +262,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
@@ -275,7 +275,7 @@ jobs:
           pip install -e ".[test]" --no-deps
 
       - name: Download generated reports
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: etl-reports-${{ github.run_number }}
           path: output/
@@ -320,7 +320,7 @@ jobs:
           EOF
 
       - name: Upload AI feedback bundle
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ai-feedback-bundle-${{ github.run_number }}
           path: output/ai_feedback_bundle.json
